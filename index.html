@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="system">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduPortal - Cổng Học Tập Trực Tuyến Trường Đại Học</title>
+  
+  <!-- Font chữ Be Vietnam Pro chuẩn từ Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS StyleSheet -->
+  <link rel="stylesheet" href="css/style.css?v=3">
+</head>
+<body>
+
+  <!-- Header Trên cùng -->
+  <header class="header">
+    <div class="header-container">
+      <!-- Logo EduPortal bên trái -->
+      <a href="#" class="logo" aria-label="EduPortal Trang chủ">
+        <span>EduPortal</span>
+        <span class="logo-badge">LMS</span>
+      </a>
+
+      <!-- Thông tin người dùng & Chọn vai trò bên phải -->
+      <div class="user-controls">
+        <div class="user-info">
+          <div class="avatar-placeholder" id="userAvatarDisplay" aria-hidden="true">A</div>
+          <span id="userNameDisplay">Nguyễn Văn An (22110045)</span>
+        </div>
+
+        <label for="roleSelect" class="visually-hidden" style="position: absolute; width: 1px; height: 1px; overflow: hidden;">Vai trò người dùng</label>
+        <select id="roleSelect" class="role-select" aria-label="Chọn vai trò người dùng">
+          <option value="student">Sinh viên</option>
+          <option value="instructor">Giảng viên</option>
+          <option value="admin">Quản trị viên</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <!-- Bố cục chính: Sidebar + Content Area -->
+  <div class="main-wrapper">
+    <!-- Menu dọc 210px bên trái -->
+    <aside class="sidebar">
+      <nav class="sidebar-nav" aria-label="Menu điều hướng chính">
+        <button class="nav-item active" data-tab="overview">
+          <span>Tổng quan</span>
+        </button>
+        <button class="nav-item" data-tab="courses">
+          <span>Môn học</span>
+        </button>
+        <button class="nav-item" data-tab="quizzes">
+          <span>Bài kiểm tra</span>
+        </button>
+        <button class="nav-item" data-tab="exams">
+          <span>Đề thi</span>
+        </button>
+        <button class="nav-item" data-tab="settings">
+          <span>Cài đặt</span>
+        </button>
+      </nav>
+    </aside>
+
+    <!-- Vùng nội dung bên phải (tối đa 1180px) -->
+    <main id="contentArea" class="content-area" tabindex="-1">
+      <!-- Nội dung được render tự động bằng JavaScript -->
+    </main>
+  </div>
+
+  <!-- Hộp thoại bài kiểm tra trắc nghiệm (<dialog>) -->
+  <dialog id="quizDialog" aria-labelledby="quizModalTitle">
+    <!-- Nội dung render động từ js/app.js -->
+  </dialog>
+
+  <!-- Thông báo Toast dạng nổi góc dưới màn hình -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <!-- Scripts JavaScript -->
+  <script src="js/data.js?v=3"></script>
+  <script src="js/app.js?v=3"></script>
+</body>
+</html>

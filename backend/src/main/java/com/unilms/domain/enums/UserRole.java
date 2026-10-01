@@ -1,0 +1,7 @@
+package com.unilms.domain.enums;
+
+public enum UserRole {
+    ROLE_STUDENT,
+    ROLE_INSTRUCTOR,
+    ROLE_ADMIN
+}

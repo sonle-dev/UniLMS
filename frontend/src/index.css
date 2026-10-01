@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #F8FAFC;
+    color: #0F172A;
+    font-family: 'Be Vietnam Pro', 'Inter', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: #0F172A;
+    font-weight: 700;
+  }
+
+  /* Dark Mode Base Styles */
+  html.dark body {
+    background-color: #070A12;
+    color: #F1F5F9;
+  }
+
+  html.dark h1, html.dark h2, html.dark h3, html.dark h4, html.dark h5, html.dark h6 {
+    color: #F8FAFC;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+}
+
+@layer components {
+  /* Interactive Buttons */
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-5 py-2.5 rounded-lg bg-primary-600 text-white font-semibold text-sm transition-all duration-150 shadow-sm
+           hover:bg-primary-700 hover:shadow-md hover:-translate-y-0.5
+           active:scale-[0.98] active:translate-y-0
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2
+           disabled:opacity-45 disabled:cursor-not-allowed disabled:hover:bg-primary-600 disabled:hover:translate-y-0 disabled:hover:shadow-none;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center px-5 py-2.5 rounded-lg bg-white text-textMain border border-borderLight font-medium text-sm transition-all duration-150 shadow-sm
+           hover:bg-slate-50 hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5
+           active:scale-[0.98] active:translate-y-0
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2
+           disabled:opacity-45 disabled:cursor-not-allowed;
+  }
+
+  .btn-accent {
+    @apply inline-flex items-center justify-center px-5 py-2.5 rounded-lg bg-emerald-600 text-white font-semibold text-sm transition-all duration-150 shadow-sm
+           hover:bg-emerald-700 hover:shadow-md hover:-translate-y-0.5
+           active:scale-[0.98] active:translate-y-0
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2;
+  }
+
+  /* Input fields */
+  .input-field {
+    @apply w-full px-3.5 py-2.5 rounded-lg border border-borderLight bg-white text-textMain placeholder:text-textMuted text-sm transition-all duration-150
+           focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20
+           disabled:bg-slate-100 disabled:cursor-not-allowed;
+  }
+
+  /* Cards */
+  .card-interactive {
+    @apply bg-white rounded-xl border border-borderLight p-5 transition-all duration-200 shadow-sm
+           hover:shadow-md hover:border-slate-300;
+  }
+
+  /* Skeleton Loading */
+  .skeleton {
+    @apply bg-slate-200 animate-pulse rounded-md;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 9999px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}

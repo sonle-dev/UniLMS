@@ -1,0 +1,25 @@
+# IDE & OS
+.idea/
+.vscode/
+*.swp
+*.DS_Store
+Thumbs.db
+
+# Maven / Spring Boot Build Output
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.log
+
+# Node.js / Vite
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Temporary / Scratch files
+scratch/
+*.tmp
+test_*.json
