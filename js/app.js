@@ -1389,6 +1389,162 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================================================
+  // VÒNG ĐỜI & KHỞI TẠO TÍNH NĂNG AI WEB CHAT ASSISTANT (UX/UI AI CHAT)
+  // ==========================================================================
+  function initAiChat() {
+    const triggerBtn = document.getElementById('aiChatTrigger');
+    const chatWindow = document.getElementById('aiChatWindow');
+    const closeBtn = document.getElementById('btnAiClose');
+    const clearBtn = document.getElementById('btnAiClear');
+    const chatBody = document.getElementById('aiChatBody');
+    const chatInput = document.getElementById('aiChatInput');
+    const sendBtn = document.getElementById('aiSendBtn');
+    const promptChips = document.querySelectorAll('.prompt-chip');
+
+    if (!triggerBtn || !chatWindow) return;
+
+    // 1. Mở / Đóng Hộp thoại Chat
+    triggerBtn.addEventListener('click', () => {
+      chatWindow.classList.toggle('hidden');
+      if (!chatWindow.classList.contains('hidden')) {
+        chatInput.focus();
+      }
+    });
+
+    closeBtn?.addEventListener('click', () => {
+      chatWindow.classList.add('hidden');
+    });
+
+    // 2. Xóa lịch sử trò chuyện
+    clearBtn?.addEventListener('click', () => {
+      chatBody.innerHTML = `
+        <div class="chat-message ai">
+          <div class="chat-avatar">🤖</div>
+          <div class="chat-bubble">
+            Đã làm sạch lịch sử trò chuyện. Tôi có thể hỗ trợ gì cho bạn?
+          </div>
+        </div>
+      `;
+    });
+
+    // 3. Gửi tin nhắn từ người dùng
+    function handleSendMessage(text) {
+      const messageText = text || chatInput.value.trim();
+      if (!messageText) return;
+
+      // Hiển thị tin nhắn người dùng
+      appendMessage('user', messageText);
+      if (!text) chatInput.value = '';
+
+      // Hiển thị Typing Indicator
+      const typingEl = appendTypingIndicator();
+
+      // Giả lập AI Phản hồi thông minh sau 600ms
+      setTimeout(() => {
+        typingEl.remove();
+        const responseText = generateAiResponse(messageText);
+        appendMessage('ai', responseText);
+      }, 700);
+    }
+
+    sendBtn?.addEventListener('click', () => handleSendMessage());
+    chatInput?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleSendMessage();
+      }
+    });
+
+    // 4. Sự kiện click Gợi ý nhanh (Prompt Chips)
+    promptChips.forEach(chip => {
+      chip.addEventListener('click', (e) => {
+        const promptText = e.target.getAttribute('data-prompt');
+        handleSendMessage(promptText);
+      });
+    });
+
+    // Hàm chèn tin nhắn vào ô chat
+    function appendMessage(sender, text) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = `chat-message ${sender}`;
+
+      const avatar = (sender === 'ai') ? '🤖' : '👤';
+      const formattedContent = formatMessageText(text);
+
+      msgDiv.innerHTML = `
+        <div class="chat-avatar">${avatar}</div>
+        <div class="chat-bubble">${formattedContent}</div>
+      `;
+
+      chatBody.appendChild(msgDiv);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    // Hiển thị bong bóng typing animation
+    function appendTypingIndicator() {
+      const typingDiv = document.createElement('div');
+      typingDiv.className = 'chat-message ai';
+      typingDiv.innerHTML = `
+        <div class="chat-avatar">🤖</div>
+        <div class="chat-bubble" style="padding: 6px 12px;">
+          <div class="typing-indicator">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+          </div>
+        </div>
+      `;
+      chatBody.appendChild(typingDiv);
+      chatBody.scrollTop = chatBody.scrollHeight;
+      return typingDiv;
+    }
+
+    // Format văn bản đơn giản (Bold, Code block, Xuống dòng)
+    function formatMessageText(str) {
+      let text = escapeHtml(str);
+      // Format **Bold**
+      text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      // Format `Code`
+      text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+      // Format ```Code block```
+      text = text.replace(/```([\s\S]*?)```/g, '<pre>$1</pre>');
+      // Downline
+      text = text.replace(/\n/g, '<br>');
+      return text;
+    }
+
+    // Bộ máy tạo phản hồi AI thông minh dựa theo ngữ cảnh EduPortal
+    function generateAiResponse(input) {
+      const text = input.toLowerCase();
+
+      if (text.includes('csdl') || text.includes('cơ sở dữ liệu')) {
+        return `**Tóm tắt Môn Cơ sở dữ liệu (INT2211)**:\n• Số tín chỉ: 3 TC\n• Mô tả: Giúp bạn làm chủ các mô hình dữ liệu quan hệ, thiết kế sơ đồ ERD, ngôn ngữ truy vấn SQL và chuẩn hóa CSDL 1NF, 2NF, 3NF.\n• Tài liệu bài giảng đã được cập nhật đầy đủ tại tab **Môn học**!`;
+      }
+
+      if (text.includes('gpa') || text.includes('điểm')) {
+        return `**Công thức tính điểm tích lũy GPA tại ICTU**:\n• **Điểm Chuyên cần**: 10%\n• **Kiểm tra Thường xuyên (TX1-4 / Quiz)**: 30%\n• **Thi Kết thúc học phần**: 60%\n👉 Điểm chữ quy đổi: **A** (8.5 - 10) = 4.0 | **B** (7.0 - 8.4) = 3.0 | **C** (5.5 - 6.9) = 2.0 | **D** (4.0 - 5.4) = 1.0.`;
+      }
+
+      if (text.includes('sql') || text.includes('join')) {
+        return `**Cú pháp SQL JOIN căn bản**:\n\`\`\`sql\nSELECT a.id, a.name, b.course_name\nFROM students a\nINNER JOIN enrollments b ON a.id = b.student_id;\n\`\`\`\n• **INNER JOIN**: Trả về bản ghi khớp ở cả 2 bảng.\n• **LEFT JOIN**: Trả về tất cả bản ghi ở bảng trái và bản ghi khớp ở bảng phải.`;
+      }
+
+      if (text.includes('lịch thi') || text.includes('giữa kỳ') || text.includes('thi')) {
+        return `📅 **Thông tin Lịch thi & Hạn nộp bài sắp tới**:\n• **Bài kiểm tra CSDL giữa kỳ**: Hạn nộp 30/09/2026\n• **Bài tập lớn Lập trình Web**: Hạn nộp 05/10/2026\nBạn có thể kiểm tra chi tiết tại mục **Bài kiểm tra** trên Sidebar bên trái!`;
+      }
+
+      if (text.includes('chào') || text.includes('hi') || text.includes('hello')) {
+        return `Xin chào! Tôi có thể giúp bạn giải đáp điều gì về các môn học, thời khóa biểu hoặc tài liệu bài giảng hôm nay?`;
+      }
+
+      return `Cảm ơn bạn đã đặt câu hỏi: **"${input}"**.\nTrợ lý AI EduPortal đã ghi nhận và khuyến nghị bạn tham khảo thêm thông tin tại tab **Môn học** hoặc liên hệ trực tiếp Giảng viên phụ trách môn học qua email hệ thống. Bạn có cần tôi hỗ trợ tìm tài liệu nào khác không?`;
+    }
+  }
+
+  // Khởi tạo AI Chat Widget
+  initAiChat();
+
+  // ==========================================================================
   // UTILS: THÔNG BÁO DẠNG TOAST & ESCAPE HTML
   // ==========================================================================
   let toastTimeout = null;

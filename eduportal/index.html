@@ -75,11 +75,65 @@
     <!-- Nội dung render động từ js/app.js -->
   </dialog>
 
+  <!-- Floating AI Chat Widget UX/UI -->
+  <button id="aiChatTrigger" class="ai-chat-trigger" aria-label="Mở Trợ lý AI EduPortal">
+    <span style="font-size: 18px;">🤖</span>
+    <span>Trợ lý AI</span>
+    <span class="ai-trigger-badge"></span>
+  </button>
+
+  <!-- Hộp thoại Web Chat AI (Drawer / Card Window) -->
+  <div id="aiChatWindow" class="ai-chat-window hidden" role="dialog" aria-labelledby="aiChatTitle">
+    <!-- Header -->
+    <div class="ai-chat-header">
+      <div class="ai-chat-header-info">
+        <div class="ai-avatar">
+          🤖
+          <span class="ai-status-dot" title="Sẵn sàng 24/7"></span>
+        </div>
+        <div>
+          <div class="ai-chat-title" id="aiChatTitle">Trợ lý AI EduPortal</div>
+          <div class="ai-chat-subtitle">Hỏi bất kỳ điều gì về học tập • Online</div>
+        </div>
+      </div>
+      <div class="ai-chat-header-actions">
+        <button id="btnAiClear" class="ai-header-btn" title="Xóa lịch sử trò chuyện">🗑</button>
+        <button id="btnAiClose" class="ai-header-btn" title="Đóng chat">✕</button>
+      </div>
+    </div>
+
+    <!-- Message Body Thread -->
+    <div id="aiChatBody" class="ai-chat-body">
+      <!-- AI Welcome Message -->
+      <div class="chat-message ai">
+        <div class="chat-avatar">🤖</div>
+        <div class="chat-bubble">
+          Xin chào! 👋<br>
+          Tôi là **Trợ lý AI Học tập EduPortal**. Tôi có thể giúp bạn giải đáp thắc mắc về lịch học, bài kiểm tra, tài liệu môn học hoặc giải thích kiến thức bài giảng.
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Prompts Chips -->
+    <div class="ai-quick-prompts">
+      <button class="prompt-chip" data-prompt="Tóm tắt môn Cơ sở dữ liệu">💡 Tóm tắt CSDL</button>
+      <button class="prompt-chip" data-prompt="Cách tính điểm GPA học tập">📊 Cách tính GPA</button>
+      <button class="prompt-chip" data-prompt="Giải thích SQL JOIN">📖 Giải thích SQL JOIN</button>
+      <button class="prompt-chip" data-prompt="Lịch thi giữa kỳ khi nào?">📅 Lịch thi giữa kỳ</button>
+    </div>
+
+    <!-- Footer Input Bar -->
+    <div class="ai-chat-footer">
+      <input type="text" id="aiChatInput" class="ai-chat-input" placeholder="Nhập câu hỏi cho Trợ lý AI..." aria-label="Nhập câu hỏi cho Trợ lý AI">
+      <button id="aiSendBtn" class="ai-send-btn" aria-label="Gửi tin nhắn">➤</button>
+    </div>
+  </div>
+
   <!-- Thông báo Toast dạng nổi góc dưới màn hình -->
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <!-- Scripts JavaScript -->
-  <script src="js/data.js?v=3"></script>
-  <script src="js/app.js?v=3"></script>
+  <script src="js/data.js?v=4"></script>
+  <script src="js/app.js?v=4"></script>
 </body>
 </html>
