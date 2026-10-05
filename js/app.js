@@ -1389,7 +1389,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================================================
-  // VÒNG ĐỜI & KHỞI TẠO TÍNH NĂNG AI WEB CHAT ASSISTANT (UX/UI AI CHAT)
+  // VÒNG ĐỜI & KHỞI TẠO NỀN TẢNG OMNIBRAIN AI PLATFORM (MULTI-MODEL + SECURITY)
   // ==========================================================================
   function initAiChat() {
     const triggerBtn = document.getElementById('aiChatTrigger');
@@ -1400,6 +1400,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatInput = document.getElementById('aiChatInput');
     const sendBtn = document.getElementById('aiSendBtn');
     const promptChips = document.querySelectorAll('.prompt-chip');
+    const modelSelect = document.getElementById('aiModelSelect');
 
     if (!triggerBtn || !chatWindow) return;
 
@@ -1419,15 +1420,22 @@ document.addEventListener('DOMContentLoaded', () => {
     clearBtn?.addEventListener('click', () => {
       chatBody.innerHTML = `
         <div class="chat-message ai">
-          <div class="chat-avatar">🤖</div>
+          <div class="chat-avatar">🧠</div>
           <div class="chat-bubble">
-            Đã làm sạch lịch sử trò chuyện. Tôi có thể hỗ trợ gì cho bạn?
+            Đã làm sạch lịch sử trò chuyện OmniBrain. Bạn đang sử dụng mô hình: <strong>${escapeHtml(modelSelect?.options[modelSelect.selectedIndex]?.text || 'Gemini Pro')}</strong>.
           </div>
         </div>
       `;
     });
 
-    // 3. Gửi tin nhắn từ người dùng
+    // 3. Thông báo khi chuyển đổi Mô hình AI
+    modelSelect?.addEventListener('change', (e) => {
+      const selectedModelName = e.target.options[e.target.selectedIndex].text;
+      showToast(`OmniBrain: Đã chuyển sang mô hình ${selectedModelName}`);
+      appendMessage('ai', `🧠 **OmniBrain Notification**: Đã kích hoạt thành công **${selectedModelName}**. Bạn có thể gửi câu hỏi ngay!`);
+    });
+
+    // 4. Gửi tin nhắn từ người dùng
     function handleSendMessage(text) {
       const messageText = text || chatInput.value.trim();
       if (!messageText) return;
@@ -1439,12 +1447,13 @@ document.addEventListener('DOMContentLoaded', () => {
       // Hiển thị Typing Indicator
       const typingEl = appendTypingIndicator();
 
-      // Giả lập AI Phản hồi thông minh sau 600ms
+      // Giả lập OmniBrain AI Phản hồi thông minh theo Mô hình & Phân quyền sau 600ms
       setTimeout(() => {
         typingEl.remove();
-        const responseText = generateAiResponse(messageText);
-        appendMessage('ai', responseText);
-      }, 700);
+        const selectedModel = modelSelect?.value || 'gemini-pro';
+        const responseObj = generateOmniBrainResponse(messageText, selectedModel, state.currentRole);
+        appendMessage('ai', responseObj.text, responseObj.isSecurityWarning);
+      }, 650);
     }
 
     sendBtn?.addEventListener('click', () => handleSendMessage());
@@ -1455,7 +1464,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    // 4. Sự kiện click Gợi ý nhanh (Prompt Chips)
+    // 5. Sự kiện click Gợi ý nhanh (Prompt Chips)
     promptChips.forEach(chip => {
       chip.addEventListener('click', (e) => {
         const promptText = e.target.getAttribute('data-prompt');
@@ -1464,16 +1473,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Hàm chèn tin nhắn vào ô chat
-    function appendMessage(sender, text) {
+    function appendMessage(sender, text, isSecurityWarning = false) {
       const msgDiv = document.createElement('div');
       msgDiv.className = `chat-message ${sender}`;
 
-      const avatar = (sender === 'ai') ? '🤖' : '👤';
+      const avatar = (sender === 'ai') ? '🧠' : '👤';
       const formattedContent = formatMessageText(text);
 
       msgDiv.innerHTML = `
         <div class="chat-avatar">${avatar}</div>
-        <div class="chat-bubble">${formattedContent}</div>
+        <div class="chat-bubble ${isSecurityWarning ? 'security-warning-bubble' : ''}">${formattedContent}</div>
       `;
 
       chatBody.appendChild(msgDiv);
@@ -1485,7 +1494,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const typingDiv = document.createElement('div');
       typingDiv.className = 'chat-message ai';
       typingDiv.innerHTML = `
-        <div class="chat-avatar">🤖</div>
+        <div class="chat-avatar">🧠</div>
         <div class="chat-bubble" style="padding: 6px 12px;">
           <div class="typing-indicator">
             <div class="typing-dot"></div>
@@ -1513,31 +1522,81 @@ document.addEventListener('DOMContentLoaded', () => {
       return text;
     }
 
-    // Bộ máy tạo phản hồi AI thông minh dựa theo ngữ cảnh EduPortal
-    function generateAiResponse(input) {
+    // BỘ MÁY PHẢN HỒI OMNIBRAIN AI PLATFORM (KIỂM TRA QUYỀN SINH VIÊN & ĐA MÔ HÌNH)
+    function generateOmniBrainResponse(input, model, role) {
       const text = input.toLowerCase();
 
+      // =========================================================================
+      // BẢO VỆ BẢO MẬT (SECURITY GUARD): SINH VIÊN KHÔNG ĐƯỢC TRUY CẬP DATABASE
+      // =========================================================================
+      const dbKeywords = ['database', 'cơ sở dữ liệu hệ thống', 'xem db', 'drop table', 'select *', 'mật khẩu', 'password', 'truy cập db', 'xem bảng điểm người khác', 'truy vấn db', 'sql injection', 'postgres'];
+      
+      const isTryingDbAccess = dbKeywords.some(kw => text.includes(kw));
+
+      if (role === 'student' && isTryingDbAccess && !text.includes('môn cơ sở dữ liệu') && !text.includes('tóm tắt')) {
+        const studentName = state.data.users?.student?.name || 'Sinh viên';
+        return {
+          isSecurityWarning: true,
+          text: `🔒 **CẢNH BÁO BẢO MẬT OMNIBRAIN AI SECURITY GUARD**\n\nTài khoản Sinh viên (**${studentName}**) **KHÔNG CÓ QUYỀN** truy cập hoặc can thiệp trực tiếp vào Cơ sở dữ liệu hệ thống (PostgreSQL Database).\n\n⚠️ *Hệ thống đã chặn yêu cầu này để bảo mật thông tin. Bạn chỉ có thể hỏi trợ lý AI về giải đáp bài học, tóm tắt tài liệu môn học hoặc tư vấn phương pháp học.*`
+        };
+      }
+
+      // =========================================================================
+      // XỬ LÝ THEO TỪNG MÔ HÌNH AI (GEMINI PRO, FLASH, CODEASSIST, EDUBRAIN)
+      // =========================================================================
+      if (model === 'code-assist') {
+        if (text.includes('sql') || text.includes('join')) {
+          return {
+            isSecurityWarning: false,
+            text: `💻 **[CodeAssist AI] Cú pháp SQL JOIN chuẩn PostgreSQL**:\n\`\`\`sql\n-- Ví dụ INNER JOIN bảng Sinh viên và Bảng điểm\nSELECT s.student_code, s.full_name, g.tx1, g.midterm_score, g.final_score\nFROM student_profiles s\nINNER JOIN student_grades g ON s.user_id = g.student_id\nWHERE g.is_eligible_for_exam = TRUE;\n\`\`\`\n💡 *Ghi chú*: Mã nguồn đã được kiểm thử trên PostgreSQL 15+!`
+          };
+        }
+        return {
+          isSecurityWarning: false,
+          text: `💻 **[CodeAssist AI] Mẫu code Java Spring Boot 3 Controller**:\n\`\`\`java\n@RestController\n@RequestMapping("/api/v1/courses")\npublic class CourseController {\n    @GetMapping\n    public ResponseEntity<List<CourseDto>> getAllCourses() {\n        return ResponseEntity.ok(courseService.findAll());\n    }\n}\n\`\`\`\nĐoạn mã tuân thủ chuẩn RESTful API và Spring Security JWT!`
+        };
+      }
+
+      if (model === 'gemini-flash') {
+        return {
+          isSecurityWarning: false,
+          text: `⚡ **[Gemini 1.5 Flash - Phản hồi Siêu Tốc]**:\n• **Tóm tắt nhanh**: Môn Cơ sở dữ liệu gồm 45 tiết, 3 tín chỉ.\n• **Hạn bài tập**: Bài kiểm tra CSDL giữa kỳ (30/09) & Bài tập lớn Lập trình Web (05/10).`
+        };
+      }
+
+      if (model === 'edubrain') {
+        return {
+          isSecurityWarning: false,
+          text: `📘 **[EduBrain Study Guide - Hướng dẫn Học tập]**:\n1. **Phân bổ thời gian**: Dành 2 tiếng/ngày cho các môn tín chỉ chuyên ngành.\n2. **Kỹ năng làm bài Quiz**: Luyện tập ngân hàng câu hỏi trắc nghiệm tại tab **Bài kiểm tra**.\n3. **Cần trợ giúp**: Hãy nhắn tin trao đổi trực tiếp với Giảng viên môn học qua email hệ thống!`
+        };
+      }
+
+      // Mô hình Mặc định: Gemini 1.5 Pro (Học thuật & Phân tích chuyên sâu)
       if (text.includes('csdl') || text.includes('cơ sở dữ liệu')) {
-        return `**Tóm tắt Môn Cơ sở dữ liệu (INT2211)**:\n• Số tín chỉ: 3 TC\n• Mô tả: Giúp bạn làm chủ các mô hình dữ liệu quan hệ, thiết kế sơ đồ ERD, ngôn ngữ truy vấn SQL và chuẩn hóa CSDL 1NF, 2NF, 3NF.\n• Tài liệu bài giảng đã được cập nhật đầy đủ tại tab **Môn học**!`;
+        return {
+          isSecurityWarning: false,
+          text: `🧠 **[Gemini 1.5 Pro] Tổng quan Phân tích Môn Cơ sở dữ liệu (INT2211)**:\n• **Mục tiêu**: Nắm vững lý thuyết mô hình quan hệ, thành thạo vẽ sơ đồ ERD và viết truy vấn SQL.\n• **Chuẩn đầu ra**: Thiết kế CSDL đạt dạng chuẩn 3NF, tối ưu chỉ mục Index và viết Stored Procedure.\n• **Tài liệu**: Bạn có thể truy cập Slide PPTX & File PDF tại tab **Môn học**!`
+        };
       }
 
       if (text.includes('gpa') || text.includes('điểm')) {
-        return `**Công thức tính điểm tích lũy GPA tại ICTU**:\n• **Điểm Chuyên cần**: 10%\n• **Kiểm tra Thường xuyên (TX1-4 / Quiz)**: 30%\n• **Thi Kết thúc học phần**: 60%\n👉 Điểm chữ quy đổi: **A** (8.5 - 10) = 4.0 | **B** (7.0 - 8.4) = 3.0 | **C** (5.5 - 6.9) = 2.0 | **D** (4.0 - 5.4) = 1.0.`;
-      }
-
-      if (text.includes('sql') || text.includes('join')) {
-        return `**Cú pháp SQL JOIN căn bản**:\n\`\`\`sql\nSELECT a.id, a.name, b.course_name\nFROM students a\nINNER JOIN enrollments b ON a.id = b.student_id;\n\`\`\`\n• **INNER JOIN**: Trả về bản ghi khớp ở cả 2 bảng.\n• **LEFT JOIN**: Trả về tất cả bản ghi ở bảng trái và bản ghi khớp ở bảng phải.`;
-      }
-
-      if (text.includes('lịch thi') || text.includes('giữa kỳ') || text.includes('thi')) {
-        return `📅 **Thông tin Lịch thi & Hạn nộp bài sắp tới**:\n• **Bài kiểm tra CSDL giữa kỳ**: Hạn nộp 30/09/2026\n• **Bài tập lớn Lập trình Web**: Hạn nộp 05/10/2026\nBạn có thể kiểm tra chi tiết tại mục **Bài kiểm tra** trên Sidebar bên trái!`;
+        return {
+          isSecurityWarning: false,
+          text: `🧠 **[Gemini 1.5 Pro] Hệ thống Tính điểm GPA ICTU**:\n• **Tỷ trọng**: Chuyên cần (10%) + Thường xuyên/Quiz (30%) + Thi học kỳ (60%).\n• **Quy đổi Thang 4**: A (8.5-10) = 4.0 | B (7.0-8.4) = 3.0 | C (5.5-6.9) = 2.0 | D (4.0-5.4) = 1.0.`
+        };
       }
 
       if (text.includes('chào') || text.includes('hi') || text.includes('hello')) {
-        return `Xin chào! Tôi có thể giúp bạn giải đáp điều gì về các môn học, thời khóa biểu hoặc tài liệu bài giảng hôm nay?`;
+        return {
+          isSecurityWarning: false,
+          text: `Xin chào! **OmniBrain AI Platform** đang hoạt động. Tôi có thể hỗ trợ bạn tìm hiểu tài liệu môn học, công thức GPA hay hướng dẫn lập trình hôm nay?`
+        };
       }
 
-      return `Cảm ơn bạn đã đặt câu hỏi: **"${input}"**.\nTrợ lý AI EduPortal đã ghi nhận và khuyến nghị bạn tham khảo thêm thông tin tại tab **Môn học** hoặc liên hệ trực tiếp Giảng viên phụ trách môn học qua email hệ thống. Bạn có cần tôi hỗ trợ tìm tài liệu nào khác không?`;
+      return {
+        isSecurityWarning: false,
+        text: `🧠 **[Gemini 1.5 Pro] OmniBrain Phản hồi**:\nCảm ơn bạn đã đặt câu hỏi: **"${input}"**.\nOmniBrain AI đã ghi nhận yêu cầu. Bạn có thể chọn các mô hình AI khác như **CodeAssist AI** để xem code mẫu hoặc **Gemini Flash** để nhận tóm tắt ngắn gọn!`
+      };
     }
   }
 

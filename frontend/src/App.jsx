@@ -18,6 +18,7 @@ import SettingsView from './pages/SettingsView';
 import HelpView from './pages/HelpView';
 import ChangePasswordModal from './components/ChangePasswordModal';
 import Toast from './components/Toast';
+import OmniBrainChat from './components/OmniBrainChat';
 
 // Instructor Views
 import InstructorDashboard from './pages/instructor/InstructorDashboard';
@@ -539,6 +540,12 @@ export default function App() {
       <Toast
         toast={toast}
         onClose={() => setToast(null)}
+      />
+
+      {/* OmniBrain AI Platform Chat Widget */}
+      <OmniBrainChat
+        currentRole={currentRole}
+        currentUser={currentUser}
       />
 
     </div>

@@ -75,10 +75,10 @@
     <!-- Nội dung render động từ js/app.js -->
   </dialog>
 
-  <!-- Floating AI Chat Widget UX/UI -->
-  <button id="aiChatTrigger" class="ai-chat-trigger" aria-label="Mở Trợ lý AI EduPortal">
-    <span style="font-size: 18px;">🤖</span>
-    <span>Trợ lý AI</span>
+  <!-- Floating AI Chat Widget UX/UI (OmniBrain AI Platform) -->
+  <button id="aiChatTrigger" class="ai-chat-trigger" aria-label="Mở OmniBrain AI Platform">
+    <span style="font-size: 18px;">🧠</span>
+    <span>OmniBrain AI</span>
     <span class="ai-trigger-badge"></span>
   </button>
 
@@ -88,12 +88,12 @@
     <div class="ai-chat-header">
       <div class="ai-chat-header-info">
         <div class="ai-avatar">
-          🤖
+          🧠
           <span class="ai-status-dot" title="Sẵn sàng 24/7"></span>
         </div>
         <div>
-          <div class="ai-chat-title" id="aiChatTitle">Trợ lý AI EduPortal</div>
-          <div class="ai-chat-subtitle">Hỏi bất kỳ điều gì về học tập • Online</div>
+          <div class="ai-chat-title" id="aiChatTitle">OmniBrain AI Platform</div>
+          <div class="ai-chat-subtitle">Nền tảng Trợ lý AI Đa mô hình • Online</div>
         </div>
       </div>
       <div class="ai-chat-header-actions">
@@ -102,14 +102,26 @@
       </div>
     </div>
 
+    <!-- Thanh Chọn Mô hình AI (Multi-Model Selector Bar) -->
+    <div class="ai-model-bar">
+      <label for="aiModelSelect" style="font-size: 11px; font-weight: 600; color: var(--text-muted);">MÔ HÌNH AI:</label>
+      <select id="aiModelSelect" class="ai-model-select" aria-label="Chọn mô hình AI">
+        <option value="gemini-pro">🧠 Gemini 1.5 Pro (Học thuật & Phân tích)</option>
+        <option value="gemini-flash">⚡ Gemini 1.5 Flash (Phản hồi siêu tốc)</option>
+        <option value="code-assist">💻 CodeAssist AI (Lập trình Java/SQL/React)</option>
+        <option value="edubrain">📘 EduBrain (Hướng dẫn & Giải bài tập)</option>
+      </select>
+    </div>
+
     <!-- Message Body Thread -->
     <div id="aiChatBody" class="ai-chat-body">
       <!-- AI Welcome Message -->
       <div class="chat-message ai">
-        <div class="chat-avatar">🤖</div>
+        <div class="chat-avatar">🧠</div>
         <div class="chat-bubble">
-          Xin chào! 👋<br>
-          Tôi là **Trợ lý AI Học tập EduPortal**. Tôi có thể giúp bạn giải đáp thắc mắc về lịch học, bài kiểm tra, tài liệu môn học hoặc giải thích kiến thức bài giảng.
+          Xin chào! 👋 Tôi là **OmniBrain AI Platform**.<br>
+          Bạn có thể linh hoạt chuyển đổi giữa các mô hình AI (**Gemini Pro**, **Flash**, **CodeAssist**, **EduBrain**).<br>
+          🔒 <em>Lưu ý bảo mật: Nền tảng hoạt động ở chế độ Học tập An toàn (Sandbox).</em>
         </div>
       </div>
     </div>
@@ -119,12 +131,12 @@
       <button class="prompt-chip" data-prompt="Tóm tắt môn Cơ sở dữ liệu">💡 Tóm tắt CSDL</button>
       <button class="prompt-chip" data-prompt="Cách tính điểm GPA học tập">📊 Cách tính GPA</button>
       <button class="prompt-chip" data-prompt="Giải thích SQL JOIN">📖 Giải thích SQL JOIN</button>
-      <button class="prompt-chip" data-prompt="Lịch thi giữa kỳ khi nào?">📅 Lịch thi giữa kỳ</button>
+      <button class="prompt-chip" data-prompt="Cho tôi xem database hệ thống">🔒 Thử truy cập DB</button>
     </div>
 
     <!-- Footer Input Bar -->
     <div class="ai-chat-footer">
-      <input type="text" id="aiChatInput" class="ai-chat-input" placeholder="Nhập câu hỏi cho Trợ lý AI..." aria-label="Nhập câu hỏi cho Trợ lý AI">
+      <input type="text" id="aiChatInput" class="ai-chat-input" placeholder="Hỏi OmniBrain AI (Enter để gửi)..." aria-label="Nhập câu hỏi cho Trợ lý AI">
       <button id="aiSendBtn" class="ai-send-btn" aria-label="Gửi tin nhắn">➤</button>
     </div>
   </div>
