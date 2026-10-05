@@ -56,6 +56,7 @@ Tệp này chứa thông tin ngữ cảnh chính của dự án UniLMS để AI 
 * **Components (`frontend/src/components/`)**:
   * [Header.jsx](file:///d:/UniLMS/frontend/src/components/Header.jsx): Topbar cố định với nút Hamburger, Role Switcher (Sinh viên, Giảng viên, Admin) & Tiêu đề trang.
   * [Sidebar.jsx](file:///d:/UniLMS/frontend/src/components/Sidebar.jsx): Left Sidebar linh hoạt thay đổi Menu theo Vai trò người dùng.
+  * [OmniBrainChat.jsx](file:///d:/UniLMS/frontend/src/components/OmniBrainChat.jsx): OmniBrain AI Platform chat widget đa mô hình (Gemini 1.5 Pro, Flash, CodeAssist, EduBrain) với cơ chế OmniBrain Security Guard tự động chặn Sinh viên truy cập DB hệ thống.
   * [ChangePasswordModal.jsx](file:///d:/UniLMS/frontend/src/components/ChangePasswordModal.jsx): Pop-up modal đổi mật khẩu có validation.
   * [Toast.jsx](file:///d:/UniLMS/frontend/src/components/Toast.jsx): Thông báo dạng nổi góc màn hình.
   * `Footer.jsx`, `AuthModal.jsx`, `Breadcrumbs.jsx`, `SkeletonLoader.jsx`.
