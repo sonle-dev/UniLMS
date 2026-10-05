@@ -1522,12 +1522,57 @@ document.addEventListener('DOMContentLoaded', () => {
       return text;
     }
 
+    // HÀM TÍNH TOÁN BIỂU THỨC TOÁN HỌC TỰ ĐỘNG
+    function tryEvaluateMath(input) {
+      if (!input) return null;
+      let cleaned = input.toLowerCase()
+        .replace(/kết quả (của )?(phép tính )?/gi, '')
+        .replace(/bằng bao nhiêu\??/gi, '')
+        .replace(/tính toán/gi, '')
+        .replace(/tính/gi, '')
+        .replace(/bằng/gi, '')
+        .replace(/=/g, '')
+        .trim();
+
+      let expr = cleaned
+        .replace(/nhân/gi, '*')
+        .replace(/chia/gi, '/')
+        .replace(/cộng/gi, '+')
+        .replace(/trừ/gi, '-')
+        .replace(/mũ/gi, '^')
+        .replace(/\bx\b/gi, '*')
+        .replace(/×/gi, '*')
+        .replace(/÷/gi, '/')
+        .trim();
+
+      if (/^[0-9\.\s\+\-\*\/\(\)\^]+$/.test(expr) && /[0-9]/.test(expr)) {
+        try {
+          const jsExpr = expr.replace(/\^/g, '**');
+          const evalResult = new Function(`return (${jsExpr});`)();
+          if (typeof evalResult === 'number' && !isNaN(evalResult) && isFinite(evalResult)) {
+            const displayExpr = expr
+              .replace(/\*/g, ' × ')
+              .replace(/\//g, ' ÷ ')
+              .replace(/\+/g, ' + ')
+              .replace(/\-/g, ' − ')
+              .replace(/\s+/g, ' ')
+              .trim();
+            return {
+              originalExpr: displayExpr,
+              result: evalResult
+            };
+          }
+        } catch (e) {}
+      }
+      return null;
+    }
+
     // BỘ MÁY PHẢN HỒI OMNIBRAIN AI PLATFORM (KIỂM TRA QUYỀN SINH VIÊN & ĐA MÔ HÌNH)
     function generateOmniBrainResponse(input, model, role) {
       const text = input.toLowerCase();
 
       // =========================================================================
-      // BẢO VỆ BẢO MẬT (SECURITY GUARD): SINH VIÊN KHÔNG ĐƯỢC TRUY CẬP DATABASE
+      // 1. BẢO VỆ BẢO MẬT (SECURITY GUARD): SINH VIÊN KHÔNG ĐƯỢC TRUY CẬP DATABASE
       // =========================================================================
       const dbKeywords = ['database', 'cơ sở dữ liệu hệ thống', 'xem db', 'drop table', 'select *', 'mật khẩu', 'password', 'truy cập db', 'xem bảng điểm người khác', 'truy vấn db', 'sql injection', 'postgres'];
       
@@ -1542,36 +1587,38 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       // =========================================================================
-      // XỬ LÝ THEO TỪNG MÔ HÌNH AI (GEMINI PRO, FLASH, CODEASSIST, EDUBRAIN)
+      // 2. TÍNH TOÁN PHÉP TÍNH TOÁN HỌC (NẾU CÓ)
       // =========================================================================
-      if (model === 'code-assist') {
-        if (text.includes('sql') || text.includes('join')) {
+      const mathRes = tryEvaluateMath(input);
+      if (mathRes) {
+        if (model === 'code-assist') {
           return {
             isSecurityWarning: false,
-            text: `💻 **[CodeAssist AI] Cú pháp SQL JOIN chuẩn PostgreSQL**:\n\`\`\`sql\n-- Ví dụ INNER JOIN bảng Sinh viên và Bảng điểm\nSELECT s.student_code, s.full_name, g.tx1, g.midterm_score, g.final_score\nFROM student_profiles s\nINNER JOIN student_grades g ON s.user_id = g.student_id\nWHERE g.is_eligible_for_exam = TRUE;\n\`\`\`\n💡 *Ghi chú*: Mã nguồn đã được kiểm thử trên PostgreSQL 15+!`
+            text: `💻 **[CodeAssist AI - Biểu thức Toán học trong Code]**:\n\`\`\`java\n// Cú pháp tính toán Java / C++\ndouble result = ${mathRes.originalExpr.replace(/×/g, '*').replace(/÷/g, '/')};\nSystem.out.println("Kết quả = " + result); // Output: ${mathRes.result}\n\`\`\`\n👉 **Kết quả phép tính**: **\`${mathRes.originalExpr} = ${mathRes.result}\`**`
           };
         }
+        if (model === 'gemini-flash') {
+          return {
+            isSecurityWarning: false,
+            text: `⚡ **[Gemini 1.5 Flash]**: \`${mathRes.originalExpr} = ${mathRes.result}\``
+          };
+        }
+        if (model === 'edubrain' || model === 'edubrain-guide') {
+          return {
+            isSecurityWarning: false,
+            text: `📘 **[EduBrain Study Guide]**: Đáp án phép tính \`${mathRes.originalExpr}\` là **\`${mathRes.result}\`**.\n\n💡 *Mẹo*: Hãy nhớ kiểm tra thứ tự thực hiện phép tính (Nhân chia trước, Cộng trừ sau) khi giải các bài tập!`
+          };
+        }
+        // Mặc định: Gemini 1.5 Pro
         return {
           isSecurityWarning: false,
-          text: `💻 **[CodeAssist AI] Mẫu code Java Spring Boot 3 Controller**:\n\`\`\`java\n@RestController\n@RequestMapping("/api/v1/courses")\npublic class CourseController {\n    @GetMapping\n    public ResponseEntity<List<CourseDto>> getAllCourses() {\n        return ResponseEntity.ok(courseService.findAll());\n    }\n}\n\`\`\`\nĐoạn mã tuân thủ chuẩn RESTful API và Spring Security JWT!`
+          text: `🧠 **[Gemini 1.5 Pro - Phân tích Phép tính]**:\n\n• **Biểu thức**: \`${mathRes.originalExpr}\`\n• **Kết quả chính xác**: **\`${mathRes.result}\`**\n\n💡 *Ghi chú*: Kết quả đã được xác minh qua bộ máy OmniBrain Math Engine.`
         };
       }
 
-      if (model === 'gemini-flash') {
-        return {
-          isSecurityWarning: false,
-          text: `⚡ **[Gemini 1.5 Flash - Phản hồi Siêu Tốc]**:\n• **Tóm tắt nhanh**: Môn Cơ sở dữ liệu gồm 45 tiết, 3 tín chỉ.\n• **Hạn bài tập**: Bài kiểm tra CSDL giữa kỳ (30/09) & Bài tập lớn Lập trình Web (05/10).`
-        };
-      }
-
-      if (model === 'edubrain') {
-        return {
-          isSecurityWarning: false,
-          text: `📘 **[EduBrain Study Guide - Hướng dẫn Học tập]**:\n1. **Phân bổ thời gian**: Dành 2 tiếng/ngày cho các môn tín chỉ chuyên ngành.\n2. **Kỹ năng làm bài Quiz**: Luyện tập ngân hàng câu hỏi trắc nghiệm tại tab **Bài kiểm tra**.\n3. **Cần trợ giúp**: Hãy nhắn tin trao đổi trực tiếp với Giảng viên môn học qua email hệ thống!`
-        };
-      }
-
-      // Mô hình Mặc định: Gemini 1.5 Pro (Học thuật & Phân tích chuyên sâu)
+      // =========================================================================
+      // 3. XỬ LÝ CHỦ ĐỀ CHUYÊN BIỆT THEO TỪ KHÓA
+      // =========================================================================
       if (text.includes('csdl') || text.includes('cơ sở dữ liệu')) {
         return {
           isSecurityWarning: false,
@@ -1586,16 +1633,48 @@ document.addEventListener('DOMContentLoaded', () => {
         };
       }
 
-      if (text.includes('chào') || text.includes('hi') || text.includes('hello')) {
+      if (text.includes('lịch thi') || text.includes('thời khóa biểu')) {
         return {
           isSecurityWarning: false,
-          text: `Xin chào! **OmniBrain AI Platform** đang hoạt động. Tôi có thể hỗ trợ bạn tìm hiểu tài liệu môn học, công thức GPA hay hướng dẫn lập trình hôm nay?`
+          text: `📅 **[Gemini 1.5 Pro] Lịch thi & Thời khóa biểu**:\n• **Môn**: Lập trình Enterprise với Java & Spring Boot 3\n• **Phòng thi**: Lab 3 (A101)\n• **Thời gian**: 08:00 AM - 15/10/2026\n• **Hình thức**: Trắc nghiệm 45 câu trên Quiz Engine.`
         };
       }
 
+      if (text.includes('chào') || text.includes('hi') || text.includes('hello')) {
+        return {
+          isSecurityWarning: false,
+          text: `Xin chào! **OmniBrain AI Platform** đang hoạt động. Tôi có thể hỗ trợ bạn giải bài tập, tính toán phép tính, tra cứu GPA hoặc hướng dẫn lập trình!`
+        };
+      }
+
+      // =========================================================================
+      // 4. XỬ LÝ THEO MÔ HÌNH KHI KHÔNG KHỚP TỪ KHÓA ĐẶC BIỆT
+      // =========================================================================
+      if (model === 'code-assist') {
+        return {
+          isSecurityWarning: false,
+          text: `💻 **[CodeAssist AI] Trợ lý Mã nguồn**:\nBạn có thể gửi yêu cầu viết code Java, SQL hay React. Ví dụ:\n\`\`\`java\n// Controller mẫu Spring Boot 3\n@RestController\n@RequestMapping("/api/v1/study")\npublic class StudyController {\n    @GetMapping("/hello")\n    public String hello() { return "Hello from UniLMS!"; }\n}\n\`\`\``
+        };
+      }
+
+      if (model === 'gemini-flash') {
+        return {
+          isSecurityWarning: false,
+          text: `⚡ **[Gemini 1.5 Flash - Phản hồi Nhanh]**:\nĐã nhận câu hỏi: "${input}". Trợ lý AI khuyến nghị bạn truy cập tab **Môn học** hoặc **Bài kiểm tra** để cập nhật thông tin bài giảng mới nhất.`
+        };
+      }
+
+      if (model === 'edubrain' || model === 'edubrain-guide') {
+        return {
+          isSecurityWarning: false,
+          text: `📘 **[EduBrain Study Guide - Lộ trình Học tập]**:\nĐối với yêu cầu "${input}", bạn nên:\n1. Xem lại bài giảng Slide tương ứng tại tab **Môn học**.\n2. Luyện tập làm quiz trắc nghiệm ngắn tại tab **Bài kiểm tra**.\n3. Nhắn tin hỗ trợ cho Giảng viên nếu cần hướng dẫn thêm!`
+        };
+      }
+
+      // Mặc định: Gemini 1.5 Pro
       return {
         isSecurityWarning: false,
-        text: `🧠 **[Gemini 1.5 Pro] OmniBrain Phản hồi**:\nCảm ơn bạn đã đặt câu hỏi: **"${input}"**.\nOmniBrain AI đã ghi nhận yêu cầu. Bạn có thể chọn các mô hình AI khác như **CodeAssist AI** để xem code mẫu hoặc **Gemini Flash** để nhận tóm tắt ngắn gọn!`
+        text: `🧠 **[Gemini 1.5 Pro] Phản hồi Trợ lý AI**:\n\nCảm ơn bạn đã hỏi: "**${input}**".\nOmniBrain AI sẵn sàng hỗ trợ giải đáp bài học, tính toán số liệu, tổng hợp kiến thức hoặc hỗ trợ lập trình!`
       };
     }
   }

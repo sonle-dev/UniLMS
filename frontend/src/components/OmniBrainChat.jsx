@@ -58,6 +58,50 @@ export default function OmniBrainChat({ currentRole, currentUser }) {
     }, 600);
   };
 
+  const tryEvaluateMath = (input) => {
+    if (!input) return null;
+    let cleaned = input.toLowerCase()
+      .replace(/kết quả (của )?(phép tính )?/gi, '')
+      .replace(/bằng bao nhiêu\??/gi, '')
+      .replace(/tính toán/gi, '')
+      .replace(/tính/gi, '')
+      .replace(/bằng/gi, '')
+      .replace(/=/g, '')
+      .trim();
+
+    let expr = cleaned
+      .replace(/nhân/gi, '*')
+      .replace(/chia/gi, '/')
+      .replace(/cộng/gi, '+')
+      .replace(/trừ/gi, '-')
+      .replace(/mũ/gi, '^')
+      .replace(/\bx\b/gi, '*')
+      .replace(/×/gi, '*')
+      .replace(/÷/gi, '/')
+      .trim();
+
+    if (/^[0-9\.\s\+\-\*\/\(\)\^]+$/.test(expr) && /[0-9]/.test(expr)) {
+      try {
+        const jsExpr = expr.replace(/\^/g, '**');
+        const evalResult = new Function(`return (${jsExpr});`)();
+        if (typeof evalResult === 'number' && !isNaN(evalResult) && isFinite(evalResult)) {
+          const displayExpr = expr
+            .replace(/\*/g, ' × ')
+            .replace(/\//g, ' ÷ ')
+            .replace(/\+/g, ' + ')
+            .replace(/\-/g, ' − ')
+            .replace(/\s+/g, ' ')
+            .trim();
+          return {
+            originalExpr: displayExpr,
+            result: evalResult
+          };
+        }
+      } catch (e) {}
+    }
+    return null;
+  };
+
   const generateOmniBrainResponse = (input, model, role, userObj) => {
     const lower = input.toLowerCase();
 
@@ -68,8 +112,6 @@ export default function OmniBrainChat({ currentRole, currentUser }) {
     ];
 
     const isTryingDbAccess = dbKeywords.some(kw => lower.includes(kw));
-
-    // Normalize role string (ROLE_STUDENT vs student)
     const isStudent = !role || role === 'ROLE_STUDENT' || role === 'student';
 
     if (isStudent && isTryingDbAccess && !lower.includes('môn cơ sở dữ liệu') && !lower.includes('tóm tắt')) {
@@ -80,35 +122,35 @@ export default function OmniBrainChat({ currentRole, currentUser }) {
       };
     }
 
-    // 2. MODEL-SPECIFIC RESPONSES
-    if (model === 'code-assist') {
-      if (lower.includes('sql') || lower.includes('join')) {
+    // 2. MATH EVALUATION ENGINE
+    const mathRes = tryEvaluateMath(input);
+    if (mathRes) {
+      if (model === 'code-assist') {
         return {
           isSecurityWarning: false,
-          text: `💻 **[CodeAssist AI] Cú pháp SQL JOIN chuẩn PostgreSQL**:\n\`\`\`sql\n-- Ví dụ INNER JOIN bảng Sinh viên và Bảng điểm\nSELECT s.student_code, s.full_name, g.tx1, g.midterm_score, g.final_score\nFROM student_profiles s\nINNER JOIN student_grades g ON s.user_id = g.student_id\nWHERE g.is_eligible_for_exam = TRUE;\n\`\`\`\n💡 *Ghi chú*: Mã nguồn đã được kiểm thử trên PostgreSQL 15+!`
+          text: `💻 **[CodeAssist AI - Biểu thức Toán học trong Code]**:\n\`\`\`java\n// Cú pháp tính toán Java / C++\ndouble result = ${mathRes.originalExpr.replace(/×/g, '*').replace(/÷/g, '/')};\nSystem.out.println("Kết quả = " + result); // Output: ${mathRes.result}\n\`\`\`\n👉 **Kết quả phép tính**: **\`${mathRes.originalExpr} = ${mathRes.result}\`**`
         };
       }
+      if (model === 'gemini-flash') {
+        return {
+          isSecurityWarning: false,
+          text: `⚡ **[Gemini 1.5 Flash]**: \`${mathRes.originalExpr} = ${mathRes.result}\``
+        };
+      }
+      if (model === 'edubrain' || model === 'edubrain-guide') {
+        return {
+          isSecurityWarning: false,
+          text: `📘 **[EduBrain Study Guide]**: Đáp án phép tính \`${mathRes.originalExpr}\` là **\`${mathRes.result}\`**.\n\n💡 *Mẹo*: Hãy nhớ kiểm tra thứ tự thực hiện phép tính (Nhân chia trước, Cộng trừ sau) khi làm các bài tập!`
+        };
+      }
+      // Default: gemini-pro
       return {
         isSecurityWarning: false,
-        text: `💻 **[CodeAssist AI] Đã nhận yêu cầu lập trình**:\n\`\`\`java\n// Ví dụ Controller REST Spring Boot 3\n@RestController\n@RequestMapping("/api/v1/courses")\npublic class CourseController {\n    @GetMapping\n    public ResponseEntity<List<CourseDto>> getPublishedCourses() {\n        return ResponseEntity.ok(courseService.findAllPublished());\n    }\n}\n\`\`\`\nCần thêm mẫu code về Redis Cache hay Security JWT không bạn?`
+        text: `🧠 **[Gemini 1.5 Pro - Phân tích Phép tính]**:\n\n• **Biểu thức**: \`${mathRes.originalExpr}\`\n• **Kết quả chính xác**: **\`${mathRes.result}\`**\n\n💡 *Ghi chú*: Kết quả đã được xác minh qua bộ máy OmniBrain Math Engine.`
       };
     }
 
-    if (model === 'edubrain-guide') {
-      return {
-        isSecurityWarning: false,
-        text: `🎓 **[EduBrain Study Guide] Lộ trình ôn tập đề xuất**:\n\n1. **Tuần 1-3**: Cấu trúc Java Core & OOP Advance.\n2. **Tuần 4-6**: Spring Boot 3 RESTful API & Annotations (@Autowired, @Service, @Repository).\n3. **Tuần 7-9**: Spring Security 6 Stateless JWT & Hibernate JPA.\n4. **Tuần 10**: Thực hành Dự án môn học & Ôn tập trắc nghiệm trực tuyến trên UniLMS.`
-      };
-    }
-
-    if (model === 'gemini-flash') {
-      return {
-        isSecurityWarning: false,
-        text: `⚡ **[Gemini 1.5 Flash - Phản hồi siêu tốc]**:\n- **Yêu cầu**: "${input}"\n- **Tóm tắt**: Hệ thống UniLMS hoạt động 24/7. Bài thi Trắc nghiệm có tính giờ tự động. Điểm thi sẽ được Giảng viên cập nhật trực tiếp lên hệ thống sau khi duyệt.`
-      };
-    }
-
-    // Default: gemini-pro
+    // 3. TOPIC KEYWORDS & DYNAMIC RESPONSES
     if (lower.includes('lịch thi') || lower.includes('thời khóa biểu')) {
       return {
         isSecurityWarning: false,
@@ -123,9 +165,37 @@ export default function OmniBrainChat({ currentRole, currentUser }) {
       };
     }
 
+    if (model === 'code-assist') {
+      if (lower.includes('sql') || lower.includes('join')) {
+        return {
+          isSecurityWarning: false,
+          text: `💻 **[CodeAssist AI] Cú pháp SQL JOIN chuẩn PostgreSQL**:\n\`\`\`sql\n-- Ví dụ INNER JOIN bảng Sinh viên và Bảng điểm\nSELECT s.student_code, s.full_name, g.tx1, g.midterm_score, g.final_score\nFROM student_profiles s\nINNER JOIN student_grades g ON s.user_id = g.student_id\nWHERE g.is_eligible_for_exam = TRUE;\n\`\`\`\n💡 *Ghi chú*: Mã nguồn đã được kiểm thử trên PostgreSQL 15+!`
+        };
+      }
+      return {
+        isSecurityWarning: false,
+        text: `💻 **[CodeAssist AI] Đã nhận yêu cầu lập trình**:\n\`\`\`java\n// Ví dụ Controller REST Spring Boot 3\n@RestController\n@RequestMapping("/api/v1/courses")\npublic class CourseController {\n    @GetMapping\n    public ResponseEntity<List<CourseDto>> getPublishedCourses() {\n        return ResponseEntity.ok(courseService.findAllPublished());\n    }\n}\n\`\`\`\nCần thêm mẫu code về Redis Cache hay Security JWT không bạn?`
+      };
+    }
+
+    if (model === 'edubrain-guide' || model === 'edubrain') {
+      return {
+        isSecurityWarning: false,
+        text: `🎓 **[EduBrain Study Guide] Hướng dẫn cho câu hỏi "${input}"**:\n\n1. **Nghiên cứu tài liệu**: Đọc Slide PPTX tương ứng tại mục môn học.\n2. **Thực hành Quiz**: Luyện tập câu hỏi trắc nghiệm tự kiểm tra kiến thức.\n3. **Hỏi đáp Giảng viên**: Liên hệ Giảng viên giảng dạy nếu có thắc mắc chuyên sâu.`
+      };
+    }
+
+    if (model === 'gemini-flash') {
+      return {
+        isSecurityWarning: false,
+        text: `⚡ **[Gemini 1.5 Flash - Tóm tắt nhanh]**:\n• **Nội dung yêu cầu**: "${input}"\n• **Gợi ý**: Hệ thống UniLMS cập nhật dữ liệu tự động. Hãy tham khảo lịch thi & danh sách môn học tại menu chính.`
+      };
+    }
+
+    // Default: gemini-pro
     return {
       isSecurityWarning: false,
-      text: `🧠 **[Gemini 1.5 Pro]** Trợ lý OmniBrain AI đã tiếp nhận câu hỏi: "*${input}*".\n\nBạn có thể tra cứu lịch thi, xem danh sách bài học hoặc sử dụng tính năng **CodeAssist AI** để viết code mẫu!`
+      text: `🧠 **[Gemini 1.5 Pro]** Trợ lý OmniBrain AI đã tiếp nhận câu hỏi: "*${input}*".\n\nBạn có thể tra cứu lịch thi, thực hiện các phép tính toán học (ví dụ: \`5 nhân 2\` hay \`100 / 4\`), hoặc chọn **CodeAssist AI** để viết code mẫu!`
     };
   };
 
