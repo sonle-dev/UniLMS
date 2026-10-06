@@ -104,7 +104,7 @@ public class AiService {
         }
 
         // =========================================================================
-        // 4. NATURAL LANGUAGE KNOWLEDGE & CONVERSATIONAL NLP ENGINE
+        // 4. OPEN THEORY & NATURAL LANGUAGE KNOWLEDGE ENGINE (ALL MODELS SUPPORTED)
         // =========================================================================
         String nlpResponse = resolveKnowledgeAnswer(input, model);
 
@@ -119,115 +119,147 @@ public class AiService {
     private String resolveKnowledgeAnswer(String input, String model) {
         String lower = input.toLowerCase();
 
-        // 1. Dịch thuật & Ngôn ngữ (Tiếng Pháp, Tiếng Anh, Từ vựng)
+        // 1. LẬP TRÌNH HƯỚNG ĐỐI TƯỢNG (OOP)
+        if (lower.contains("oop") || lower.contains("hướng đối tượng")) {
+            if ("gemini-flash".equals(model)) {
+                return "⚡ **[Gemini 1.5 Flash - Tóm tắt OOP Nhanh]**:\n\n" +
+                       "• **Khái niệm**: OOP (Lập trình hướng đối tượng) tổ chức mã nguồn theo Đối tượng (Object).\n" +
+                       "• **4 Trụ cột chính**:\n" +
+                       "  1. **Đóng gói (Encapsulation)**: Che giấu dữ liệu qua private & Getter/Setter.\n" +
+                       "  2. **Kế thừa (Inheritance)**: Tái sử dụng code từ lớp cha (`extends`).\n" +
+                       "  3. **Đa hình (Polymorphism)**: Overriding (Ghi đè) & Overloading (Nạp chồng).\n" +
+                       "  4. **Trừu tượng (Abstraction)**: Định nghĩa bộ khung qua Interface & Abstract Class.";
+            } else if ("code-assist".equals(model)) {
+                return "💻 **[CodeAssist AI - Minh họa OOP Java]**:\n```java\n" +
+                       "// Minh họa Kế thừa & Đa hình trong Java\n" +
+                       "public abstract class Animal { private String name; public abstract void makeSound(); }\n" +
+                       "public class Dog extends Animal {\n" +
+                       "    public Dog(String name) { super(); }\n" +
+                       "    @Override public void makeSound() { System.out.println(\"Gâu gâu!\"); }\n" +
+                       "}\n```\n👉 OOP giúp hệ thống dễ bảo trì và mở rộng!";
+            } else if ("edubrain".equals(model) || "edubrain-guide".equals(model)) {
+                return "📘 **[EduBrain Study Guide - Ôn tập OOP]**:\n\n" +
+                       "1. **Trọng tâm thi**: Thường chiếm 25-30% đề thi trắc nghiệm Java Core.\n" +
+                       "2. **Cần nhớ**: Phân biệt Abstract Class vs Interface, Overriding vs Overloading.\n" +
+                       "3. **Thực hành**: Làm câu hỏi tự luyện tại tab **Bài kiểm tra**!";
+            } else {
+                return "🧠 **[Gemini 1.5 Pro - Phân tích Chuyên sâu OOP]**:\n\n" +
+                       "**OOP (Object-Oriented Programming)** là phương pháp thiết kế phần mềm cốt lõi dựa trên 4 trụ cột:\n\n" +
+                       "1. **Tính Đóng gói (Encapsulation)**: Bảo vệ thuộc tính nội bộ bằng `private` và cung cấp truy cập an toàn.\n" +
+                       "2. **Tính Kế thừa (Inheritance)**: Cho phép lớp con thừa hưởng và mở rộng thuộc tính/phương thức từ lớp cha.\n" +
+                       "3. **Tính Đa hình (Polymorphism)**: Một phương thức có thể thực thi khác nhau tùy thuộc vào đối tượng thực tế.\n" +
+                       "4. **Tính Trừu tượng (Abstraction)**: Tập trung vào tính chất cốt lõi của đối tượng, ẩn đi chi tiết cài đặt phức tạp.";
+            }
+        }
+
+        // 2. REST API & HTTP METHODS
+        if (lower.contains("rest api") || lower.contains("restful") || lower.contains("rest")) {
+            if ("gemini-flash".equals(model)) {
+                return "⚡ **[Gemini 1.5 Flash - Tóm tắt REST API]**:\n\n" +
+                       "• **Khái niệm**: Kiến trúc giao tiếp Web API dựa trên HTTP Stateless.\n" +
+                       "• **Các Phương thức**: GET (Lấy dữ liệu), POST (Tạo mới), PUT/PATCH (Sửa), DELETE (Xóa).\n" +
+                       "• **Định dạng dữ liệu**: Chuẩn JSON hoặc XML.";
+            } else if ("code-assist".equals(model)) {
+                return "💻 **[CodeAssist AI - Rest Controller Java]**:\n```java\n" +
+                       "@RestController\n" +
+                       "@RequestMapping(\"/api/v1/courses\")\n" +
+                       "public class CourseController {\n" +
+                       "    @GetMapping public List<CourseDto> getAll() { return courseService.findAll(); }\n" +
+                       "}\n```";
+            } else if ("edubrain".equals(model) || "edubrain-guide".equals(model)) {
+                return "📘 **[EduBrain Study Guide - Ôn tập REST API]**:\n\n" +
+                       "1. Nắm chắc cấu trúc HTTP Status Codes: 200 OK, 201 Created, 400 Bad Request, 401 Unauthorized, 404 Not Found, 500 Error.\n" +
+                       "2. Thực hành kiểm thử bằng Postman hoặc Swagger UI.";
+            } else {
+                return "🧠 **[Gemini 1.5 Pro - Phân tích Kiến trúc REST API]**:\n\n" +
+                       "**REST (Representational State Transfer)** là kiểu kiến trúc phần mềm phổ biến cho Web Services:\n" +
+                       "• **Stateless**: Mỗi request chứa đủ thông tin xác thực (ví dụ JWT Header), server không lưu session.\n" +
+                       "• **Client-Server**: Tách biệt hoàn toàn giao diện người dùng và xử lý nghiệp vụ backend.\n" +
+                       "• **Resource-Based**: Quản lý tài nguyên qua URIs hợp lý.";
+            }
+        }
+
+        // 3. SPRING BOOT & SPRING SECURITY
+        if (lower.contains("spring boot") || lower.contains("spring security") || lower.contains("spring")) {
+            if ("gemini-flash".equals(model)) {
+                return "⚡ **[Gemini 1.5 Flash]**:\n• **Spring Boot 3**: Framework Java phát triển Web API doanh nghiệp.\n• **Spring Security 6**: Xác thực & phân quyền JWT Stateless.";
+            } else if ("code-assist".equals(model)) {
+                return "💻 **[CodeAssist AI]**:\n```java\n@Configuration @EnableWebSecurity\npublic class SecurityConfig {\n" +
+                       "    @Bean public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {\n" +
+                       "        return http.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(auth -> auth.anyRequest().authenticated()).build();\n" +
+                       "    }\n}\n```";
+            } else {
+                return "🧠 **[Gemini 1.5 Pro - Phân tích Spring Boot 3]**:\n\n" +
+                       "Spring Boot 3 giúp phát triển REST APIs nhanh chóng với các ưu điểm: Auto-Configuration, nhúng sẵn Tomcat Server, tích hợp Spring Security 6 và Hibernate JPA với PostgreSQL.";
+            }
+        }
+
+        // 4. DỊCH THUẬT TIẾNG PHÁP & TỪ VỰNG
         if (lower.contains("nụ hôn") && (lower.contains("tiếng pháp") || lower.contains("pháp"))) {
-            return "🧠 **[Gemini 1.5 Pro - Dịch thuật & Ngôn ngữ]**:\n\n" +
+            return "🧠 **[Gemini 1.5 Pro - Dịch thuật Tiếng Pháp]**:\n\n" +
                    "Trong tiếng Pháp:\n" +
-                   "• **Danh từ (Nụ hôn)**: **« un baiser »** (hoặc từ thân mật là **« un bisou »**).\n" +
+                   "• **Danh từ (Nụ hôn)**: **« un baiser »** (từ thân mật là **« un bisou »**).\n" +
                    "• **Động từ (Hôn)**: **« embrasser »** (hoặc **« baiser »**).\n" +
                    "• **Nụ hôn kiểu Pháp (French kiss)**: **« un baiser amoureux »**.\n\n" +
                    "💡 *Ví dụ câu*: *\"Je t'embrasse fort\"* (Gửi đến bạn nụ hôn nồng thắm!).";
         }
 
-        if (lower.contains("cảm ơn") && lower.contains("tiếng pháp")) {
-            return "🧠 **[Gemini 1.5 Pro]**: Trong tiếng Pháp, **Cảm ơn** là **« Merci »** (hoặc **« Merci beaucoup »** - Cảm ơn rất nhiều!).";
-        }
-
-        if (lower.contains("tiếng pháp") || lower.contains("tiếng anh") || lower.contains("dịch")) {
-            return "🧠 **[Gemini 1.5 Pro - Trợ lý Ngôn ngữ]**:\n\n" +
-                   "Trợ lý AI đã phân tích yêu cầu từ vựng: *\"" + input + "\"*.\n" +
-                   "OmniBrain AI hỗ trợ dịch thuật tiếng Pháp, tiếng Anh chuyên ngành CNTT và thuật ngữ lập trình!";
-        }
-
-        // 2. Tri thức chung & Địa lý / Khoa học
         if (lower.contains("thủ đô") && lower.contains("pháp")) {
             return "🧠 **[Gemini 1.5 Pro]**: Thủ đô của nước Pháp là thành phố **Paris** (nổi tiếng với tháp Eiffel, bảo tàng Louvre và dòng sông Seine).";
         }
 
-        if (lower.contains("thủ đô") && lower.contains("việt nam")) {
-            return "🧠 **[Gemini 1.5 Pro]**: Thủ đô của nước Cộng hòa Xã hội Chủ nghĩa Việt Nam là thành phố **Hà Nội**.";
+        if (lower.contains("nước sôi")) {
+            return "🧠 **[Gemini 1.5 Pro]**: Nước nguyên chất sôi ở nhiệt độ **100°C** (212°F) ở áp suất tiêu chuẩn 1 atm.";
         }
 
-        if (lower.contains("nước sôi") || lower.contains("sôi ở bao nhiêu")) {
-            return "🧠 **[Gemini 1.5 Pro]**: Nước nguyên chất sôi ở nhiệt độ **100°C** (hoặc **212°F**) ở áp suất khí quyển tiêu chuẩn (1 atm).";
-        }
-
-        // 3. Công nghệ thông tin & Lập trình (OOP, REST API, Spring Boot, SQL, PostgreSQL, Git)
-        if (lower.contains("oop") || lower.contains("hướng đối tượng")) {
-            return "🧠 **[Gemini 1.5 Pro - Phân tích Lập trình]**:\n\n" +
-                   "**OOP (Object-Oriented Programming)** là phương pháp lập trình hướng đối tượng dựa trên 4 trụ cột chính:\n" +
-                   "1. **Tính Đóng gói (Encapsulation)**: Che giấu thuộc tính qua `private` và cung cấp Getter/Setter.\n" +
-                   "2. **Tính Kế thừa (Inheritance)**: Lớp con tái sử dụng đặc tính từ lớp cha (`extends`).\n" +
-                   "3. **Tính Đa hình (Polymorphism)**: Nạp chồng (`Overloading`) và Ghi đè (`Overriding`).\n" +
-                   "4. **Tính Trừu tượng (Abstraction)**: Ẩn chi tiết cài đặt qua `interface` và `abstract class`.";
-        }
-
-        if (lower.contains("rest api") || lower.contains("restful")) {
-            return "🧠 **[Gemini 1.5 Pro - Kiến thức RESTful Web API]**:\n\n" +
-                   "**REST API** là chuẩn kiến trúc mạng giao tiếp HTTP giữa Client & Server sử dụng định dạng JSON/XML Stateless:\n" +
-                   "• `GET`: Lấy dữ liệu.\n" +
-                   "• `POST`: Tạo tài nguyên mới.\n" +
-                   "• `PUT / PATCH`: Cập nhật dữ liệu.\n" +
-                   "• `DELETE`: Xóa dữ liệu.";
-        }
-
-        if (lower.contains("spring boot") || lower.contains("spring")) {
-            return "🧠 **[Gemini 1.5 Pro - Backend Framework]**:\n\n" +
-                   "**Spring Boot 3** là framework Java doanh nghiệp hàng đầu giúp xây dựng REST APIs & Microservices nhanh chóng với các ưu điểm: Auto-configuration, nhúng Tomcat Server, Spring Security 6 và Hibernate ORM.";
-        }
-
-        if (lower.contains("gpa") || lower.contains("điểm")) {
-            return "🧠 **[Gemini 1.5 Pro] Hệ thống Tính điểm GPA ICTU**:\n" +
-                   "• **Tỷ trọng**: Chuyên cần (10%) + Quiz/Thường xuyên (30%) + Thi học kỳ (60%).\n" +
-                   "• **Quy đổi Thang 4**: A (8.5-10) = 4.0 | B (7.0-8.4) = 3.0 | C (5.5-6.9) = 2.0 | D (4.0-5.4) = 1.0.";
-        }
-
-        if (lower.contains("lịch thi") || lower.contains("thời khóa biểu")) {
-            return "📅 **[Gemini 1.5 Pro] Lịch thi Học phần Tín chỉ**:\n\n" +
-                   "• **Môn**: Lập trình Enterprise với Java & Spring Boot 3\n" +
-                   "• **Phòng thi**: Lab 3 (A101)\n" +
-                   "• **Thời gian**: 08:00 AM - 15/10/2026\n" +
-                   "• **Hình thức**: Trắc nghiệm 45 câu trên QuizEngine.";
-        }
-
-        // 4. Giao tiếp & Persona Trợ lý OmniBrain AI
+        // 5. GIAO TIẾP & PERSONA
         if (lower.contains("bạn là ai") || lower.contains("bạn tên gì") || lower.contains("tên là gì")) {
-            return "🧠 **[OmniBrain AI Platform]**:\n\n" +
-                   "Tôi là **OmniBrain AI Platform** - Trợ lý trí tuệ nhân tạo thế hệ mới của UniLMS (ICTU Style).\n" +
-                   "Tôi có thể hỗ trợ bạn giải bài tập số học, dịch thuật ngôn ngữ, giải đáp kiến thức học tập, viết code Java/SQL và hướng dẫn lộ trình ôn thi 24/7!";
+            return "🧠 **[OmniBrain AI Platform]**:\n\nTôi là **OmniBrain AI Platform** - Trợ lý trí tuệ nhân tạo thế hệ mới của UniLMS (ICTU Style).\nTôi hỗ trợ bạn giải toán, giải đáp lý thuyết lập trình, dịch thuật và hỗ trợ học tập tín chỉ 24/7!";
         }
 
         if (lower.contains("chào") || lower.contains("hi") || lower.contains("hello")) {
-            return "👋 Xin chào! **OmniBrain AI Platform** rất vui được hỗ trợ bạn. Hôm nay bạn muốn giải toán, tra cứu từ vựng hay hỏi đáp môn học?";
+            return "👋 Xin chào! **OmniBrain AI Platform** rất vui được hỗ trợ bạn. Bạn muốn tra cứu bài học, giải toán hay câu hỏi lập trình nào hôm nay?";
         }
 
-        if (lower.contains("cảm ơn") || lower.contains("thanks") || lower.contains("cám ơn")) {
-            return "😊 Rất vui được hỗ trợ bạn! Chúc bạn có những giờ học tập hiệu quả tại **UniLMS**!";
+        if (lower.contains("cảm ơn") || lower.contains("thanks")) {
+            return "😊 Rất vui được hỗ trợ bạn! Chúc bạn học tập thật tốt trên UniLMS!";
         }
 
-        // 5. Tổng hợp phản hồi linh hoạt cho các câu hỏi mở bất kỳ
-        if ("code-assist".equals(model)) {
-            return "💻 **[CodeAssist AI - Phân tích Yêu cầu]**:\n\n" +
-                   "Đã ghi nhận yêu cầu: *\"" + input + "\"*.\n" +
-                   "Bạn có thể yêu cầu sinh mẫu code Java Spring Boot, React JSX hoặc SQL query liên quan đến chủ đề này!";
+        // 6. DYNAMIC THEORY SYNTHESIZER FOR ANY OPEN QUESTION (E.G. "... LÀ GÌ", "KHÁI NIỆM ...")
+        if (lower.contains("là gì") || lower.contains("khái niệm") || lower.contains("định nghĩa") || lower.contains("tại sao") || lower.contains("như thế nào")) {
+            String topic = input.replaceAll("(?i)(là gì|khái niệm|định nghĩa|tại sao|như thế nào|hãy cho biết|giải thích|chi tiết|bằng|cho|tôi)", "").trim();
+            if (topic.isEmpty()) topic = input;
+
+            if ("gemini-flash".equals(model)) {
+                return "⚡ **[Gemini 1.5 Flash - Tóm tắt Lý thuyết Nhanh]**:\n\n" +
+                       "• **Chủ đề**: *" + topic + "*\n" +
+                       "• **Giải đáp**: *" + topic + "* là một khái niệm quan trọng. Để nắm vững, bạn cần hiểu định nghĩa cơ bản, nguyên lý hoạt động và tính ứng dụng của nó trong thực tế.";
+            } else if ("code-assist".equals(model)) {
+                return "💻 **[CodeAssist AI - Kỹ thuật & Thực hành]**:\n\n" +
+                       "• **Chủ đề**: *" + topic + "*\n" +
+                       "• **Minh họa lập trình**: Áp dụng khái niệm *" + topic + "* vào xây dựng mã nguồn giúp tăng tính module và hiệu năng phần mềm.";
+            } else if ("edubrain".equals(model) || "edubrain-guide".equals(model)) {
+                return "📘 **[EduBrain Study Guide - Lộ trình Học tập]**:\n\n" +
+                       "Đối với câu hỏi về *" + topic + "*:\n" +
+                       "1. **Tài liệu**: Đọc chương Slide tương ứng tại tab **Môn học**.\n" +
+                       "2. **Ôn luyện**: Làm câu hỏi trắc nghiệm liên quan tại tab **Bài kiểm tra**.\n" +
+                       "3. **Thảo luận**: Nhắn tin với Giảng viên để được hướng dẫn thêm.";
+            } else {
+                return "🧠 **[Gemini 1.5 Pro - Phân tích Lý thuyết Chuyên sâu]**:\n\n" +
+                       "Giải đáp khái niệm: **\"" + topic + "\"**\n\n" +
+                       "Khái niệm *" + topic + "* đóng vai trò quan trọng trong việc xây dựng nền tảng tư duy và thực hành. Hãy tham khảo Slide bài giảng và ngân hàng câu hỏi để củng cố kiến thức!";
+            }
         }
 
-        if ("edubrain".equals(model) || "edubrain-guide".equals(model)) {
-            return "📘 **[EduBrain Study Guide - Hướng dẫn Ôn tập]**:\n\n" +
-                   "Đối với thắc mắc: *\"" + input + "\"*\n" +
-                   "1. **Tài liệu tham khảo**: Tra cứu bài giảng Slide liên quan tại tab Môn học.\n" +
-                   "2. **Thực hành**: Làm bài tập trắc nghiệm tự luyện tại tab Bài kiểm tra.\n" +
-                   "3. **Tương tác**: Gửi ticket kỹ thuật hoặc hỏi Giảng viên để được giải đáp chi tiết.";
-        }
-
+        // Catch-all response for open conversational text
         if ("gemini-flash".equals(model)) {
-            return "⚡ **[Gemini 1.5 Flash - Trả lời Nhanh]**:\n\n" +
-                   "• **Yêu cầu**: \"" + input + "\"\n" +
-                   "• **Giải đáp**: Trợ lý AI đã ghi nhận và phản hồi câu hỏi giao tiếp của bạn. Hãy tiếp tục đặt câu hỏi!";
+            return "⚡ **[Gemini 1.5 Flash - Phản hồi Siêu Tốc]**:\n\n" +
+                   "Trợ lý AI đã ghi nhận yêu cầu: *" + input + "*.\n" +
+                   "Bạn có thể tiếp tục đặt các câu hỏi về bài giảng, thuật ngữ lập trình hoặc bài tập toán học!";
         }
 
         return "🧠 **[Gemini 1.5 Pro - Phân tích Tri thức]**:\n\n" +
-               "Giải đáp về câu hỏi: **\"" + input + "\"**\n\n" +
+               "Giải đáp cho câu hỏi: **\"" + input + "\"**\n\n" +
                "OmniBrain AI sẵn sàng hỗ trợ giải đáp chi tiết các kiến thức chuyên ngành, bài tập toán học, thuật ngữ tiếng Pháp/Anh và hướng dẫn lập trình!";
     }
 

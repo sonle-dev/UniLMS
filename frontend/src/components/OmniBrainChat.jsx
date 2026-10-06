@@ -178,18 +178,54 @@ export default function OmniBrainChat({ currentRole, currentUser }) {
       };
     }
 
-    // 3. TOPIC KEYWORDS & NLP KNOWLEDGE RESPONSES
+    // 3. TOPIC KEYWORDS & NLP KNOWLEDGE RESPONSES (ALL MODELS)
+    if (lower.includes('oop') || lower.includes('hướng đối tượng')) {
+      if (model === 'gemini-flash') {
+        return {
+          isSecurityWarning: false,
+          text: `⚡ **[Gemini 1.5 Flash - Tóm tắt OOP Nhanh]**:\n\n• **Khái niệm**: OOP (Lập trình hướng đối tượng) tổ chức mã nguồn theo Đối tượng (Object).\n• **4 Trụ cột chính**:\n  1. **Đóng gói (Encapsulation)**: Che giấu dữ liệu qua private & Getter/Setter.\n  2. **Kế thừa (Inheritance)**: Tái sử dụng code từ lớp cha (\`extends\`).\n  3. **Đa hình (Polymorphism)**: Overriding (Ghi đè) & Overloading (Nạp chồng).\n  4. **Trừu tượng (Abstraction)**: Định nghĩa bộ khung qua Interface & Abstract Class.`
+        };
+      } else if (model === 'code-assist') {
+        return {
+          isSecurityWarning: false,
+          text: `💻 **[CodeAssist AI - Code Mẫu OOP Java]**:\n\`\`\`java\n// Minh họa Kế thừa & Đa hình trong Java\npublic abstract class Animal { private String name; public abstract void makeSound(); }\npublic class Dog extends Animal {\n    public Dog(String name) { super(); }\n    @Override public void makeSound() { System.out.println("Gâu gâu!"); }\n}\n\`\`\`\n👉 OOP giúp hệ thống linh hoạt và dễ mở rộng!`
+        };
+      } else if (model === 'edubrain' || model === 'edubrain-guide') {
+        return {
+          isSecurityWarning: false,
+          text: `📘 **[EduBrain Study Guide - Ôn tập OOP]**:\n\n1. **Trọng tâm thi**: Thường chiếm 25-30% đề thi trắc nghiệm Java Core.\n2. **Cần nhớ**: Phân biệt Abstract Class vs Interface, Overriding vs Overloading.\n3. **Thực hành**: Làm câu hỏi tự luyện tại tab **Bài kiểm tra**!`
+        };
+      } else {
+        return {
+          isSecurityWarning: false,
+          text: `🧠 **[Gemini 1.5 Pro - Phân tích Chuyên sâu OOP]**:\n\n**OOP (Object-Oriented Programming)** là phương pháp thiết kế phần mềm cốt lõi dựa trên 4 trụ cột:\n\n1. **Tính Đóng gói (Encapsulation)**: Bảo vệ thuộc tính nội bộ bằng \`private\` và cung cấp truy cập an toàn.\n2. **Tính Kế thừa (Inheritance)**: Cho phép lớp con thừa hưởng và mở rộng thuộc tính/phương thức từ lớp cha.\n3. **Tính Đa hình (Polymorphism)**: Một phương thức có thể thực thi khác nhau tùy thuộc vào đối tượng thực tế.\n4. **Tính Trừu tượng (Abstraction)**: Tập trung vào tính chất cốt lõi của đối tượng, ẩn đi chi tiết cài đặt phức tạp.`
+        };
+      }
+    }
+
+    if (lower.includes('rest api') || lower.includes('restful')) {
+      if (model === 'gemini-flash') {
+        return {
+          isSecurityWarning: false,
+          text: `⚡ **[Gemini 1.5 Flash - Tóm tắt REST API]**:\n\n• **REST API**: Kiến trúc giao tiếp Web API dựa trên HTTP Stateless.\n• **HTTP Methods**: GET (Đọc), POST (Tạo), PUT/PATCH (Sửa), DELETE (Xóa).\n• **Định dạng dữ liệu**: Chuẩn JSON hoặc XML.`
+        };
+      } else if (model === 'code-assist') {
+        return {
+          isSecurityWarning: false,
+          text: `💻 **[CodeAssist AI - Code Controller REST API]**:\n\`\`\`java\n@RestController\n@RequestMapping("/api/v1/courses")\npublic class CourseController {\n    @GetMapping public List<CourseDto> getAll() { return courseService.findAll(); }\n}\n\`\`\``
+        };
+      } else {
+        return {
+          isSecurityWarning: false,
+          text: `🧠 **[Gemini 1.5 Pro - Phân tích REST API]**:\n\n**REST (Representational State Transfer)** là kiểu kiến trúc phần mềm phổ biến cho Web Services HTTP Stateless, dễ mở rộng và độc lập giao diện.`
+        };
+      }
+    }
+
     if (lower.includes('nụ hôn') && (lower.includes('tiếng pháp') || lower.includes('pháp'))) {
       return {
         isSecurityWarning: false,
         text: `🧠 **[Gemini 1.5 Pro - Dịch thuật & Ngôn ngữ]**:\n\nTrong tiếng Pháp:\n• **Danh từ (Nụ hôn)**: **« un baiser »** (từ thân mật là **« un bisou »**).\n• **Động từ (Hôn)**: **« embrasser »** (hoặc **« baiser »**).\n• **Nụ hôn kiểu Pháp (French kiss)**: **« un baiser amoureux »**.\n\n💡 *Ví dụ câu*: *"Je t'embrasserai fort"* (Anh/chị sẽ ôm hôn bạn thật chặt).`
-      };
-    }
-
-    if (lower.includes('cảm ơn') && lower.includes('tiếng pháp')) {
-      return {
-        isSecurityWarning: false,
-        text: `🧠 **[Gemini 1.5 Pro]**: Trong tiếng Pháp, **Cảm ơn** là **« Merci »** (hoặc **« Merci beaucoup »** - Cảm ơn rất nhiều!).`
       };
     }
 
@@ -200,20 +236,6 @@ export default function OmniBrainChat({ currentRole, currentUser }) {
       };
     }
 
-    if (lower.includes('oop') || lower.includes('hướng đối tượng')) {
-      return {
-        isSecurityWarning: false,
-        text: `🧠 **[Gemini 1.5 Pro - Phân tích Lập trình]**:\n\n**OOP (Object-Oriented Programming)** là phương pháp lập trình hướng đối tượng dựa trên 4 trụ cột chính:\n1. **Tính Đóng gói (Encapsulation)**: Che giấu thuộc tính qua \`private\` và cung cấp Getter/Setter.\n2. **Tính Kế thừa (Inheritance)**: Lớp con tái sử dụng đặc tính từ lớp cha (\`extends\`/\`implements\`).\n3. **Tính Đa hình (Polymorphism)**: Nạp chồng (\`Overloading\`) và Ghi đè (\`Overriding\`).\n4. **Tính Trừu tượng (Abstraction)**: Ẩn chi tiết cài đặt qua \`interface\` và \`abstract class\`.`
-      };
-    }
-
-    if (lower.includes('rest api') || lower.includes('restful')) {
-      return {
-        isSecurityWarning: false,
-        text: `🧠 **[Gemini 1.5 Pro - Kiến thức RESTful API]**:\n\n**REST API** là chuẩn kiến trúc mạng giao tiếp HTTP giữa Client & Server sử dụng định dạng JSON/XML Stateless:\n• \`GET\`: Lấy dữ liệu.\n• \`POST\`: Tạo tài nguyên mới.\n• \`PUT / PATCH\`: Cập nhật dữ liệu.\n• \`DELETE\`: Xóa dữ liệu.`
-      };
-    }
-
     if (lower.includes('bạn là ai') || lower.includes('bạn tên gì') || lower.includes('tên là gì')) {
       return {
         isSecurityWarning: false,
@@ -221,48 +243,55 @@ export default function OmniBrainChat({ currentRole, currentUser }) {
       };
     }
 
-    if (lower.includes('lịch thi') || lower.includes('thời khóa biểu')) {
+    if (lower.includes('chào') || lower.includes('hi') || lower.includes('hello')) {
       return {
         isSecurityWarning: false,
-        text: `📅 **[Gemini 1.5 Pro] Thông tin Thời khóa biểu & Lịch thi**:\n\n- **Môn**: Lập trình Enterprise với Java & Spring Boot 3\n- **Phòng thi**: A101 - Phòng Máy Tính Lab 3\n- **Thời gian**: 08:00 AM - 15/10/2026\n- **Hình thức**: Trắc nghiệm 45 câu trên UniLMS Quiz Engine.`
+        text: `Xin chào! **OmniBrain AI Platform** đang hoạt động. Tôi có thể hỗ trợ bạn giải bài tập, tính toán phép tính, tra cứu GPA hay dịch thuật tiếng Pháp/Anh!`
       };
     }
 
-    if (lower.includes('spring security') || lower.includes('jwt')) {
+    if (lower.includes('cảm ơn') || lower.includes('thanks')) {
       return {
         isSecurityWarning: false,
-        text: `🧠 **[Gemini 1.5 Pro] Tổng quan Spring Security 6 & JWT**:\n\n1. **Stateless Auth**: Không lưu Session trên Server, xác thực qua Header \`Authorization: Bearer <token>\`.\n2. **SecurityFilterChain**: Cấu hình quy tắc phân quyền route theo role (STUDENT, INSTRUCTOR, ADMIN).\n3. **JwtAuthenticationFilter**: Đọc token, verify chữ ký HMAC-SHA256 và set Authentication vào SecurityContextHolder.`
+        text: `😊 Rất vui được hỗ trợ bạn! Chúc bạn học tập thật tốt trên UniLMS!`
       };
     }
 
-    if (model === 'code-assist') {
-      if (lower.includes('sql') || lower.includes('join')) {
+    // 4. DYNAMIC THEORY SYNTHESIZER FOR ANY OPEN QUESTION ("... LÀ GÌ")
+    if (lower.includes('là gì') || lower.includes('khái niệm') || lower.includes('định nghĩa') || lower.includes('tại sao') || lower.includes('như thế nào')) {
+      const topic = input.replace(/(là gì|khái niệm|định nghĩa|tại sao|như thế nào|hãy cho biết|giải thích|chi tiết)/gi, '').trim() || input;
+
+      if (model === 'gemini-flash') {
         return {
           isSecurityWarning: false,
-          text: `💻 **[CodeAssist AI] Cú pháp SQL JOIN chuẩn PostgreSQL**:\n\`\`\`sql\n-- Ví dụ INNER JOIN bảng Sinh viên và Bảng điểm\nSELECT s.student_code, s.full_name, g.tx1, g.midterm_score, g.final_score\nFROM student_profiles s\nINNER JOIN student_grades g ON s.user_id = g.student_id\nWHERE g.is_eligible_for_exam = TRUE;\n\`\`\`\n💡 *Ghi chú*: Mã nguồn đã được kiểm thử trên PostgreSQL 15+!`
+          text: `⚡ **[Gemini 1.5 Flash - Tóm tắt Lý thuyết Nhanh]**:\n\n• **Chủ đề**: *${topic}*\n• **Giải đáp**: *${topic}* là một khái niệm quan trọng. Để nắm vững, bạn cần hiểu định nghĩa cơ bản, nguyên lý hoạt động và tính ứng dụng của nó trong thực tế.`
+        };
+      } else if (model === 'code-assist') {
+        return {
+          isSecurityWarning: false,
+          text: `💻 **[CodeAssist AI - Kỹ thuật & Thực hành]**:\n\n• **Chủ đề**: *${topic}*\n• **Minh họa lập trình**: Áp dụng khái niệm *${topic}* vào xây dựng mã nguồn giúp tăng tính module và hiệu năng phần mềm.`
+        };
+      } else if (model === 'edubrain' || model === 'edubrain-guide') {
+        return {
+          isSecurityWarning: false,
+          text: `📘 **[EduBrain Study Guide - Lộ trình Ôn tập]**:\n\nĐối với câu hỏi về *${topic}*:\n1. **Tài liệu**: Đọc chương Slide tương ứng tại tab **Môn học**.\n2. **Ôn luyện**: Làm câu hỏi trắc nghiệm liên quan tại tab **Bài kiểm tra**.\n3. **Thảo luận**: Nhắn tin với Giảng viên để được hướng dẫn thêm.`
+        };
+      } else {
+        return {
+          isSecurityWarning: false,
+          text: `🧠 **[Gemini 1.5 Pro - Phân tích Lý thuyết Chuyên sâu]**:\n\nGiải đáp khái niệm: **"${topic}"**\n\nKhái niệm *${topic}* đóng vai trò quan trọng trong việc xây dựng nền tảng tư duy và thực hành. Hãy tham khảo Slide bài giảng và ngân hàng câu hỏi để củng cố kiến thức!`
         };
       }
-      return {
-        isSecurityWarning: false,
-        text: `💻 **[CodeAssist AI] Đã nhận yêu cầu lập trình**:\n\`\`\`java\n// Ví dụ Controller REST Spring Boot 3\n@RestController\n@RequestMapping("/api/v1/courses")\npublic class CourseController {\n    @GetMapping\n    public ResponseEntity<List<CourseDto>> getPublishedCourses() {\n        return ResponseEntity.ok(courseService.findAllPublished());\n    }\n}\n\`\`\`\nCần thêm mẫu code về Redis Cache hay Security JWT không bạn?`
-      };
     }
 
-    if (model === 'edubrain-guide' || model === 'edubrain') {
-      return {
-        isSecurityWarning: false,
-        text: `🎓 **[EduBrain Study Guide] Hướng dẫn cho câu hỏi "${input}"**:\n\n1. **Nghiên cứu tài liệu**: Đọc Slide PPTX tương ứng tại mục môn học.\n2. **Thực hành Quiz**: Luyện tập câu hỏi trắc nghiệm tự kiểm tra kiến thức.\n3. **Hỏi đáp Giảng viên**: Liên hệ Giảng viên giảng dạy nếu có thắc mắc chuyên sâu.`
-      };
-    }
-
+    // Default: catch-all
     if (model === 'gemini-flash') {
       return {
         isSecurityWarning: false,
-        text: `⚡ **[Gemini 1.5 Flash - Tóm tắt nhanh]**:\n• **Nội dung yêu cầu**: "${input}"\n• **Gợi ý**: Hệ thống UniLMS cập nhật dữ liệu tự động. Hãy tham khảo lịch thi & danh sách môn học tại menu chính.`
+        text: `⚡ **[Gemini 1.5 Flash - Phản hồi Siêu Tốc]**:\n\nTrợ lý AI đã ghi nhận yêu cầu: *"${input}"*.\nBạn có thể tiếp tục đặt các câu hỏi về bài giảng, thuật ngữ lập trình hoặc bài tập toán học!`
       };
     }
 
-    // Default: gemini-pro
     return {
       isSecurityWarning: false,
       text: `🧠 **[Gemini 1.5 Pro - Phân tích Tri thức]**:\n\nGiải đáp cho câu hỏi: **"${input}"**\n\nOmniBrain AI sẵn sàng hỗ trợ giải đáp chi tiết các kiến thức chuyên ngành, bài tập toán học, thuật ngữ tiếng Pháp/Anh và hướng dẫn lập trình!`
