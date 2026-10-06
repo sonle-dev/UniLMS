@@ -51,7 +51,11 @@ export default function OmniBrainChat({ currentRole, currentUser }) {
         body: JSON.stringify({
           message: text,
           model: selectedModel,
-          role: currentRole || 'ROLE_STUDENT'
+          role: currentRole || 'ROLE_STUDENT',
+          userFullName: currentUser?.fullName || (currentRole === 'ROLE_INSTRUCTOR' ? 'TS. Trần Thị Mai' : 'Nguyễn Văn An'),
+          userCode: currentUser?.studentCode || (currentRole === 'ROLE_INSTRUCTOR' ? 'MSGV 10245' : 'MSSV 22110045'),
+          userEmail: currentUser?.email || (currentRole === 'ROLE_INSTRUCTOR' ? 'mai.tt@eduportal.edu.vn' : 'an.nv22110045@st.eduportal.edu.vn'),
+          department: 'Khoa Công nghệ Thông tin - ICTU'
         })
       });
 
@@ -186,14 +190,14 @@ export default function OmniBrainChat({ currentRole, currentUser }) {
     ];
 
     if (profileKeywords.some(kw => lower.includes(kw))) {
-      const name = userObj?.fullName || 'Nguyễn Văn An';
-      const studentCode = userObj?.studentCode || '22110045';
-      const email = userObj?.email || 'sinhvien@unilms.edu.vn';
+      const name = userObj?.fullName || (role === 'ROLE_INSTRUCTOR' || role === 'instructor' ? 'TS. Trần Thị Mai' : 'Nguyễn Văn An');
+      const studentCode = userObj?.studentCode || (role === 'ROLE_INSTRUCTOR' || role === 'instructor' ? 'MSGV 10245' : 'MSSV 22110045');
+      const email = userObj?.email || (role === 'ROLE_INSTRUCTOR' || role === 'instructor' ? 'mai.tt@eduportal.edu.vn' : 'an.nv22110045@st.eduportal.edu.vn');
 
       if (role === 'ROLE_INSTRUCTOR' || role === 'instructor') {
         return {
           isSecurityWarning: false,
-          text: `👨‍🏫 **[OmniBrain AI] Tổng hợp Hồ sơ Giảng dạy của Bạn**:\n\n• **Họ và tên**: **${name}**\n• **Học hàm / Học vị**: PGS. TS. Giảng viên Chuyên trách\n• **Đơn vị công tác**: Khoa Công nghệ Thông tin - ICTU\n• **Email**: \`${email}\`\n• **Vai trò**: **Giảng viên (INSTRUCTOR)**\n\n📖 **Các lớp học phần đang phụ trách**:\n1. **Lập trình Enterprise với Java 17/21 & Spring Boot 3** (Sĩ số: 87 Sinh viên)\n2. **Kiến trúc & Tối ưu CSDL PostgreSQL Enterprise** (Sĩ số: 45 Sinh viên)\n\n📊 **Trạng thái**: Đã duyệt bảng điểm Chuyên cần & Quiz TX1!`
+          text: `👨‍🏫 **[OmniBrain AI] Tổng hợp Hồ sơ Giảng dạy của Bạn**:\n\n• **Họ và tên**: **${name}**\n• **Mã giảng viên (MSGV)**: **${studentCode}**\n• **Đơn vị công tác**: Khoa Công nghệ Thông tin - ICTU\n• **Email**: \`${email}\`\n• **Vai trò**: **Giảng viên (INSTRUCTOR)**\n\n📖 **Các lớp học phần đang phụ trách**:\n1. **Cơ sở dữ liệu (INT2211)** - 5 lớp (Sĩ số: 120 Sinh viên)\n2. **Lập trình hướng đối tượng (INT2204)** - 3 lớp\n3. **Lập trình Web (INT3306)** - 2 lớp\n\n📊 **Trạng thái**: Đã duyệt bảng điểm Chuyên cần & Quiz TX1. Có 1 bài kiểm tra giữa kỳ chờ chấm!`
         };
       }
 

@@ -1448,6 +1448,15 @@ document.addEventListener('DOMContentLoaded', () => {
       const typingEl = appendTypingIndicator();
       const selectedModel = modelSelect?.value || 'gemini-pro';
 
+      // Lấy thông tin tài khoản đang đăng nhập trên thiết bị theo vai trò hiện tại
+      const roleKey = state.currentRole || 'student';
+      const roleNormalized = roleKey.replace('ROLE_', '').toLowerCase();
+      const currentUserObj = state.data.users[roleKey] || state.data.users[roleNormalized] || {};
+      const userFullName = currentUserObj.name || currentUserObj.fullName || (roleNormalized === 'instructor' ? 'TS. Trần Thị Mai' : 'Nguyễn Văn An');
+      const userCode = currentUserObj.code || currentUserObj.instructorCode || currentUserObj.studentCode || (roleNormalized === 'instructor' ? 'MSGV 10245' : 'MSSV 22110045');
+      const userEmail = currentUserObj.email || (roleNormalized === 'instructor' ? 'mai.tt@eduportal.edu.vn' : 'an.nv22110045@st.eduportal.edu.vn');
+      const userDept = currentUserObj.department || 'Khoa Công nghệ Thông tin - ICTU';
+
       try {
         const res = await fetch('http://localhost:8080/api/v1/ai/chat', {
           method: 'POST',
@@ -1455,7 +1464,11 @@ document.addEventListener('DOMContentLoaded', () => {
           body: JSON.stringify({
             message: messageText,
             model: selectedModel,
-            role: state.currentRole || 'ROLE_STUDENT'
+            role: state.currentRole || 'ROLE_STUDENT',
+            userFullName: userFullName,
+            userCode: userCode,
+            userEmail: userEmail,
+            department: userDept
           })
         });
 
@@ -1647,21 +1660,29 @@ document.addEventListener('DOMContentLoaded', () => {
       ];
 
       if (profileKeywords.some(kw => text.includes(kw))) {
+        const roleKey = state.currentRole || 'student';
+        const roleNormalized = roleKey.replace('ROLE_', '').toLowerCase();
+        const currentUserObj = state.data.users[roleKey] || state.data.users[roleNormalized] || {};
+        const userName = currentUserObj.name || currentUserObj.fullName || (roleNormalized === 'instructor' ? 'TS. Trần Thị Mai' : 'Nguyễn Văn An');
+        const userCode = currentUserObj.code || currentUserObj.instructorCode || currentUserObj.studentCode || (roleNormalized === 'instructor' ? 'MSGV 10245' : 'MSSV 22110045');
+        const userEmail = currentUserObj.email || (roleNormalized === 'instructor' ? 'mai.tt@eduportal.edu.vn' : 'an.nv22110045@st.eduportal.edu.vn');
+        const userDept = currentUserObj.department || 'Khoa Công nghệ Thông tin - ICTU';
+
         if (role === 'ROLE_INSTRUCTOR' || role === 'instructor') {
           return {
             isSecurityWarning: false,
-            text: `👨‍🏫 **[OmniBrain AI] Tổng hợp Hồ sơ Giảng dạy của Bạn**:\n\n• **Họ và tên**: **PGS. TS. Trần Đức Minh**\n• **Học hàm / Học vị**: Phó Giáo sư - Tiến sĩ\n• **Đơn vị công tác**: Khoa Công nghệ Thông tin - Trường ĐH CNTT & TT (ICTU)\n• **Email**: \`minhtd@ictu.edu.vn\`\n• **Vai trò**: **Giảng viên (INSTRUCTOR)**\n\n📖 **Các lớp học phần đang phụ trách**:\n1. **Lập trình Enterprise với Java 17/21 & Spring Boot 3** (Sĩ số: 87 Sinh viên)\n2. **Kiến trúc & Tối ưu CSDL PostgreSQL Enterprise** (Sĩ số: 45 Sinh viên)\n\n📊 **Trạng thái**: Đã duyệt bảng điểm Chuyên cần & Quiz TX1. Đủ điều kiện mở thi kết thúc học phần!`
+            text: `👨‍🏫 **[OmniBrain AI] Tổng hợp Hồ sơ Giảng dạy của Bạn**:\n\n• **Họ và tên**: **${userName}**\n• **Mã giảng viên (MSGV)**: **${userCode}**\n• **Đơn vị công tác**: **${userDept}**\n• **Email hệ thống**: \`${userEmail}\`\n• **Vai trò**: **Giảng viên (INSTRUCTOR)**\n\n📖 **Các lớp học phần đang phụ trách**:\n1. **Cơ sở dữ liệu (INT2211)** - 5 lớp (Sĩ số: 120 Sinh viên)\n2. **Lập trình hướng đối tượng (INT2204)** - 3 lớp\n3. **Lập trình Web (INT3306)** - 2 lớp\n\n📊 **Trạng thái**: Đã duyệt bảng điểm Chuyên cần & Quiz TX1. Có 1 bài kiểm tra giữa kỳ chờ chấm!`
           };
         }
         if (role === 'ROLE_ADMIN' || role === 'admin') {
           return {
             isSecurityWarning: false,
-            text: `🛡️ **[OmniBrain AI] Tổng hợp Hồ sơ Quản trị viên Hệ thống**:\n\n• **Họ và tên**: **Quản trị viên Hệ thống (System Admin)**\n• **Quyền hạn**: **Quản trị toàn trường (ROLE_ADMIN)**\n• **Email**: \`admin@unilms.edu.vn\`\n\n🏫 **Tổng quan Toàn trường UniLMS**:\n• **Tổng số sinh viên**: 1.240 tài khoản\n• **Tổng số giảng viên**: 48 tài khoản\n• **Lớp học phần mở**: 32 lớp HP đang hoạt động`
+            text: `🛡️ **[OmniBrain AI] Tổng hợp Hồ sơ Quản trị viên Hệ thống**:\n\n• **Họ và tên**: **${userName}**\n• **Mã quản trị**: **${userCode}**\n• **Đơn vị công tác**: **${userDept}**\n• **Email hệ thống**: \`${userEmail}\`\n• **Quyền hạn**: **Quản trị toàn trường (ROLE_ADMIN)**\n\n🏫 **Tổng quan Toàn trường UniLMS**:\n• **Tổng số sinh viên**: 1.240 tài khoản\n• **Tổng số giảng viên**: 48 tài khoản\n• **Lớp học phần mở**: 32 lớp HP đang hoạt động`
           };
         }
         return {
           isSecurityWarning: false,
-          text: `👤 **[OmniBrain AI] Tổng hợp Hồ sơ & Tiến độ Học tập của Bạn**:\n\n• **Họ và tên**: **Nguyễn Văn An**\n• **Mã sinh viên (MSSV)**: **22110045**\n• **Lớp học phần**: **K18-CNTT01** (Khoa Công nghệ Thông tin - ICTU)\n• **Email hệ thống**: \`sinhvien@unilms.edu.vn\`\n• **Điểm trung bình (GPA)**: **3.52 / 4.0** *(Xếp loại: Giỏi)*\n\n📚 **Các môn học kỳ hiện tại (4 môn tín chỉ)**:\n1. **Cơ sở dữ liệu (INT2211)** - 3 Tín chỉ | GV: TS. Trần Thị Mai\n2. **Lập trình Enterprise với Java & Spring Boot 3 (INT3308)** - 3 Tín chỉ | GV: PGS. TS. Trần Đức Minh\n3. **Lập trình Web (INT3306)** - 3 Tín chỉ | GV: ThS. Lê Hoàng Nam\n4. **Tiếng Anh chuyên ngành (FLF1105)** - 2 Tín chỉ | GV: ThS. Phạm Thu Hà\n\n🎯 **Trạng thái**: **ĐỦ ĐIỀU KIỆN THI KẾT THÚC HỌC PHẦN** ✅`
+          text: `👤 **[OmniBrain AI] Tổng hợp Hồ sơ & Tiến độ Học tập của Bạn**:\n\n• **Họ và tên**: **${userName}**\n• **Mã sinh viên (MSSV)**: **${userCode}**\n• **Lớp học phần**: **K18-CNTT01** (${userDept})\n• **Email hệ thống**: \`${userEmail}\`\n• **Điểm trung bình (GPA)**: **3.52 / 4.0** *(Xếp loại: Giỏi)*\n\n📚 **Các môn học kỳ hiện tại (4 môn tín chỉ)**:\n1. **Cơ sở dữ liệu (INT2211)** - 3 Tín chỉ | GV: TS. Trần Thị Mai\n2. **Lập trình Enterprise với Java & Spring Boot 3 (INT3308)** - 3 Tín chỉ | GV: PGS. TS. Trần Đức Minh\n3. **Lập trình Web (INT3306)** - 3 Tín chỉ | GV: ThS. Lê Hoàng Nam\n4. **Tiếng Anh chuyên ngành (FLF1105)** - 2 Tín chỉ | GV: ThS. Phạm Thu Hà\n\n🎯 **Trạng thái**: **ĐỦ ĐIỀU KIỆN THI KẾT THÚC HỌC PHẦN** ✅`
         };
       }
 

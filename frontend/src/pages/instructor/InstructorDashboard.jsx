@@ -32,7 +32,7 @@ export default function InstructorDashboard({ onNavigate, onSelectCourse }) {
           <span className="px-3 py-1 bg-blue-500/30 text-blue-200 text-xs font-bold rounded-full border border-blue-400/30 inline-block">
             CỔNG THÔNG TIN GIẢNG VIÊN ICTU
           </span>
-          <h1 className="text-2xl sm:text-3xl font-black tracking-tight">Xin chào, PGS. TS. Trần Đức Minh</h1>
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight">Xin chào, TS. Trần Thị Mai</h1>
           <p className="text-blue-100/90 text-xs sm:text-sm leading-relaxed">
             Học kỳ 2 - Năm học 2025-2026. Quản lý lớp học phần, đăng tải tài liệu giảng dạy và theo dõi tiến độ sinh viên.
           </p>

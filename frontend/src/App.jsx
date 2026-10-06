@@ -254,17 +254,17 @@ export default function App() {
     if (role === 'ROLE_INSTRUCTOR') {
       roleUser = {
         id: '22222222-2222-2222-2222-222222222222',
-        email: 'giangvien@ictu.edu.vn',
-        fullName: 'PGS. TS. Trần Đức Minh',
+        email: 'mai.tt@ictu.edu.vn',
+        fullName: 'TS. Trần Thị Mai',
         role: 'ROLE_INSTRUCTOR',
-        instructorCode: 'GV2026001',
-        department: 'Khoa Công nghệ Thông tin'
+        instructorCode: 'MSGV 10245',
+        department: 'Khoa Công nghệ Thông tin - ICTU'
       };
       setActiveTab('instructor-dashboard');
       handleShowToast({
         type: 'success',
         title: 'Chuyển vai trò',
-        message: 'Đã chuyển sang phân hệ GIẢNG VIÊN: PGS. TS. Trần Đức Minh!'
+        message: 'Đã chuyển sang phân hệ GIẢNG VIÊN: TS. Trần Thị Mai!'
       });
     } else if (role === 'ROLE_ADMIN') {
       roleUser = {

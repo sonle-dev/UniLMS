@@ -113,34 +113,48 @@ public class AiService {
         );
 
         if (profileKeywords.stream().anyMatch(lower::contains)) {
+            String name = (request.getUserFullName() != null && !request.getUserFullName().isEmpty()) 
+                    ? request.getUserFullName() 
+                    : ("ROLE_INSTRUCTOR".equalsIgnoreCase(role) || "instructor".equalsIgnoreCase(role) ? "TS. Trần Thị Mai" : "Nguyễn Văn An");
+            String code = (request.getUserCode() != null && !request.getUserCode().isEmpty()) 
+                    ? request.getUserCode() 
+                    : ("ROLE_INSTRUCTOR".equalsIgnoreCase(role) || "instructor".equalsIgnoreCase(role) ? "MSGV 10245" : "MSSV 22110045");
+            String email = (request.getUserEmail() != null && !request.getUserEmail().isEmpty()) 
+                    ? request.getUserEmail() 
+                    : ("ROLE_INSTRUCTOR".equalsIgnoreCase(role) || "instructor".equalsIgnoreCase(role) ? "mai.tt@eduportal.edu.vn" : "an.nv22110045@st.eduportal.edu.vn");
+            String dept = (request.getDepartment() != null && !request.getDepartment().isEmpty()) 
+                    ? request.getDepartment() 
+                    : "Khoa Công nghệ Thông tin - ICTU";
+
             String profileText;
             if ("ROLE_INSTRUCTOR".equalsIgnoreCase(role) || "instructor".equalsIgnoreCase(role)) {
                 profileText = "👨‍🏫 **[OmniBrain AI] Tổng hợp Hồ sơ Giảng dạy của Bạn**:\n\n" +
-                        "• **Họ và tên**: **PGS. TS. Trần Đức Minh**\n" +
-                        "• **Học hàm / Học vị**: Phó Giáo sư - Tiến sĩ\n" +
-                        "• **Đơn vị công tác**: Khoa Công nghệ Thông tin - Trường ĐH CNTT & TT (ICTU)\n" +
-                        "• **Email**: `minhtd@ictu.edu.vn`\n" +
-                        "• **Vai trò hệ thống**: **Giảng viên (INSTRUCTOR)**\n\n" +
+                        "• **Họ và tên**: **" + name + "**\n" +
+                        "• **Mã giảng viên (MSGV)**: **" + code + "**\n" +
+                        "• **Đơn vị công tác**: **" + dept + "**\n" +
+                        "• **Email hệ thống**: `" + email + "`\n" +
+                        "• **Vai trò**: **Giảng viên (INSTRUCTOR)**\n\n" +
                         "📖 **Các lớp học phần đang phụ trách**:\n" +
-                        "1. **Lập trình Enterprise với Java 17/21 & Spring Boot 3** (Sĩ số: 87 Sinh viên)\n" +
-                        "2. **Kiến trúc & Tối ưu CSDL PostgreSQL Enterprise** (Sĩ số: 45 Sinh viên)\n\n" +
-                        "📊 **Trạng thái**: Đã duyệt bảng điểm Chuyên cần & Quiz TX1. Đủ điều kiện mở thi kết thúc học phần!";
+                        "1. **Cơ sở dữ liệu (INT2211)** - 5 lớp (Sĩ số: 120 Sinh viên)\n" +
+                        "2. **Lập trình hướng đối tượng (INT2204)** - 3 lớp\n" +
+                        "3. **Lập trình Web (INT3306)** - 2 lớp\n\n" +
+                        "📊 **Trạng thái**: Đã duyệt bảng điểm Chuyên cần & Quiz TX1. Có 1 bài kiểm tra giữa kỳ chờ chấm!";
             } else if ("ROLE_ADMIN".equalsIgnoreCase(role) || "admin".equalsIgnoreCase(role)) {
                 profileText = "🛡️ **[OmniBrain AI] Tổng hợp Hồ sơ Quản trị viên Hệ thống**:\n\n" +
-                        "• **Họ và tên**: **Quản trị viên Hệ thống (System Admin)**\n" +
-                        "• **Quyền hạn**: **Quản trị toàn trường (ROLE_ADMIN)**\n" +
-                        "• **Email**: `admin@unilms.edu.vn`\n\n" +
+                        "• **Họ và tên**: **" + name + "**\n" +
+                        "• **Mã quản trị**: **" + code + "**\n" +
+                        "• **Email hệ thống**: `" + email + "`\n" +
+                        "• **Quyền hạn**: **Quản trị toàn trường (ROLE_ADMIN)**\n\n" +
                         "🏫 **Tổng quan Toàn trường UniLMS**:\n" +
                         "• **Tổng số sinh viên**: 1.240 tài khoản\n" +
                         "• **Tổng số giảng viên**: 48 tài khoản\n" +
                         "• **Lớp học phần mở**: 32 lớp HP đang hoạt động";
             } else {
-                // Default: Student Profile (Nguyễn Văn An)
                 profileText = "👤 **[OmniBrain AI] Tổng hợp Hồ sơ & Tiến độ Học tập của Bạn**:\n\n" +
-                        "• **Họ và tên**: **Nguyễn Văn An**\n" +
-                        "• **Mã sinh viên (MSSV)**: **22110045**\n" +
-                        "• **Lớp học phần**: **K18-CNTT01** (Khoa Công nghệ Thông tin - ICTU)\n" +
-                        "• **Email hệ thống**: `sinhvien@unilms.edu.vn`\n" +
+                        "• **Họ và tên**: **" + name + "**\n" +
+                        "• **Mã sinh viên (MSSV)**: **" + code + "**\n" +
+                        "• **Lớp học phần**: **K18-CNTT01** (" + dept + ")\n" +
+                        "• **Email hệ thống**: `" + email + "`\n" +
                         "• **Điểm trung bình (GPA)**: **3.52 / 4.0** *(Xếp loại: Giỏi)*\n\n" +
                         "📚 **Các môn học kỳ hiện tại (4 môn tín chỉ)**:\n" +
                         "1. **Cơ sở dữ liệu (INT2211)** - 3 Tín chỉ | GV: TS. Trần Thị Mai\n" +
