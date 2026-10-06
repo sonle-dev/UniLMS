@@ -1435,8 +1435,8 @@ document.addEventListener('DOMContentLoaded', () => {
       appendMessage('ai', `🧠 **OmniBrain Notification**: Đã kích hoạt thành công **${selectedModelName}**. Bạn có thể gửi câu hỏi ngay!`);
     });
 
-    // 4. Gửi tin nhắn từ người dùng
-    function handleSendMessage(text) {
+    // 4. Gửi tin nhắn từ người dùng (Tích hợp sâu Backend API & Local Fallback Engine)
+    async function handleSendMessage(text) {
       const messageText = text || chatInput.value.trim();
       if (!messageText) return;
 
@@ -1446,14 +1446,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Hiển thị Typing Indicator
       const typingEl = appendTypingIndicator();
+      const selectedModel = modelSelect?.value || 'gemini-pro';
 
-      // Giả lập OmniBrain AI Phản hồi thông minh theo Mô hình & Phân quyền sau 600ms
+      try {
+        const res = await fetch('http://localhost:8080/api/v1/ai/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: messageText,
+            model: selectedModel,
+            role: state.currentRole || 'ROLE_STUDENT'
+          })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          typingEl.remove();
+          appendMessage('ai', data.response, data.isSecurityWarning);
+          return;
+        }
+      } catch (err) {
+        console.warn("Spring Boot AI API offline, using local engine:", err);
+      }
+
+      // Offline Fallback local engine
       setTimeout(() => {
         typingEl.remove();
-        const selectedModel = modelSelect?.value || 'gemini-pro';
         const responseObj = generateOmniBrainResponse(messageText, selectedModel, state.currentRole);
         appendMessage('ai', responseObj.text, responseObj.isSecurityWarning);
-      }, 650);
+      }, 600);
     }
 
     sendBtn?.addEventListener('click', () => handleSendMessage());

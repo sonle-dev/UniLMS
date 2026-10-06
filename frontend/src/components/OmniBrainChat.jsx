@@ -28,7 +28,7 @@ export default function OmniBrainChat({ currentRole, currentUser }) {
     }
   }, [messages, isOpen]);
 
-  const handleSend = (textToSend) => {
+  const handleSend = async (textToSend) => {
     const text = (textToSend || inputText).trim();
     if (!text) return;
 
@@ -43,6 +43,34 @@ export default function OmniBrainChat({ currentRole, currentUser }) {
     setMessages(prev => [...prev, userMsg]);
     if (!textToSend) setInputText('');
     setIsTyping(true);
+
+    try {
+      const res = await fetch('http://localhost:8080/api/v1/ai/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: text,
+          model: selectedModel,
+          role: currentRole || 'ROLE_STUDENT'
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const aiMsg = {
+          id: Date.now() + 1,
+          sender: 'ai',
+          text: data.response,
+          isSecurityWarning: data.isSecurityWarning,
+          timestamp: data.timestamp || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        };
+        setMessages(prev => [...prev, aiMsg]);
+        setIsTyping(false);
+        return;
+      }
+    } catch (e) {
+      console.warn("Backend AI API offline, using local engine:", e);
+    }
 
     setTimeout(() => {
       const aiResponse = generateOmniBrainResponse(text, selectedModel, currentRole, currentUser);
