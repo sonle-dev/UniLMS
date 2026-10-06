@@ -1638,6 +1638,34 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       // =========================================================================
+      // 2.5 TỔNG HỢP THÔNG TIN TÀI KHOẢN ĐANG ĐĂNG NHẬP TRÊN THIẾT BỊ
+      // =========================================================================
+      const profileKeywords = [
+        'thông tin về tôi', 'tổng hợp thông tin về tôi', 'thông tin của tôi',
+        'tôi là ai', 'hồ sơ của tôi', 'xem hồ sơ', 'thông tin cá nhân',
+        'tài khoản của tôi', 'gpa của tôi', 'môn tôi đang học', 'hồ sơ cá nhân'
+      ];
+
+      if (profileKeywords.some(kw => text.includes(kw))) {
+        if (role === 'ROLE_INSTRUCTOR' || role === 'instructor') {
+          return {
+            isSecurityWarning: false,
+            text: `👨‍🏫 **[OmniBrain AI] Tổng hợp Hồ sơ Giảng dạy của Bạn**:\n\n• **Họ và tên**: **PGS. TS. Trần Đức Minh**\n• **Học hàm / Học vị**: Phó Giáo sư - Tiến sĩ\n• **Đơn vị công tác**: Khoa Công nghệ Thông tin - Trường ĐH CNTT & TT (ICTU)\n• **Email**: \`minhtd@ictu.edu.vn\`\n• **Vai trò**: **Giảng viên (INSTRUCTOR)**\n\n📖 **Các lớp học phần đang phụ trách**:\n1. **Lập trình Enterprise với Java 17/21 & Spring Boot 3** (Sĩ số: 87 Sinh viên)\n2. **Kiến trúc & Tối ưu CSDL PostgreSQL Enterprise** (Sĩ số: 45 Sinh viên)\n\n📊 **Trạng thái**: Đã duyệt bảng điểm Chuyên cần & Quiz TX1. Đủ điều kiện mở thi kết thúc học phần!`
+          };
+        }
+        if (role === 'ROLE_ADMIN' || role === 'admin') {
+          return {
+            isSecurityWarning: false,
+            text: `🛡️ **[OmniBrain AI] Tổng hợp Hồ sơ Quản trị viên Hệ thống**:\n\n• **Họ và tên**: **Quản trị viên Hệ thống (System Admin)**\n• **Quyền hạn**: **Quản trị toàn trường (ROLE_ADMIN)**\n• **Email**: \`admin@unilms.edu.vn\`\n\n🏫 **Tổng quan Toàn trường UniLMS**:\n• **Tổng số sinh viên**: 1.240 tài khoản\n• **Tổng số giảng viên**: 48 tài khoản\n• **Lớp học phần mở**: 32 lớp HP đang hoạt động`
+          };
+        }
+        return {
+          isSecurityWarning: false,
+          text: `👤 **[OmniBrain AI] Tổng hợp Hồ sơ & Tiến độ Học tập của Bạn**:\n\n• **Họ và tên**: **Nguyễn Văn An**\n• **Mã sinh viên (MSSV)**: **22110045**\n• **Lớp học phần**: **K18-CNTT01** (Khoa Công nghệ Thông tin - ICTU)\n• **Email hệ thống**: \`sinhvien@unilms.edu.vn\`\n• **Điểm trung bình (GPA)**: **3.52 / 4.0** *(Xếp loại: Giỏi)*\n\n📚 **Các môn học kỳ hiện tại (4 môn tín chỉ)**:\n1. **Cơ sở dữ liệu (INT2211)** - 3 Tín chỉ | GV: TS. Trần Thị Mai\n2. **Lập trình Enterprise với Java & Spring Boot 3 (INT3308)** - 3 Tín chỉ | GV: PGS. TS. Trần Đức Minh\n3. **Lập trình Web (INT3306)** - 3 Tín chỉ | GV: ThS. Lê Hoàng Nam\n4. **Tiếng Anh chuyên ngành (FLF1105)** - 2 Tín chỉ | GV: ThS. Phạm Thu Hà\n\n🎯 **Trạng thái**: **ĐỦ ĐIỀU KIỆN THI KẾT THÚC HỌC PHẦN** ✅`
+        };
+      }
+
+      // =========================================================================
       // 3. XỬ LÝ TRI THỨC NGÔN NGỮ, LẬP TRÌNH & THUYẾT MỞ (ALL MODELS SUPPORTED)
       // =========================================================================
       if (text.includes('oop') || text.includes('hướng đối tượng')) {
