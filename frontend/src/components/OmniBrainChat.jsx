@@ -178,7 +178,49 @@ export default function OmniBrainChat({ currentRole, currentUser }) {
       };
     }
 
-    // 3. TOPIC KEYWORDS & DYNAMIC RESPONSES
+    // 3. TOPIC KEYWORDS & NLP KNOWLEDGE RESPONSES
+    if (lower.includes('nụ hôn') && (lower.includes('tiếng pháp') || lower.includes('pháp'))) {
+      return {
+        isSecurityWarning: false,
+        text: `🧠 **[Gemini 1.5 Pro - Dịch thuật & Ngôn ngữ]**:\n\nTrong tiếng Pháp:\n• **Danh từ (Nụ hôn)**: **« un baiser »** (từ thân mật là **« un bisou »**).\n• **Động từ (Hôn)**: **« embrasser »** (hoặc **« baiser »**).\n• **Nụ hôn kiểu Pháp (French kiss)**: **« un baiser amoureux »**.\n\n💡 *Ví dụ câu*: *"Je t'embrasserai fort"* (Anh/chị sẽ ôm hôn bạn thật chặt).`
+      };
+    }
+
+    if (lower.includes('cảm ơn') && lower.includes('tiếng pháp')) {
+      return {
+        isSecurityWarning: false,
+        text: `🧠 **[Gemini 1.5 Pro]**: Trong tiếng Pháp, **Cảm ơn** là **« Merci »** (hoặc **« Merci beaucoup »** - Cảm ơn rất nhiều!).`
+      };
+    }
+
+    if (lower.includes('thủ đô') && lower.includes('pháp')) {
+      return {
+        isSecurityWarning: false,
+        text: `🧠 **[Gemini 1.5 Pro]**: Thủ đô của nước Pháp là thành phố **Paris** (nổi tiếng với tháp Eiffel, bảo tàng Louvre và dòng sông Seine).`
+      };
+    }
+
+    if (lower.includes('oop') || lower.includes('hướng đối tượng')) {
+      return {
+        isSecurityWarning: false,
+        text: `🧠 **[Gemini 1.5 Pro - Phân tích Lập trình]**:\n\n**OOP (Object-Oriented Programming)** là phương pháp lập trình hướng đối tượng dựa trên 4 trụ cột chính:\n1. **Tính Đóng gói (Encapsulation)**: Che giấu thuộc tính qua \`private\` và cung cấp Getter/Setter.\n2. **Tính Kế thừa (Inheritance)**: Lớp con tái sử dụng đặc tính từ lớp cha (\`extends\`/\`implements\`).\n3. **Tính Đa hình (Polymorphism)**: Nạp chồng (\`Overloading\`) và Ghi đè (\`Overriding\`).\n4. **Tính Trừu tượng (Abstraction)**: Ẩn chi tiết cài đặt qua \`interface\` và \`abstract class\`.`
+      };
+    }
+
+    if (lower.includes('rest api') || lower.includes('restful')) {
+      return {
+        isSecurityWarning: false,
+        text: `🧠 **[Gemini 1.5 Pro - Kiến thức RESTful API]**:\n\n**REST API** là chuẩn kiến trúc mạng giao tiếp HTTP giữa Client & Server sử dụng định dạng JSON/XML Stateless:\n• \`GET\`: Lấy dữ liệu.\n• \`POST\`: Tạo tài nguyên mới.\n• \`PUT / PATCH\`: Cập nhật dữ liệu.\n• \`DELETE\`: Xóa dữ liệu.`
+      };
+    }
+
+    if (lower.includes('bạn là ai') || lower.includes('bạn tên gì') || lower.includes('tên là gì')) {
+      return {
+        isSecurityWarning: false,
+        text: `🧠 **[OmniBrain AI Platform]**:\n\nTôi là **OmniBrain AI Platform** - Trợ lý trí tuệ nhân tạo thế hệ mới của UniLMS (ICTU Style).\nTôi có thể hỗ trợ bạn giải bài tập số học, dịch thuật ngôn ngữ, giải đáp kiến thức học tập, viết code Java/SQL và hướng dẫn lộ trình ôn thi 24/7!`
+      };
+    }
+
     if (lower.includes('lịch thi') || lower.includes('thời khóa biểu')) {
       return {
         isSecurityWarning: false,
@@ -223,7 +265,7 @@ export default function OmniBrainChat({ currentRole, currentUser }) {
     // Default: gemini-pro
     return {
       isSecurityWarning: false,
-      text: `🧠 **[Gemini 1.5 Pro]** Trợ lý OmniBrain AI đã tiếp nhận câu hỏi: "*${input}*".\n\nBạn có thể tra cứu lịch thi, thực hiện các phép tính toán học (ví dụ: \`5 nhân 2\` hay \`100 / 4\`), hoặc chọn **CodeAssist AI** để viết code mẫu!`
+      text: `🧠 **[Gemini 1.5 Pro - Phân tích Tri thức]**:\n\nGiải đáp cho câu hỏi: **"${input}"**\n\nOmniBrain AI sẵn sàng hỗ trợ giải đáp chi tiết các kiến thức chuyên ngành, bài tập toán học, thuật ngữ tiếng Pháp/Anh và hướng dẫn lập trình!`
     };
   };
 

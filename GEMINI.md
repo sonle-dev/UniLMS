@@ -24,10 +24,10 @@ Tệp này chứa thông tin ngữ cảnh chính của dự án UniLMS để AI 
 * **Security & Auth**: Spring Security 6, JWT (`io.jsonwebtoken 0.11.5`), CORS.
 * **API Base Path**: `/api/v1` (Port 8080).
 * **Cấu trúc Package (`com.unilms`)**:
-  * `controller`: [AuthController](file:///d:/UniLMS/backend/src/main/java/com/unilms/controller/AuthController.java), [CourseController](file:///d:/UniLMS/backend/src/main/java/com/unilms/controller/CourseController.java), [ProgressController](file:///d:/UniLMS/backend/src/main/java/com/unilms/controller/ProgressController.java), [QuizController](file:///d:/UniLMS/backend/src/main/java/com/unilms/controller/QuizController.java), [CertificateController](file:///d:/UniLMS/backend/src/main/java/com/unilms/controller/CertificateController.java).
+  * `controller`: [AuthController](file:///d:/UniLMS/backend/src/main/java/com/unilms/controller/AuthController.java), [CourseController](file:///d:/UniLMS/backend/src/main/java/com/unilms/controller/CourseController.java), [ProgressController](file:///d:/UniLMS/backend/src/main/java/com/unilms/controller/ProgressController.java), [QuizController](file:///d:/UniLMS/backend/src/main/java/com/unilms/controller/QuizController.java), [CertificateController](file:///d:/UniLMS/backend/src/main/java/com/unilms/controller/CertificateController.java), [AiController](file:///d:/UniLMS/backend/src/main/java/com/unilms/controller/AiController.java).
   * `domain/entity`: `User`, `StudentProfile`, `Course`, `ModuleEntity`, `Lesson`, `LessonProgress`, `Quiz`, `QuizQuestion`, `QuizSubmission`, `Certificate`.
   * `domain/enums`: `UserRole` (`ADMIN`, `INSTRUCTOR`, `STUDENT`), `ContentType`.
-  * `dto`: `AuthDto`, `CourseDto`, `ProgressDto`, `QuizDto`, `CertificateDto`.
+  * `dto`: `AuthDto`, `CourseDto`, `ProgressDto`, `QuizDto`, `CertificateDto`, `AiDto`.
   * `repository`: Các interface `JpaRepository`.
   * `security`: `SecurityConfig`, `JwtAuthenticationFilter`, `JwtTokenProvider`, `CustomUserDetailsService`, `UserPrincipal`.
 
