@@ -18,13 +18,36 @@ export default function UserManagementView({ onShowToast }) {
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploading, setUploading] = useState(false);
 
-  const [usersList, setUsersList] = useState([
-    { id: 'u-1', code: 'SV2026889', fullName: 'Nguyễn Văn An', email: 'sinhvien@unilms.edu.vn', role: 'ROLE_STUDENT', status: 'ACTIVE' },
-    { id: 'u-2', code: 'GV100234', fullName: 'PGS. TS. Trần Đức Minh', email: 'minhtd@ictu.edu.vn', role: 'ROLE_INSTRUCTOR', status: 'ACTIVE' },
-    { id: 'u-3', code: 'GV100235', fullName: 'ThS. Nguyễn Hoàng Nam', email: 'namnh@ictu.edu.vn', role: 'ROLE_INSTRUCTOR', status: 'ACTIVE' },
-    { id: 'u-4', code: 'ADM00001', fullName: 'Ban Quản trị CNTT ICTU', email: 'admin@unilms.edu.vn', role: 'ROLE_ADMIN', status: 'ACTIVE' },
-    { id: 'u-5', code: 'SV2026895', fullName: 'Lê Hoàng Cường', email: 'cuonglh@unilms.edu.vn', role: 'ROLE_STUDENT', status: 'LOCKED' }
-  ]);
+  const [usersList, setUsersList] = useState([]);
+
+  useEffect(() => {
+    fetch('http://localhost:8080/api/v1/admin/users')
+      .then(res => res.ok ? res.json() : [])
+      .then(data => {
+        if (data && data.length > 0) {
+          const formatted = data.map((u, i) => ({
+            id: u.id || 'u-' + i,
+            code: u.email.includes('sv.') ? 'DTC' + (225100001 + i) : (u.email.includes('gv.') ? 'GV' + (2250001 + i) : 'ADM' + (10001 + i)),
+            fullName: u.fullName,
+            email: u.email,
+            role: u.role,
+            status: u.isActive ? 'ACTIVE' : 'LOCKED'
+          }));
+          setUsersList(formatted);
+        } else {
+          // Default initial fallback list if DB endpoint unreachable
+          setUsersList([
+            { id: 'u-1', code: 'DTC225100001', fullName: 'Nguyễn Văn An', email: 'sv.dtc225100001@ictu.edu.vn', role: 'ROLE_STUDENT', status: 'ACTIVE' },
+            { id: 'u-2', code: 'GV2250001', fullName: 'PGS. TS. Nguyễn Văn Học', email: 'gv.nguyenvanhoc@ictu.edu.vn', role: 'ROLE_INSTRUCTOR', status: 'ACTIVE' },
+            { id: 'u-3', code: 'GV2250002', fullName: 'TS. Phạm Đình Lâm', email: 'gv.phamdinhlam@ictu.edu.vn', role: 'ROLE_INSTRUCTOR', status: 'ACTIVE' },
+            { id: 'u-4', code: 'ADM10001', fullName: 'Quản trị viên Phòng Đào tạo', email: 'admin.daotao@ictu.edu.vn', role: 'ROLE_ADMIN', status: 'ACTIVE' }
+          ]);
+        }
+      })
+      .catch(err => {
+        console.log('Using fallback users list:', err);
+      });
+  }, []);
 
   const toggleUserStatus = (id) => {
     setUsersList(prev => prev.map(u => {

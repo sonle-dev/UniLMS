@@ -20,6 +20,10 @@ Tệp này chứa thông tin ngữ cảnh chính của dự án UniLMS để AI 
   * `V2__add_is_published_to_courses.sql`: Bổ sung cột `is_published` cho bảng `courses`.
   * `V3__align_schema_with_entities.sql`: Đồng bộ cột `question_text`, `options`, `correct_option` cho `quiz_questions`.
   * `V4__enterprise_lms_production_schema.sql`: Master Schema Enterprise PostgreSQL (PL/pgSQL Trigger tự động `updated_at`, Lớp học phần `course_sections`, Bảng điểm `student_grades`, Audit logs `audit_logs`, Index B-Tree / GIN JSONB, và Seed Data Master chuẩn ICTU).
+  * `V5__convert_user_role_to_varchar.sql`: Chuyển đổi enum `user_role` thành VARCHAR(50) tương thích JPA/Hibernate 6.
+  * `V6__update_seed_passwords.sql`: Cập nhật mật khẩu mã hóa BCrypt cho các tài khoản seed chính.
+  * `V7__add_50_student_users.sql`: Thêm 50 tài khoản sinh viên chuẩn ICTU kèm hồ sơ cá nhân (`student_profiles`), đăng ký môn học (`enrollments`) và bảng điểm đầy đủ các đầu điểm (`student_grades`).
+  * `V8__add_instructors_and_admins.sql`: Thêm 10 tài khoản Giảng viên chuẩn ICTU kèm hồ sơ giảng viên (`instructor_profiles`) và 3 tài khoản Quản trị viên hệ thống (`ROLE_ADMIN`).
 * **Cache**: Redis (`spring-boot-starter-data-redis`).
 * **Security & Auth**: Spring Security 6, JWT (`io.jsonwebtoken 0.11.5`), CORS.
 * **API Base Path**: `/api/v1` (Port 8080).
@@ -91,4 +95,6 @@ npm run dev   # Chạy dev server tại http://localhost:5173
 3. **Quy định Phân quyền**: ADMIN, INSTRUCTOR, STUDENT. Tuân thủ phân quyền theo JWT.
 4. **Database Schema**: Tất cả thay đổi liên quan đến cấu trúc DB phải tạo thêm file migration trong `backend/src/main/resources/db/migration/` (ví dụ `V4__...sql`).
 5. **Không viết lại từ đầu**: Khi sửa code, luôn bảo toàn comment và logic hiện có trừ khi được chỉ định.
+6. **Tự động Commit & Push GitHub khi có thay đổi quan trọng**: Mỗi khi có cập nhật lớn (thêm tính năng mới, bổ sung Flyway migration, sửa đổi kiến trúc/API hoặc cập nhật cơ sở dữ liệu), tự động thực hiện `git add`, `git commit` kèm message mô tả rõ ràng và `git push` lên GitHub repository.
+
 

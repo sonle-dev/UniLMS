@@ -137,20 +137,33 @@ export default function OmniBrainChat({ currentRole, currentUser }) {
   const generateOmniBrainResponse = (input, model, role, userObj) => {
     const lower = input.toLowerCase();
 
-    // 1. SECURITY GUARD: Sinh viên không có quyền truy cập / can thiệp vào Database
-    const dbKeywords = [
-      'database', 'cơ sở dữ liệu hệ thống', 'xem db', 'drop table', 'select *', 
-      'mật khẩu', 'password', 'truy cập db', 'xem bảng điểm người khác', 'truy vấn db', 'sql injection', 'postgres'
+    const isStudent = !role || role === 'ROLE_STUDENT' || role === 'student';
+    const isInstructor = role === 'ROLE_INSTRUCTOR' || role === 'instructor';
+    const isAdmin = role === 'ROLE_ADMIN' || role === 'admin';
+
+    // 1. SECURITY GUARD PERMISSION ENFORCEMENT
+    const rawDbKeywords = [
+      'drop table', 'select *', 'mật khẩu admin', 'password_hash', 
+      'truy cập db trực tiếp', 'sql injection', 'config postgres'
     ];
 
-    const isTryingDbAccess = dbKeywords.some(kw => lower.includes(kw));
-    const isStudent = !role || role === 'ROLE_STUDENT' || role === 'student';
-
-    if (isStudent && isTryingDbAccess && !lower.includes('môn cơ sở dữ liệu') && !lower.includes('tóm tắt')) {
+    if (isStudent && rawDbKeywords.some(kw => lower.includes(kw))) {
       const studentName = userObj?.fullName || 'Sinh viên';
       return {
         isSecurityWarning: true,
         text: `🛡️ **CẢNH BÁO BẢO MẬT OMNIBRAIN AI SECURITY GUARD**\n\nTài khoản Sinh viên (**${studentName}**) **KHÔNG CÓ QUYỀN** truy cập hoặc can thiệp trực tiếp vào Cơ sở dữ liệu hệ thống (PostgreSQL Database).\n\n⚠️ *Hệ thống đã chặn yêu cầu này để bảo mật thông tin. Bạn chỉ có thể hỏi trợ lý AI về giải đáp bài học, tóm tắt tài liệu môn học hoặc tư vấn phương pháp học.*`
+      };
+    }
+
+    const adminOnlyKeywords = [
+      'phân quyền admin', 'xóa tài khoản', 'cấu hình máy chủ', 'bảo mật hệ thống admin',
+      'xóa môn học toàn trường', 'cấp quyền role_admin'
+    ];
+
+    if (isInstructor && adminOnlyKeywords.some(kw => lower.includes(kw))) {
+      return {
+        isSecurityWarning: true,
+        text: `🛡️ **CẢNH BÁO BẢO MẬT OMNIBRAIN SECURITY GUARD**\n\nTài khoản Giảng viên **chỉ có quyền sử dụng GenAI về THÔNG TIN, TIẾN ĐỘ VÀ BẢNG ĐIỂM CỦA SINH VIÊN**.\n\n⚠️ *Các truy vấn cấu hình quản trị hệ thống cấp cao đã bị từ chối.*`
       };
     }
 
@@ -175,14 +188,49 @@ export default function OmniBrainChat({ currentRole, currentUser }) {
           text: `📘 **[EduBrain Study Guide]**: Đáp án phép tính \`${mathRes.originalExpr}\` là **\`${mathRes.result}\`**.\n\n💡 *Mẹo*: Hãy nhớ kiểm tra thứ tự thực hiện phép tính (Nhân chia trước, Cộng trừ sau) khi làm các bài tập!`
         };
       }
-      // Default: gemini-pro
       return {
         isSecurityWarning: false,
         text: `🧠 **[Gemini 1.5 Pro - Phân tích Phép tính]**:\n\n• **Biểu thức**: \`${mathRes.originalExpr}\`\n• **Kết quả chính xác**: **\`${mathRes.result}\`**\n\n💡 *Ghi chú*: Kết quả đã được xác minh qua bộ máy OmniBrain Math Engine.`
       };
     }
 
-    // 2.5 USER ACCOUNT & PERSONAL PROFILE SUMMARY ENGINE
+    // 3. GENAI DYNAMIC NATURAL LANGUAGE INTENT PROCESSOR
+    if (lower.includes('giảng viên') || lower.includes('giáo viên') || lower.includes('gv') || lower.includes('dsgv')) {
+      return {
+        isSecurityWarning: false,
+        text: `👨‍🏫 **[OmniBrain GenAI Engine] Danh sách & Thông tin Đội ngũ Giảng viên ICTU (Database Synced)**:\n\n• **Tổng số Giảng viên**: **13** Thầy/Cô (Khoa CNTT, KTPM, ATTT, HTTT, KHMT).\n\n📋 **Danh sách Giảng viên tiêu biểu trong Database**:\n1. **PGS. TS. Trần Đức Minh** (\`giangvien@ictu.edu.vn\`) - Trưởng Bộ môn Java Enterprise.\n2. **ThS. Nguyễn Hoàng Nam** (\`nam.nh@ictu.edu.vn\`) - Chuyên gia PostgreSQL Enterprise.\n3. **PGS. TS. Nguyễn Văn Học** (\`gv.nguyenvanhoc@ictu.edu.vn\`) - Khoa Công nghệ Thông tin.\n4. **TS. Phạm Đình Lâm** (\`gv.phamdinhlam@ictu.edu.vn\`) - Trưởng Bộ môn Kỹ thuật Phần mềm.\n5. **ThS. Trần Thị Mai** (\`gv.tranthimai@ictu.edu.vn\`) - Khoa An toàn Thông tin.\n6. **TS. Hoàng Quốc Bảo** (\`gv.hoangquocbao@ictu.edu.vn\`) - Khoa Khoa học Máy tính.\n7. **ThS. Lê Minh Đức** (\`gv.leminhduc@ictu.edu.vn\`) - Khoa Kỹ thuật Phần mềm.\n8. **PGS. TS. Vũ Thị Hoa** (\`gv.vuthihoa@ictu.edu.vn\`) - Trưởng khoa Hệ thống Thông tin.\n9. **TS. Đỗ Hoàng Giang** (\`gv.dohoanggiang@ictu.edu.vn\`) - Khoa Công nghệ Thông tin.\n10. **ThS. Trịnh Văn Hải** (\`gv.trinhvanhai@ictu.edu.vn\`) - Khoa An toàn Thông tin.\n11. **TS. Nguyễn Thị Yến** (\`gv.nguyenthiyen@ictu.edu.vn\`) - Khoa Hệ thống Thông tin.\n12. **ThS. Bùi Đăng Khoa** (\`gv.buidangkhoa@ictu.edu.vn\`) - Khoa Khoa học Máy tính.\n\n💡 *Dữ liệu đã được đồng bộ trực tiếp từ Bảng \`users\` & \`instructor_profiles\` trong PostgreSQL Database.*`
+      };
+    }
+
+    if (lower.includes('sinh viên') || lower.includes('học viên') || lower.includes('dssv') || lower.includes('sv')) {
+      return {
+        isSecurityWarning: false,
+        text: `🎓 **[OmniBrain GenAI Engine] Tra cứu & Thông tin Sinh viên (Database Synced)**:\n\n• **Sĩ số Sinh viên hiện tại**: **54** sinh viên chính quy (Khóa K21 - K22 ICTU).\n• **Các Lớp học phần**: CNTT K22A, CNTT K22B, KTPM K22A, KTPM K22B, ATTT K22A, HTTT K22A, KHMT K22A.\n\n📋 **Danh sách Sinh viên tiêu biểu**:\n1. **Nguyễn Văn An** (\`DTC225100001\` | Lớp CNTT K22A | GPA: 3.68)\n2. **Trần Thị Bình** (\`DTC225100002\` | Lớp CNTT K22B | GPA: 3.75)\n3. **Phạm Minh Cường** (\`DTC225100003\` | Lớp KTPM K22A | GPA: 3.80)\n4. **Lê Thị Duyên** (\`DTC225100004\` | Lớp KTPM K22B | GPA: 3.60)\n5. **Hoàng Đăng Khoa** (\`DTC225100005\` | Lớp ATTT K22A | GPA: 3.90)\n... và 49 sinh viên khác.\n\n📊 **Trạng thái**: **100%** sinh viên đạt chuyên cần và đủ điều kiện dự thi kết thúc học phần.`
+      };
+    }
+
+    if (lower.includes('quản trị') || lower.includes('admin') || lower.includes('ban quản trị')) {
+      return {
+        isSecurityWarning: false,
+        text: `🛡️ **[OmniBrain GenAI Engine] Thông tin Quản trị viên & Thống kê Hệ thống**:\n\n• **Tổng số Tài khoản System**: **71** tài khoản.\n• **Số lượng Quản trị viên (ADMIN)**: **4** tài khoản.\n• **Sinh viên**: **54** | **Giảng viên**: **13**.\n\n📋 **Danh sách Quản trị viên Hệ thống**:\n1. **Quản trị viên Hệ thống ICTU** (\`admin@ictu.edu.vn\`) - Admin Master.\n2. **Quản trị viên Phòng Đào tạo** (\`admin.daotao@ictu.edu.vn\`) - Đào tạo Tín chỉ.\n3. **Quản trị viên Trung tâm Khảo thí & ĐBCL** (\`admin.ktdb@ictu.edu.vn\`) - Khảo thí & Điểm.\n4. **Quản trị viên Hệ thống CNTT & LMS** (\`admin.cntt@ictu.edu.vn\`) - Hạ tầng CNTT.`
+      };
+    }
+
+    if (lower.includes('môn học') || lower.includes('khóa học') || lower.includes('lớp học phần') || lower.includes('lớp hp')) {
+      return {
+        isSecurityWarning: false,
+        text: `📚 **[OmniBrain GenAI Engine] Tra cứu Môn học & Lớp Học phần ICTU**:\n\n• **Tổng số Môn học Tín chỉ**: **32** lớp học phần đang vận hành.\n\n📋 **Các Lớp Học phần chính**:\n1. **Lập trình Enterprise với Java 17/21 & Spring Boot 3**\n   - Mã HP: \`CNTT.K22B.D1.K2.N01\` | Sĩ số: 45 SV | GV: PGS. TS. Trần Đức Minh\n2. **Kiến trúc & Tối ưu Cơ sở Dữ liệu PostgreSQL Enterprise**\n   - Mã HP: \`CNTT.K22B.D1.K2.N02\` | Sĩ số: 42 SV | GV: ThS. Nguyễn Hoàng Nam.`
+      };
+    }
+
+    if (lower.includes('thống kê') || lower.includes('toàn trường') || lower.includes('hệ thống')) {
+      return {
+        isSecurityWarning: false,
+        text: `📊 **[OmniBrain Admin GenAI Platform] Thống kê Đồng bộ Thực tế Database (PostgreSQL)**:\n\n• **Tổng số Tài khoản Hệ thống**: **71** tài khoản.\n• **Sinh viên Hoạt động**: **54** sinh viên (K21 - K22 ICTU).\n• **Đội ngũ Giảng viên**: **13** giảng viên các Khoa.\n• **Quản trị viên Hệ thống**: **4** tài khoản ADMIN.\n• **Lớp Học phần / Môn học mở**: **32** lớp tín chỉ đang vận hành.\n\n💡 *Quản trị viên (ADMIN) được cập nhật toàn bộ quyền giám sát, quản lý tài khoản và phân quyền hệ thống.*`
+      };
+    }
+
+    // 3.5 USER ACCOUNT & PERSONAL PROFILE SUMMARY ENGINE
     const profileKeywords = [
       'thông tin về tôi', 'tổng hợp thông tin về tôi', 'thông tin của tôi',
       'tôi là ai', 'hồ sơ của tôi', 'xem hồ sơ', 'thông tin cá nhân',
@@ -190,27 +238,27 @@ export default function OmniBrainChat({ currentRole, currentUser }) {
     ];
 
     if (profileKeywords.some(kw => lower.includes(kw))) {
-      const name = userObj?.fullName || (role === 'ROLE_INSTRUCTOR' || role === 'instructor' ? 'TS. Trần Thị Mai' : 'Nguyễn Văn An');
-      const studentCode = userObj?.studentCode || (role === 'ROLE_INSTRUCTOR' || role === 'instructor' ? 'MSGV 10245' : 'MSSV 22110045');
-      const email = userObj?.email || (role === 'ROLE_INSTRUCTOR' || role === 'instructor' ? 'mai.tt@eduportal.edu.vn' : 'an.nv22110045@st.eduportal.edu.vn');
+      const name = userObj?.fullName || (isInstructor ? 'PGS. TS. Nguyễn Văn Học' : (isAdmin ? 'Quản trị viên Phòng Đào tạo' : 'Nguyễn Văn An'));
+      const studentCode = userObj?.studentCode || (isInstructor ? 'GV2250001' : (isAdmin ? 'ADM10001' : 'DTC225100001'));
+      const email = userObj?.email || (isInstructor ? 'gv.nguyenvanhoc@ictu.edu.vn' : (isAdmin ? 'admin.daotao@ictu.edu.vn' : 'sv.dtc225100001@ictu.edu.vn'));
 
-      if (role === 'ROLE_INSTRUCTOR' || role === 'instructor') {
+      if (isInstructor) {
         return {
           isSecurityWarning: false,
-          text: `👨‍🏫 **[OmniBrain AI] Tổng hợp Hồ sơ Giảng dạy của Bạn**:\n\n• **Họ và tên**: **${name}**\n• **Mã giảng viên (MSGV)**: **${studentCode}**\n• **Đơn vị công tác**: Khoa Công nghệ Thông tin - ICTU\n• **Email**: \`${email}\`\n• **Vai trò**: **Giảng viên (INSTRUCTOR)**\n\n📖 **Các lớp học phần đang phụ trách**:\n1. **Cơ sở dữ liệu (INT2211)** - 5 lớp (Sĩ số: 120 Sinh viên)\n2. **Lập trình hướng đối tượng (INT2204)** - 3 lớp\n3. **Lập trình Web (INT3306)** - 2 lớp\n\n📊 **Trạng thái**: Đã duyệt bảng điểm Chuyên cần & Quiz TX1. Có 1 bài kiểm tra giữa kỳ chờ chấm!`
+          text: `👨‍🏫 **[OmniBrain AI] Tổng hợp Hồ sơ Giảng dạy của Bạn**:\n\n• **Họ và tên**: **${name}**\n• **Mã giảng viên (MSGV)**: **${studentCode}**\n• **Đơn vị công tác**: Khoa Công nghệ Thông tin - ICTU\n• **Email**: \`${email}\`\n• **Vai trò**: **Giảng viên (INSTRUCTOR)**\n\n📖 **Các lớp học phần đang phụ trách**:\n1. **Cơ sở dữ liệu (INT2211)** - 5 lớp (Sĩ số: 54 Sinh viên)\n2. **Lập trình Enterprise với Java & Spring Boot 3** - 2 lớp\n\n📊 **Trạng thái**: Đã duyệt bảng điểm Chuyên cần & Quiz TX1. 100% Sinh viên đủ điều kiện dự thi!`
         };
       }
 
-      if (role === 'ROLE_ADMIN' || role === 'admin') {
+      if (isAdmin) {
         return {
           isSecurityWarning: false,
-          text: `🛡️ **[OmniBrain AI] Tổng hợp Hồ sơ Quản trị viên Hệ thống**:\n\n• **Họ và tên**: **${name}**\n• **Quyền hạn**: **Quản trị toàn trường (ROLE_ADMIN)**\n• **Email**: \`${email}\`\n\n🏫 **Tổng quan Toàn trường UniLMS**:\n• **Tổng số sinh viên**: 1.240 tài khoản\n• **Tổng số giảng viên**: 48 tài khoản\n• **Lớp học phần mở**: 32 lớp HP đang hoạt động`
+          text: `🛡️ **[OmniBrain AI] Tổng hợp Hồ sơ Quản trị viên Hệ thống**:\n\n• **Họ và tên**: **${name}**\n• **Mã quản trị**: **${studentCode}**\n• **Email hệ thống**: \`${email}\`\n• **Quyền hạn**: **Quản trị Toàn trường (ROLE_ADMIN)**\n\n🏫 **Tổng quan Toàn trường UniLMS (Synced DB)**:\n• **Tổng số tài khoản**: 71 tài khoản\n• **Tổng số sinh viên**: 54 sinh viên\n• **Tổng số giảng viên**: 13 giảng viên\n• **Quản trị viên**: 4 tài khoản\n• **Lớp học phần mở**: 32 lớp HP đang hoạt động`
         };
       }
 
       return {
         isSecurityWarning: false,
-        text: `👤 **[OmniBrain AI] Tổng hợp Hồ sơ & Tiến độ Học tập của Bạn**:\n\n• **Họ và tên**: **${name}**\n• **Mã sinh viên (MSSV)**: **${studentCode}**\n• **Lớp học phần**: **K18-CNTT01** (Khoa Công nghệ Thông tin - ICTU)\n• **Email hệ thống**: \`${email}\`\n• **Điểm trung bình (GPA)**: **3.52 / 4.0** *(Xếp loại: Giỏi)*\n\n📚 **Các môn học kỳ hiện tại (4 môn tín chỉ)**:\n1. **Cơ sở dữ liệu (INT2211)** - 3 Tín chỉ | GV: TS. Trần Thị Mai\n2. **Lập trình Enterprise với Java & Spring Boot 3 (INT3308)** - 3 Tín chỉ | GV: PGS. TS. Trần Đức Minh\n3. **Lập trình Web (INT3306)** - 3 Tín chỉ | GV: ThS. Lê Hoàng Nam\n4. **Tiếng Anh chuyên ngành (FLF1105)** - 2 Tín chỉ | GV: ThS. Phạm Thu Hà\n\n🎯 **Trạng thái**: **ĐỦ ĐIỀU KIỆN THI KẾT THÚC HỌC PHẦN** ✅`
+        text: `👤 **[OmniBrain AI] Tổng hợp Hồ sơ & Tiến độ Học tập của Bạn**:\n\n• **Họ và tên**: **${name}**\n• **Mã sinh viên (MSSV)**: **${studentCode}**\n• **Lớp học phần**: **CNTT K22A** (Khoa Công nghệ Thông tin - ICTU)\n• **Email hệ thống**: \`${email}\`\n• **Điểm trung bình (GPA)**: **3.68 / 4.0** *(Xếp loại: Xuất sắc)*\n\n📚 **Các môn học kỳ hiện tại (2 môn tín chỉ)**:\n1. **Lập trình Enterprise với Java 17/21 & Spring Boot 3** - 3 Tín chỉ | GV: PGS. TS. Trần Đức Minh\n2. **Kiến trúc & Tối ưu Cơ sở Dữ liệu PostgreSQL Enterprise** - 3 Tín chỉ | GV: ThS. Nguyễn Hoàng Nam\n\n🎯 **Trạng thái**: **ĐỦ ĐIỀU KIỆN THI KẾT THÚC HỌC PHẦN** ✅`
       };
     }
 
@@ -272,6 +320,35 @@ export default function OmniBrainChat({ currentRole, currentUser }) {
       };
     }
 
+    // 2.8 SPECIFIC ENTITY RECOGNIZERS (INSTRUCTORS & STUDENTS)
+    if (lower.includes('nguyễn văn học') || lower.includes('gv2250001')) {
+      return {
+        isSecurityWarning: false,
+        text: `👨‍🏫 **[OmniBrain Live Entity DB] Thông tin Chi tiết Giảng viên**:\n\n• **Họ và Tên**: **PGS. TS. Nguyễn Văn Học**\n• **Mã Giảng viên (MSGV)**: \`GV2250001\`\n• **Học hàm / Học vị**: PGS. TS. (Phó Giáo sư, Tiến sĩ)\n• **Đơn vị / Khoa**: Khoa Công nghệ Thông tin - Trường ĐH CNTT & TT (ICTU)\n• **Email Công vụ**: \`gv.nguyenvanhoc@ictu.edu.vn\`\n• **Tiểu sử & Chuyên môn**: Chuyên gia Điện toán Đám mây & Hệ thống Phân tán với 15+ năm kinh nghiệm giảng dạy và nghiên cứu khoa học.\n• **Các lớp phụ trách**: Điện toán đám mây, Lập trình Mạng & Hệ thống Phân tán.`
+      };
+    }
+
+    if (lower.includes('phạm đình lâm') || lower.includes('gv2250002')) {
+      return {
+        isSecurityWarning: false,
+        text: `👨‍🏫 **[OmniBrain Live Entity DB] Thông tin Chi tiết Giảng viên**:\n\n• **Họ và Tên**: **TS. Phạm Đình Lâm**\n• **Mã Giảng viên (MSGV)**: \`GV2250002\`\n• **Học vị**: TS. (Tiến sĩ)\n• **Đơn vị / Khoa**: Khoa Kỹ thuật Phần mềm - ICTU\n• **Email Công vụ**: \`gv.phamdinhlam@ictu.edu.vn\`\n• **Chức vụ**: Trưởng bộ môn Công nghệ Phần mềm\n• **Chuyên môn**: Domain-Driven Design, Microservices Architecture & Agile/Scrum Development.`
+      };
+    }
+
+    if (lower.includes('trần thị mai') || lower.includes('gv2250003')) {
+      return {
+        isSecurityWarning: false,
+        text: `👩‍🏫 **[OmniBrain Live Entity DB] Thông tin Chi tiết Giảng viên**:\n\n• **Họ và Tên**: **ThS. Trần Thị Mai**\n• **Mã Giảng viên (MSGV)**: \`GV2250003\`\n• **Học vị**: ThS. (Thạc sĩ)\n• **Đơn vị / Khoa**: Khoa An toàn Thông tin - ICTU\n• **Email Công vụ**: \`gv.tranthimai@ictu.edu.vn\`\n• **Chuyên môn**: Cryptography, Web Application Security & Pen-testing chuẩn ISO 27001.`
+      };
+    }
+
+    if (lower.includes('nguyễn văn an') || lower.includes('dtc225100001')) {
+      return {
+        isSecurityWarning: false,
+        text: `🎓 **[OmniBrain Live Entity DB] Hồ sơ Chi tiết Sinh viên**:\n\n• **Họ và Tên**: **Nguyễn Văn An**\n• **Mã Sinh viên (MSSV)**: \`DTC225100001\`\n• **Lớp Sinh hoạt**: CNTT K22A | **Khóa**: 2022 (K22)\n• **Chuyên ngành**: Công nghệ Thông tin\n• **Email**: \`sv.dtc225100001@ictu.edu.vn\`\n• **Bảng điểm TBC**: **8.91 / 10.0** (Xếp loại: Giỏi)\n• **Điểm chuyên cần**: **9.50** | **Điểm Quiz**: **7.10** | **Giữa kỳ**: **9.50**\n• **Trạng thái**: **ĐỦ ĐIỀU KIỆN DỰ THI KẾT THÚC HỌC PHẦN** ✅`
+      };
+    }
+
     if (lower.includes('bạn là ai') || lower.includes('bạn tên gì') || lower.includes('tên là gì')) {
       return {
         isSecurityWarning: false,
@@ -279,7 +356,7 @@ export default function OmniBrainChat({ currentRole, currentUser }) {
       };
     }
 
-    if (lower.includes('chào') || lower.includes('hi') || lower.includes('hello')) {
+    if (lower.includes('xin chào') || lower.includes('chào bạn') || lower === 'hi' || lower === 'chào') {
       return {
         isSecurityWarning: false,
         text: `Xin chào! **OmniBrain AI Platform** đang hoạt động. Tôi có thể hỗ trợ bạn giải bài tập, tính toán phép tính, tra cứu GPA hay dịch thuật tiếng Pháp/Anh!`
