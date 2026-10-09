@@ -24,15 +24,16 @@ Tệp này chứa thông tin ngữ cảnh chính của dự án UniLMS để AI 
   * `V6__update_seed_passwords.sql`: Cập nhật mật khẩu mã hóa BCrypt cho các tài khoản seed chính.
   * `V7__add_50_student_users.sql`: Thêm 50 tài khoản sinh viên chuẩn ICTU kèm hồ sơ cá nhân (`student_profiles`), đăng ký môn học (`enrollments`) và bảng điểm đầy đủ các đầu điểm (`student_grades`).
   * `V8__add_instructors_and_admins.sql`: Thêm 10 tài khoản Giảng viên chuẩn ICTU kèm hồ sơ giảng viên (`instructor_profiles`) và 3 tài khoản Quản trị viên hệ thống (`ROLE_ADMIN`).
+  * `V9__create_course_materials_table.sql`: Tạo bảng `course_materials` lưu trữ danh mục tài liệu & bài giảng do Giảng viên và Quản trị viên đăng tải.
 * **Cache**: Redis (`spring-boot-starter-data-redis`).
 * **Security & Auth**: Spring Security 6, JWT (`io.jsonwebtoken 0.11.5`), CORS.
 * **API Base Path**: `/api/v1` (Port 8080).
 * **Cấu trúc Package (`com.unilms`)**:
-  * `controller`: [AuthController](file:///d:/UniLMS/backend/src/main/java/com/unilms/controller/AuthController.java), [CourseController](file:///d:/UniLMS/backend/src/main/java/com/unilms/controller/CourseController.java), [ProgressController](file:///d:/UniLMS/backend/src/main/java/com/unilms/controller/ProgressController.java), [QuizController](file:///d:/UniLMS/backend/src/main/java/com/unilms/controller/QuizController.java), [CertificateController](file:///d:/UniLMS/backend/src/main/java/com/unilms/controller/CertificateController.java), [AiController](file:///d:/UniLMS/backend/src/main/java/com/unilms/controller/AiController.java).
-  * `domain/entity`: `User`, `StudentProfile`, `Course`, `ModuleEntity`, `Lesson`, `LessonProgress`, `Quiz`, `QuizQuestion`, `QuizSubmission`, `Certificate`.
+  * `controller`: [AuthController](file:///d:/UniLMS/backend/src/main/java/com/unilms/controller/AuthController.java), [CourseController](file:///d:/UniLMS/backend/src/main/java/com/unilms/controller/CourseController.java), [CourseMaterialController](file:///d:/UniLMS/backend/src/main/java/com/unilms/controller/CourseMaterialController.java), [ProgressController](file:///d:/UniLMS/backend/src/main/java/com/unilms/controller/ProgressController.java), [QuizController](file:///d:/UniLMS/backend/src/main/java/com/unilms/controller/QuizController.java), [CertificateController](file:///d:/UniLMS/backend/src/main/java/com/unilms/controller/CertificateController.java), [AiController](file:///d:/UniLMS/backend/src/main/java/com/unilms/controller/AiController.java).
+  * `domain/entity`: `User`, `StudentProfile`, `Course`, `ModuleEntity`, `Lesson`, `LessonProgress`, `CourseMaterial`, `Quiz`, `QuizQuestion`, `QuizSubmission`, `Certificate`.
   * `domain/enums`: `UserRole` (`ADMIN`, `INSTRUCTOR`, `STUDENT`), `ContentType`.
-  * `dto`: `AuthDto`, `CourseDto`, `ProgressDto`, `QuizDto`, `CertificateDto`, `AiDto`.
-  * `repository`: Các interface `JpaRepository`.
+  * `dto`: `AuthDto`, `CourseDto`, `CourseMaterialDto`, `ProgressDto`, `QuizDto`, `CertificateDto`, `AiDto`.
+  * `repository`: Các interface `JpaRepository` (bao gồm `CourseMaterialRepository`).
   * `security`: `SecurityConfig`, `JwtAuthenticationFilter`, `JwtTokenProvider`, `CustomUserDetailsService`, `UserPrincipal`.
 
 ### 🔹 Frontend (`/frontend`)

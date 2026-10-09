@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Play, CheckCircle2, FileText, MessageSquare, ChevronLeft, ChevronRight, HelpCircle, Download, Send } from 'lucide-react';
 import Breadcrumbs from '../components/Breadcrumbs';
 
-export default function LessonPlayer({ course, currentLessonId, onSelectLesson, onOpenQuiz, onNavigate, onToggleComplete, isCompleted }) {
+export default function LessonPlayer({ course, currentLessonId, onSelectLesson, onOpenQuiz, onNavigate, onToggleComplete, isCompleted, materials = [] }) {
   const [activeTab, setActiveTab] = useState('doc'); // 'doc' or 'discussion'
   const [comments, setComments] = useState([
     { id: 1, author: 'ThS. Nguyễn Hoàng Nam', role: 'Trợ giảng', text: 'Chào cả lớp! Các em lưu ý phần cấu hình Spring Security 6 với JwtAuthenticationFilter trong bài học này.', time: '2 giờ trước' },
@@ -145,6 +145,40 @@ export default function LessonPlayer({ course, currentLessonId, onSelectLesson, 
             <div className="p-6">
               {activeTab === 'doc' ? (
                 <div className="prose prose-slate max-w-none text-sm leading-relaxed space-y-4">
+                  {/* Downloadable Attached Lecture Files */}
+                  {materials && materials.length > 0 && (
+                    <div className="not-prose bg-blue-50/80 p-4 rounded-xl border border-blue-200 mb-6 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-xs font-extrabold text-blue-900 flex items-center gap-1.5">
+                          <Download className="w-4 h-4 text-blue-600" /> Tệp Tài liệu Đính kèm Bài giảng (Sinh viên tải về)
+                        </h4>
+                        <span className="text-[10px] font-bold text-blue-700 bg-white px-2 py-0.5 rounded border border-blue-200">
+                          {materials.length} Tệp
+                        </span>
+                      </div>
+                      <div className="space-y-2">
+                        {materials.map((mat) => (
+                          <div key={mat.id} className="p-3 bg-white rounded-lg border border-blue-100 flex items-center justify-between gap-3 shadow-2xs">
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <FileText className="w-4 h-4 text-blue-600 shrink-0" />
+                              <div className="min-w-0">
+                                <p className="text-xs font-bold text-slate-800 truncate">{mat.title}</p>
+                                <p className="text-[10px] text-slate-400 font-mono">{mat.fileName} • {mat.fileSize || '4.2 MB'}</p>
+                              </div>
+                            </div>
+                            <a
+                              href={mat.downloadUrl || '#'}
+                              download={mat.fileName}
+                              className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-extrabold rounded-md flex items-center gap-1 shrink-0 transition-colors"
+                            >
+                              <Download className="w-3 h-3" /> Tải về
+                            </a>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   <h3 className="text-base font-bold text-textMain">1. Tổng quan Kiến trúc Spring Security 6 & Spring Boot 3</h3>
                   <p>
                     Spring Security 6 giới thiệu cách cấu hình SecurityFilterChain dựa trên Lambda DSL thay vì SecurityConfigurerAdapter đã bị gạch bỏ (deprecated).

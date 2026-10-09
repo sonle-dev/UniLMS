@@ -20,7 +20,7 @@ import {
   FileSpreadsheet
 } from 'lucide-react';
 
-export default function CourseManagementView({ onShowToast }) {
+export default function CourseManagementView({ onShowToast, onAddMaterial }) {
   const [activeTabSection, setActiveTabSection] = useState('modules'); // 'modules' | 'quizzes'
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [activeModuleId, setActiveModuleId] = useState('m-1');
@@ -30,6 +30,7 @@ export default function CourseManagementView({ onShowToast }) {
   const [lessonType, setLessonType] = useState('VIDEO'); // 'VIDEO' | 'DOCUMENT' | 'QUIZ'
   const [videoUrl, setVideoUrl] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
+  const [rawFile, setRawFile] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [allowDownload, setAllowDownload] = useState(true);
@@ -104,6 +105,7 @@ export default function CourseManagementView({ onShowToast }) {
     setActiveModuleId(moduleId);
     setLessonTitle('');
     setSelectedFile(null);
+    setRawFile(null);
     setVideoUrl('');
     setUploadProgress(0);
     setIsUploadModalOpen(true);
@@ -111,8 +113,9 @@ export default function CourseManagementView({ onShowToast }) {
 
   const handleFileDrop = (e) => {
     e.preventDefault();
-    const file = e.target.files ? e.target.files[0] : e.dataTransfer.files[0];
+    const file = e.target.files ? e.target.files[0] : (e.dataTransfer ? e.dataTransfer.files[0] : null);
     if (file) {
+      setRawFile(file);
       setSelectedFile({
         name: file.name,
         size: (file.size / (1024 * 1024)).toFixed(1) + ' MB'
@@ -120,25 +123,66 @@ export default function CourseManagementView({ onShowToast }) {
     }
   };
 
-  const handleStartUpload = (e) => {
+  const handleStartUpload = async (e) => {
     e.preventDefault();
     if (!lessonTitle.trim()) return;
 
     setIsUploading(true);
-    setUploadProgress(20);
+    setUploadProgress(30);
 
-    const timer1 = setTimeout(() => setUploadProgress(65), 300);
-    const timer2 = setTimeout(() => setUploadProgress(100), 700);
+    const fileName = selectedFile ? selectedFile.name : (lessonType === 'VIDEO' ? 'lecture_video.mp4' : 'tai_lieu_giang_day.pdf');
+    const fileSize = selectedFile ? selectedFile.size : '8.5 MB';
 
-    const timer3 = setTimeout(() => {
+    // Call Backend API to upload
+    try {
+      const formData = new FormData();
+      if (rawFile) {
+        formData.append('file', rawFile);
+      }
+      formData.append('title', lessonTitle);
+      formData.append('moduleId', activeModuleId);
+      formData.append('fileType', lessonType);
+      formData.append('allowDownload', allowDownload ? 'true' : 'false');
+      formData.append('uploaderName', 'TS. Trần Thị Mai (Giảng viên)');
+
+      const res = await fetch('/api/v1/materials/upload', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setUploadProgress(100);
+
+        if (onAddMaterial) {
+          onAddMaterial({
+            id: data.id || ('mat-' + Date.now()),
+            title: data.title || lessonTitle,
+            fileName: data.fileName || fileName,
+            fileType: data.fileType || lessonType,
+            fileSize: data.fileSize || fileSize,
+            downloadUrl: data.downloadUrl || `/api/v1/materials/download/${fileName}`,
+            uploadedByName: data.uploadedByName || 'TS. Trần Thị Mai (Giảng viên)',
+            createdAt: new Date().toISOString(),
+            allowDownload: allowDownload
+          });
+        }
+      }
+    } catch (err) {
+      console.warn("Backend API upload fallback to client state:", err);
+    }
+
+    setUploadProgress(100);
+
+    setTimeout(() => {
       setIsUploading(false);
       const newL = {
         id: 'l-' + Date.now(),
         title: lessonTitle,
         type: lessonType,
         duration: lessonType === 'VIDEO' ? '18 phút' : '12 phút',
-        fileName: selectedFile ? selectedFile.name : (lessonType === 'VIDEO' ? 'lecture_video.mp4' : 'tai_lieu_giang_day.pdf'),
-        fileSize: selectedFile ? selectedFile.size : '8.5 MB',
+        fileName: fileName,
+        fileSize: fileSize,
         isPublished: true
       };
 
@@ -149,6 +193,21 @@ export default function CourseManagementView({ onShowToast }) {
         return m;
       }));
 
+      // Synchronize material with parent state
+      if (onAddMaterial) {
+        onAddMaterial({
+          id: 'mat-' + Date.now(),
+          title: lessonTitle,
+          fileName: fileName,
+          fileType: lessonType,
+          fileSize: fileSize,
+          downloadUrl: `/api/v1/materials/download/${fileName}`,
+          uploadedByName: 'TS. Trần Thị Mai (Giảng viên)',
+          createdAt: new Date().toISOString(),
+          allowDownload: allowDownload
+        });
+      }
+
       setIsUploadModalOpen(false);
       if (onShowToast) {
         onShowToast({
@@ -157,7 +216,7 @@ export default function CourseManagementView({ onShowToast }) {
           message: `Đã upload và xuất bản tài liệu "${lessonTitle}" lên lớp học phần!`
         });
       }
-    }, 900);
+    }, 600);
   };
 
   const handleDeleteLesson = (moduleId, lessonId) => {

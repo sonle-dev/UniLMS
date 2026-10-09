@@ -1,8 +1,24 @@
 import React, { useState } from 'react';
-import { BookOpen, ChevronDown, ChevronRight, PlayCircle, FileText, HelpCircle, CheckCircle, User, Award, ShieldCheck } from 'lucide-react';
+import { 
+  BookOpen, 
+  ChevronDown, 
+  ChevronRight, 
+  PlayCircle, 
+  FileText, 
+  HelpCircle, 
+  CheckCircle, 
+  User, 
+  Award, 
+  ShieldCheck, 
+  Download, 
+  FolderDown, 
+  Video, 
+  FileCode, 
+  Paperclip 
+} from 'lucide-react';
 import Breadcrumbs from '../components/Breadcrumbs';
 
-export default function CourseDetail({ course, onStartLesson, onNavigate }) {
+export default function CourseDetail({ course, onStartLesson, onNavigate, materials = [] }) {
   const [expandedModules, setExpandedModules] = useState({ [course.modules[0]?.id]: true });
 
   const toggleModule = (id) => {
@@ -62,6 +78,48 @@ export default function CourseDetail({ course, onStartLesson, onNavigate }) {
           >
             <PlayCircle className="w-5 h-5" /> Vào học ngay bây giờ
           </button>
+        </div>
+      </div>
+
+      {/* Downloadable Documents & Lecture Files Section for Students */}
+      <div className="bg-white rounded-2xl border border-borderLight p-6 shadow-xs space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+          <div className="flex items-center gap-2">
+            <FolderDown className="w-5 h-5 text-blue-600" />
+            <h2 className="text-lg font-bold text-textMain">Tài liệu & Bài giảng Tải về (Giảng viên & QTV Đăng tải)</h2>
+          </div>
+          <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100">
+            {materials.length} Tệp sẵn có
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {materials.map(mat => (
+            <div key={mat.id} className="p-4 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between gap-3 hover:shadow-xs transition-shadow">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold shrink-0">
+                  {mat.fileType === 'VIDEO' ? <Video className="w-5 h-5" /> : <FileText className="w-5 h-5" />}
+                </div>
+                <div className="min-w-0 space-y-0.5">
+                  <h4 className="text-xs font-bold text-slate-800 truncate">{mat.title}</h4>
+                  <div className="flex items-center gap-2 text-[11px] text-slate-500 font-medium">
+                    <span className="truncate font-mono text-slate-600">{mat.fileName}</span>
+                    <span>•</span>
+                    <span className="font-semibold">{mat.fileSize || '3.5 MB'}</span>
+                  </div>
+                  <p className="text-[10px] text-blue-700 font-bold">Người đăng: {mat.uploadedByName}</p>
+                </div>
+              </div>
+
+              <a
+                href={mat.downloadUrl || '#'}
+                download={mat.fileName}
+                className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold rounded-lg flex items-center gap-1.5 shadow-2xs shrink-0 transition-colors"
+              >
+                <Download className="w-3.5 h-3.5" /> Tải về
+              </a>
+            </div>
+          ))}
         </div>
       </div>
 

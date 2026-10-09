@@ -73,6 +73,89 @@ export default function App() {
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [toast, setToast] = useState(null);
   
+  // Track live uploaded course & lecture materials
+  const [uploadedMaterials, setUploadedMaterials] = useState(() => {
+    try {
+      const saved = localStorage.getItem('unilms_uploaded_materials');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return [
+      {
+        id: 'mat-1',
+        courseId: 'c-101',
+        title: 'Giáo trình Bài giảng Spring Security 6 & JWT Stateless Architecture',
+        fileName: 'Giao_trinh_Spring_Security_6_Stateless.pdf',
+        fileType: 'DOCUMENT',
+        fileSize: '4.8 MB',
+        downloadUrl: '/api/v1/materials/download/Giao_trinh_Spring_Security_6_Stateless.pdf',
+        uploadedByName: 'PGS. TS. Trần Đức Minh (Giảng viên)',
+        createdAt: new Date().toISOString(),
+        allowDownload: true
+      },
+      {
+        id: 'mat-2',
+        courseId: 'c-101',
+        title: 'Video Bài giảng: Tối ưu Cơ sở dữ liệu PostgreSQL 15 & GIN Index JSONB',
+        fileName: 'Video_PostgreSQL_15_GIN_Index.mp4',
+        fileType: 'VIDEO',
+        fileSize: '145 MB',
+        downloadUrl: '/api/v1/materials/download/Video_PostgreSQL_15_GIN_Index.mp4',
+        uploadedByName: 'Quản trị viên Hệ thống (Admin)',
+        createdAt: new Date().toISOString(),
+        allowDownload: true
+      },
+      {
+        id: 'mat-3',
+        courseId: 'c-102',
+        title: 'Tài liệu Hướng dẫn Cấu hình HikariCP Connection Pool Enterprise',
+        fileName: 'Huong_dan_HikariCP_Tuning.pdf',
+        fileType: 'DOCUMENT',
+        fileSize: '2.4 MB',
+        downloadUrl: '/api/v1/materials/download/Huong_dan_HikariCP_Tuning.pdf',
+        uploadedByName: 'ThS. Nguyễn Hoàng Nam (Giảng viên)',
+        createdAt: new Date().toISOString(),
+        allowDownload: true
+      }
+    ];
+  });
+
+  useEffect(() => {
+    fetch('/api/v1/materials/all')
+      .then(res => res.ok ? res.json() : [])
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setUploadedMaterials(prev => {
+            const merged = [...data, ...prev.filter(p => !data.some(d => d.id === p.id))];
+            try {
+              localStorage.setItem('unilms_uploaded_materials', JSON.stringify(merged));
+            } catch (e) {}
+            return merged;
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleAddMaterial = (newMat) => {
+    setUploadedMaterials(prev => {
+      const updated = [newMat, ...prev];
+      try {
+        localStorage.setItem('unilms_uploaded_materials', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+  };
+
+  const handleDeleteMaterial = (id) => {
+    setUploadedMaterials(prev => {
+      const updated = prev.filter(m => m.id !== id);
+      try {
+        localStorage.setItem('unilms_uploaded_materials', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+  };
+
   // Track live quiz submissions
   const [quizSubmissions, setQuizSubmissions] = useState(() => {
     try {
@@ -377,6 +460,7 @@ export default function App() {
               course={activeCourse}
               onStartLesson={handleStartLesson}
               onNavigate={setActiveTab}
+              materials={uploadedMaterials.filter(m => !m.courseId || m.courseId === activeCourse?.id || m.courseId === 'c-101')}
             />
           )}
 
@@ -389,6 +473,7 @@ export default function App() {
               onNavigate={setActiveTab}
               onToggleComplete={handleToggleComplete}
               isCompleted={!!completedLessonsMap[selectedLessonId]}
+              materials={uploadedMaterials.filter(m => !m.courseId || m.courseId === activeCourse?.id || m.courseId === 'c-101')}
             />
           )}
 
@@ -448,6 +533,7 @@ export default function App() {
           {activeTab === 'instructor-courses' && (
             <CourseManagementView
               onShowToast={handleShowToast}
+              onAddMaterial={handleAddMaterial}
             />
           )}
 
@@ -479,6 +565,9 @@ export default function App() {
           {activeTab === 'admin-courses' && (
             <CourseAdminView
               onShowToast={handleShowToast}
+              materials={uploadedMaterials}
+              onAddMaterial={handleAddMaterial}
+              onDeleteMaterial={handleDeleteMaterial}
             />
           )}
 
