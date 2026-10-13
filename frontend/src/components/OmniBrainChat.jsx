@@ -197,7 +197,7 @@ Quy tắc bắt buộc:
       // Bước 2: Gọi Backend AI Server (/api/v1/ai/chat)
       try {
         const beController = new AbortController();
-        const beTimer = setTimeout(() => beController.abort(), 3000);
+        const beTimer = setTimeout(() => beController.abort(), 25000);
         const beRes = await fetch('/api/v1/ai/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -214,7 +214,7 @@ Quy tắc bắt buộc:
         clearTimeout(beTimer);
         if (beRes.ok) {
           const beData = await beRes.json();
-          if (beData && beData.response && !beData.response.includes('Phân tích Tri thức') && !beData.response.includes('Phản hồi Siêu Tốc')) {
+          if (beData && beData.response && beData.response.trim().length > 0) {
             setMessages(prev => [...prev, {
               id: Date.now() + 1,
               sender: 'ai',
@@ -228,12 +228,12 @@ Quy tắc bắt buộc:
         }
       } catch (e) {}
 
-      // Bước 3: Gọi trực tiếp Live Generative AI cho các câu hỏi mở
+      // Bước 3: Gọi trực tiếp Live Generative AI dự phòng
       const liveReply = await callRealGenerativeAI(text, routedModel, currentRole || 'ROLE_STUDENT', currentUser);
       setMessages(prev => [...prev, {
         id: Date.now() + 1,
         sender: 'ai',
-        text: liveReply || 'Xin chào bạn! Mình đã ghi nhận câu hỏi. Bạn có thể hỏi cụ thể hơn về bài học, môn học hoặc lịch thi để mình hỗ trợ nhé!',
+        text: liveReply || 'Xin chào bạn! Mình đã ghi nhận câu hỏi. Bạn có thể hỏi cụ thể hơn về bài học, môn học hoặc lập trình để mình hỗ trợ nhé!',
         isSecurityWarning: false,
         usedModel: routedModel,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })

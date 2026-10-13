@@ -7,8 +7,16 @@ import com.unilms.repository.QuizRepository;
 import com.unilms.repository.UserRepository;
 import com.unilms.repository.StudentProfileRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -17,6 +25,9 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AiService {
+
+    @Value("${gemini.api-key:}")
+    private String geminiApiKey;
 
     private final CourseRepository courseRepository;
     private final QuizRepository quizRepository;
@@ -581,16 +592,86 @@ public class AiService {
             }
         }
 
-        // Catch-all response for open conversational text
-        if ("gemini-flash".equals(model)) {
-            return "⚡ **[Gemini 1.5 Flash - Phản hồi Siêu Tốc]**:\n\n" +
-                   "Trợ lý AI đã ghi nhận yêu cầu: *" + input + "*.\n" +
-                   "Bạn có thể tiếp tục đặt các câu hỏi về bài giảng, thuật ngữ lập trình hoặc bài tập toán học!";
+        // Tích hợp Live Generative AI thực thụ cho mọi câu hỏi mở tự do
+        String liveReply = callLiveGenerativeAi(input);
+        if (liveReply != null && !liveReply.trim().isEmpty()) {
+            return liveReply;
         }
 
-        return "🧠 **[Gemini 1.5 Pro - Phân tích Tri thức]**:\n\n" +
-               "Giải đáp cho câu hỏi: **\"" + input + "\"**\n\n" +
-               "OmniBrain AI sẵn sàng hỗ trợ giải đáp chi tiết các kiến thức chuyên ngành, bài tập toán học, thuật ngữ tiếng Pháp/Anh và hướng dẫn lập trình!";
+        return "Chào bạn! Mình có thể giải đáp chi tiết về bài học, hướng dẫn lập trình, hoặc giải đáp các thắc mắc của bạn. Bạn hãy cho mình biết thêm chi tiết về câu hỏi nhé!";
+    }
+
+    private String callLiveGenerativeAi(String userPrompt) {
+        // 1. Ưu tiên gọi Google Gemini API chính thức nếu đã cấu hình Key (Phản hồi siêu tốc 0.4s)
+        if (geminiApiKey != null && !geminiApiKey.trim().isEmpty() && !geminiApiKey.equals("${GEMINI_API_KEY:}")) {
+            String geminiReply = callGeminiApi(userPrompt);
+            if (geminiReply != null && !geminiReply.trim().isEmpty()) {
+                return geminiReply;
+            }
+        }
+
+        // 2. Gọi Cloud LLM Gateway miễn phí
+        try {
+            String encodedPrompt = URLEncoder.encode(userPrompt, StandardCharsets.UTF_8).replace("+", "%20");
+            String url = "https://text.pollinations.ai/" + encodedPrompt;
+
+            HttpClient client = HttpClient.newBuilder()
+                    .connectTimeout(Duration.ofSeconds(6))
+                    .build();
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .timeout(Duration.ofSeconds(20))
+                    .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            if (response.statusCode() == 200 && response.body() != null) {
+                String reply = response.body().trim();
+                if (!reply.isEmpty() && !reply.contains("<!DOCTYPE") && reply.length() > 3) {
+                    return reply;
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Live LLM error in AiService: " + e.getMessage());
+        }
+        return null;
+    }
+
+    private String callGeminiApi(String userPrompt) {
+        try {
+            String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + geminiApiKey.trim();
+            String escaped = userPrompt.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r");
+            String jsonPayload = "{\"contents\":[{\"role\":\"user\",\"parts\":[{\"text\":\"" + escaped + "\"}]}],\"systemInstruction\":{\"parts\":[{\"text\":\"Bạn là trợ lý học tập UniLMS thông minh, thân thiện. Hãy trả lời câu hỏi của người dùng bằng tiếng Việt tự nhiên, chính xác, ngắn gọn và hữu ích.\"}]}}";
+
+            HttpClient client = HttpClient.newBuilder()
+                    .connectTimeout(Duration.ofSeconds(4))
+                    .build();
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .header("Content-Type", "application/json")
+                    .timeout(Duration.ofSeconds(8))
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonPayload, StandardCharsets.UTF_8))
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            if (response.statusCode() == 200 && response.body() != null) {
+                String body = response.body();
+                int textIdx = body.indexOf("\"text\": \"");
+                if (textIdx != -1) {
+                    int start = textIdx + 9;
+                    int end = body.indexOf("\"", start);
+                    if (end != -1) {
+                        return body.substring(start, end).replace("\\n", "\n").replace("\\\"", "\"");
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Gemini API error in AiService: " + e.getMessage());
+        }
+        return null;
     }
 
     private static class MathResult {
