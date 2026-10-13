@@ -535,6 +535,26 @@ public class AiService {
             return "😊 Rất vui được hỗ trợ bạn! Chúc bạn học tập thật tốt trên UniLMS!";
         }
 
+        if ((lower.contains("lịch sử") || lower.contains("tiền thân") || lower.contains("nguồn gốc") || lower.contains("ra đời")) &&
+            (lower.contains("công nghệ thông tin") || lower.contains("cntt") || lower.contains("máy tính") || lower.contains("tin học"))) {
+            return "🧠 **[Gemini 1.5 Pro - Lịch sử & Tiền thân của Công nghệ Thông tin (IT)]**:\n\n" +
+                   "Lịch sử hình thành **Công nghệ Thông tin (Information Technology)** trải qua **5 giai đoạn tiến hóa vĩ đại**:\n\n" +
+                   "1. **Thời kỳ Tiền cơ khí (Trước năm 1450)**:\n" +
+                   "   • Con người lưu trữ thông tin trên đất sét, giấy cói và phát minh ra **Bàn tính (Abacus)** (~2400 TCN).\n\n" +
+                   "2. **Thời kỳ Cơ khí (1450 – 1840) - Những cỗ máy tiền thân đầu tiên**:\n" +
+                   "   • **1642**: **Blaise Pascal** chế tạo máy tính cơ học **Pascaline** đầu tiên.\n" +
+                   "   • **1822 – 1837**: **Charles Babbage** (*\"Cha đẻ của máy tính\"*) thiết kế **Difference Engine** và **Analytical Engine**.\n" +
+                   "   • **Ada Lovelace** viết thuật toán đầu tiên, trở thành **Lập trình viên đầu tiên trong lịch sử**.\n\n" +
+                   "3. **Thời kỳ Điện cơ & Lý thuyết Máy tính (1840 – 1940)**:\n" +
+                   "   • **1890**: **Herman Hollerith** phát minh máy đếm thẻ đục lỗ (Punch Card), tiền thân của tập đoàn **IBM**.\n" +
+                   "   • **1936**: **Alan Turing** công bố mô hình **Máy Turing (Turing Machine)** — nền tảng của Khoa học Máy tính.\n\n" +
+                   "4. **Thời kỳ Máy tính Điện tử & Mạng ARPANET (1940 – 1980)**:\n" +
+                   "   • **1945 – 1946**: Kiến trúc **Von Neumann** và máy tính điện tử đa năng đầu tiên **ENIAC** ra đời.\n" +
+                   "   • **1969**: Mạng **ARPANET** ra đời — chính là **tiền thân trực tiếp của mạng Internet**.\n\n" +
+                   "5. **Kỷ nguyên Máy tính Cá nhân, Internet, Cloud & AI (1980 – Nay)**:\n" +
+                   "   • Sự bùng nổ của **PC, World Wide Web (1989), Cloud Computing** và **Trí tuệ nhân tạo tạo sinh (Generative AI)**.";
+        }
+
         // 6. DYNAMIC THEORY SYNTHESIZER FOR ANY OPEN QUESTION (E.G. "... LÀ GÌ", "KHÁI NIỆM ...")
         if (lower.contains("là gì") || lower.contains("khái niệm") || lower.contains("định nghĩa") || lower.contains("tại sao") || lower.contains("như thế nào")) {
             String topic = input.replaceAll("(?i)(là gì|khái niệm|định nghĩa|tại sao|như thế nào|hãy cho biết|giải thích|chi tiết|bằng|cho|tôi)", "").trim();

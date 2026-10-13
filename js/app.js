@@ -1396,13 +1396,72 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatWindow = document.getElementById('aiChatWindow');
     const closeBtn = document.getElementById('btnAiClose');
     const clearBtn = document.getElementById('btnAiClear');
+    const apiKeyBtn = document.getElementById('btnAiApiKey');
     const chatBody = document.getElementById('aiChatBody');
     const chatInput = document.getElementById('aiChatInput');
     const sendBtn = document.getElementById('aiSendBtn');
     const promptChips = document.querySelectorAll('.prompt-chip');
     const modelSelect = document.getElementById('aiModelSelect');
+    const modelBadge = document.getElementById('aiModelBadge');
 
     if (!triggerBtn || !chatWindow) return;
+
+    // Hàm tự động phân loại câu hỏi sang mô hình AI phù hợp (Auto-Routing)
+    function classifyIntentModel(text) {
+      if (modelSelect && modelSelect.value) return modelSelect.value;
+      const lower = text.toLowerCase();
+      if (/\b(code|lập trình|viết hàm|java|python|sql|select|join|react|html|css|js|javascript|spring|api|bug|lỗi|thuật toán)\b/i.test(lower)) {
+        return 'code-assist';
+      }
+      if (/\b(lộ trình|ôn thi|học thế nào|hướng dẫn học|bài tập|mẹo|phương pháp)\b/i.test(lower)) {
+        return 'edubrain-guide';
+      }
+      if (/\b(tóm tắt|ngắn gọn|nhanh|tính)\b/i.test(lower) || text.trim().split(/\s+/).length <= 5) {
+        return 'gemini-flash';
+      }
+      return 'gemini-pro';
+    }
+
+    function updateModelBadgeUI(model) {
+      if (!modelBadge) return;
+      const map = {
+        'code-assist': { label: '💻 CodeAssist AI', bg: '#ecfdf5', color: '#047857', border: '#a7f3d0' },
+        'gemini-flash': { label: '⚡ Gemini 1.5 Flash', bg: '#fffbeb', color: '#b45309', border: '#fde68a' },
+        'edubrain-guide': { label: '📘 EduBrain Guide', bg: '#eff6ff', color: '#1d4ed8', border: '#bfdbfe' },
+        'edubrain': { label: '📘 EduBrain Guide', bg: '#eff6ff', color: '#1d4ed8', border: '#bfdbfe' },
+        'gemini-pro': { label: '🧠 Gemini 1.5 Pro', bg: '#f5f3ff', color: '#6d28d9', border: '#ddd6fe' }
+      };
+      const cfg = map[model] || map['gemini-pro'];
+      modelBadge.textContent = cfg.label;
+      modelBadge.style.background = cfg.bg;
+      modelBadge.style.color = cfg.color;
+      modelBadge.style.borderColor = cfg.border;
+      modelBadge.style.fontStyle = 'normal';
+    }
+
+    // Cấu hình API Key trực tiếp (Google Gemini / Groq / OpenAI)
+    apiKeyBtn?.addEventListener('click', () => {
+      const currentKey = localStorage.getItem('omnibrain_api_key') || '';
+      const inputKey = prompt(
+        '🔑 CẤU HÌNH API KEY CHO OMNIBRAIN AI (Tùy chọn):\n\n' +
+        '• Nhập Google Gemini API Key (bắt đầu bằng AIza...) - Lấy miễn phí tại aistudio.google.com\n' +
+        '• Hoặc Groq Cloud API Key (bắt đầu bằng gsk_...)\n' +
+        '• Hoặc OpenAI API Key (bắt đầu bằng sk-...)\n' +
+        '• Để trống nếu muốn dùng Cloud AI Miễn phí tích hợp sẵn:',
+        currentKey
+      );
+      if (inputKey !== null) {
+        const trimmed = inputKey.trim();
+        if (trimmed) {
+          localStorage.setItem('omnibrain_api_key', trimmed);
+          showToast('Đã lưu API Key! OmniBrain sẽ gọi trực tiếp LLM tốc độ cao.');
+          appendMessage('ai', '✅ **Đã kết nối API Key cá nhân thành công!** Giờ đây mọi câu hỏi của bạn sẽ được trả lời trực tiếp qua LLM tốc độ cao.');
+        } else {
+          localStorage.removeItem('omnibrain_api_key');
+          showToast('Đã chuyển về chế độ Cloud AI Miễn phí mặc định.');
+        }
+      }
+    });
 
     // 1. Mở / Đóng Hộp thoại Chat
     triggerBtn.addEventListener('click', () => {
@@ -1422,7 +1481,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="chat-message ai">
           <div class="chat-avatar">🧠</div>
           <div class="chat-bubble">
-            Đã làm sạch lịch sử trò chuyện OmniBrain. Bạn đang sử dụng mô hình: <strong>${escapeHtml(modelSelect?.options[modelSelect.selectedIndex]?.text || 'Gemini Pro')}</strong>.
+            Đã làm sạch lịch sử trò chuyện OmniBrain. Bạn có thể đặt bất kỳ câu hỏi nào!
           </div>
         </div>
       `;
@@ -1435,7 +1494,7 @@ document.addEventListener('DOMContentLoaded', () => {
       appendMessage('ai', `🧠 **OmniBrain Notification**: Đã kích hoạt thành công **${selectedModelName}**. Bạn có thể gửi câu hỏi ngay!`);
     });
 
-    // 4. Gửi tin nhắn từ người dùng (Tích hợp sâu Backend API & Local Fallback Engine)
+    // 4. Gửi tin nhắn từ người dùng (Kết hợp Bảo mật + Nội bộ LMS + Live Generative LLM cho MỌI câu hỏi)
     async function handleSendMessage(text) {
       const messageText = text || chatInput.value.trim();
       if (!messageText) return;
@@ -1446,7 +1505,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Hiển thị Typing Indicator
       const typingEl = appendTypingIndicator();
-      const selectedModel = modelSelect?.value || 'gemini-pro';
+      const selectedModel = classifyIntentModel(messageText);
+      updateModelBadgeUI(selectedModel);
 
       // Lấy thông tin tài khoản đang đăng nhập trên thiết bị theo vai trò hiện tại
       const roleKey = state.currentRole || 'student';
@@ -1457,37 +1517,41 @@ document.addEventListener('DOMContentLoaded', () => {
       const userEmail = currentUserObj.email || (roleNormalized === 'instructor' ? 'mai.tt@eduportal.edu.vn' : 'an.nv22110045@st.eduportal.edu.vn');
       const userDept = currentUserObj.department || 'Khoa Công nghệ Thông tin - ICTU';
 
-      try {
-        const res = await fetch('http://localhost:8080/api/v1/ai/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            message: messageText,
-            model: selectedModel,
-            role: state.currentRole || 'ROLE_STUDENT',
-            userFullName: userFullName,
-            userCode: userCode,
-            userEmail: userEmail,
-            department: userDept
-          })
-        });
-
-        if (res.ok) {
-          const data = await res.json();
+      // BƯỚC 1: Kiểm tra Rule nội bộ (Security Guard, Phép tính toán học, Hồ sơ cá nhân, Câu hỏi LMS cốt lõi)
+      const localRuleResponse = generateOmniBrainResponse(messageText, selectedModel, state.currentRole);
+      if (localRuleResponse && localRuleResponse.isDirectMatch) {
+        setTimeout(() => {
           typingEl.remove();
-          appendMessage('ai', data.response, data.isSecurityWarning);
+          appendMessage('ai', localRuleResponse.text, localRuleResponse.isSecurityWarning);
+        }, 350);
+        return;
+      }
+
+      // BƯỚC 2: Gọi trực tiếp Live Generative AI (Trả lời BẤT KỲ câu hỏi nào như ChatGPT/Gemini)
+      try {
+        const liveAiText = await callRealGenerativeAI(messageText, selectedModel, {
+          role: roleNormalized,
+          userFullName,
+          userCode,
+          userEmail,
+          userDept
+        });
+        if (liveAiText) {
+          typingEl.remove();
+          appendMessage('ai', liveAiText, false);
           return;
         }
       } catch (err) {
-        console.warn("Spring Boot AI API offline, using local engine:", err);
+        console.warn("Live Generative AI error:", err);
       }
 
-      // Offline Fallback local engine
-      setTimeout(() => {
-        typingEl.remove();
-        const responseObj = generateOmniBrainResponse(messageText, selectedModel, state.currentRole);
-        appendMessage('ai', responseObj.text, responseObj.isSecurityWarning);
-      }, 600);
+      // BƯỚC 3: Fallback nếu đứt cáp hoàn toàn
+      typingEl.remove();
+      const fallbackObj = localRuleResponse || {
+        isSecurityWarning: false,
+        text: `🧠 **[OmniBrain AI]**: Xin vui lòng kiểm tra kết nối mạng hoặc nhấn biểu tượng **🔑** trên góc phải khung chat để nhập Google Gemini / Groq API Key giúp phản hồi tức thì mọi câu hỏi!`
+      };
+      appendMessage('ai', fallbackObj.text, fallbackObj.isSecurityWarning);
     }
 
     sendBtn?.addEventListener('click', () => handleSendMessage());
@@ -1601,6 +1665,137 @@ document.addEventListener('DOMContentLoaded', () => {
       return null;
     }
 
+    // HÀM GỌI TRỰC TIẾP LIVE GENERATIVE AI (GEMINI / GROQ / OPENAI / CLOUD AI / WIKIPEDIA)
+    async function callRealGenerativeAI(userPrompt, model, userInfo) {
+      const apiKey = (localStorage.getItem('omnibrain_api_key') || '').trim();
+      const modelPrefix = model === 'code-assist' ? '💻 **[CodeAssist AI]**' :
+                          model === 'gemini-flash' ? '⚡ **[Gemini 1.5 Flash]**' :
+                          (model === 'edubrain' || model === 'edubrain-guide') ? '📘 **[EduBrain Study Guide]**' :
+                          '🧠 **[Gemini 1.5 Pro]**';
+
+      const systemPrompt = `Bạn là trợ lý trí tuệ nhân tạo OmniBrain AI Platform (${model}) trên hệ thống đại học UniLMS (ICTU).
+Thông tin tài khoản đang đăng nhập trên thiết bị:
+- Họ và tên: ${userInfo.userFullName} (${userInfo.userCode})
+- Vai trò: ${userInfo.role} | Đơn vị: ${userInfo.userDept} | Email: ${userInfo.userEmail}
+Quy tắc bắt buộc:
+1. Nếu vai trò là student (Sinh viên), tuyệt đối KHÔNG cho phép truy cập hoặc thao tác trực tiếp vào Database hệ thống.
+2. Trả lời trực tiếp, đầy đủ, chính xác, sâu sắc bằng tiếng Việt cho BẤT KỲ câu hỏi nào người dùng hỏi (khoa học, lịch sử, CNTT, lập trình, toán học, đời sống, ngoại ngữ...).
+3. Trình bày rõ ràng bằng gạch đầu dòng và in đậm (**...**). Không bao giờ trả lời chung chung kiểu "Giải đáp cho câu hỏi...".`;
+
+      // 1. NẾU NGƯỜI DÙNG ĐÃ CẤU HÌNH GOOGLE GEMINI API KEY (AIza...)
+      if (apiKey.startsWith('AIza')) {
+        try {
+          const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
+          const res = await fetch(geminiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              systemInstruction: { parts: [{ text: systemPrompt }] },
+              contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+              generationConfig: { temperature: 0.7, maxOutputTokens: 1200 }
+            })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (reply) return `${modelPrefix}:\n\n${reply.trim()}`;
+          }
+        } catch (e) {
+          console.warn('Gemini API error:', e);
+        }
+      }
+
+      // 2. NẾU NGƯỜI DÙNG CẤU HÌNH GROQ KEY (gsk_...) HOẶC OPENAI KEY (sk-...)
+      if (apiKey.startsWith('gsk_') || apiKey.startsWith('sk-')) {
+        try {
+          const isGroq = apiKey.startsWith('gsk_');
+          const endpoint = isGroq ? 'https://api.groq.com/openai/v1/chat/completions' : 'https://api.openai.com/v1/chat/completions';
+          const llmModel = isGroq ? 'llama-3.3-70b-versatile' : 'gpt-4o-mini';
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+              model: llmModel,
+              messages: [
+                { role: 'system', content: systemPrompt },
+                { role: 'user', content: userPrompt }
+              ],
+              temperature: 0.7
+            })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const reply = data?.choices?.[0]?.message?.content;
+            if (reply) return `${modelPrefix}:\n\n${reply.trim()}`;
+          }
+        } catch (e) {
+          console.warn('Groq/OpenAI API error:', e);
+        }
+      }
+
+      // 3. GỌI POLLINATIONS CLOUD LLM MIỄN PHÍ (KHÔNG CẦN API KEY) KẾT HỢP TIMEOUT 7 GIÂY
+      try {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 7500);
+        const res = await fetch('https://text.pollinations.ai/openai', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          signal: controller.signal,
+          body: JSON.stringify({
+            model: 'openai-fast',
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: userPrompt }
+            ]
+          })
+        });
+        clearTimeout(timer);
+        if (res.ok) {
+          const data = await res.json();
+          const reply = data?.choices?.[0]?.message?.content;
+          if (reply && reply.trim().length > 10) {
+            return `${modelPrefix}:\n\n${reply.trim()}`;
+          }
+        }
+      } catch (e) {
+        console.warn('Cloud LLM fallback to Live Knowledge Graph:', e);
+      }
+
+      // 4. TRUY VẤN TRỰC TIẾP WIKIPEDIA TIẾNG VIỆT API (REAL-TIME KNOWLEDGE GRAPH CHO MỌI CHỦ ĐỀ)
+      try {
+        let cleanQuery = userPrompt
+          .replace(/^(bạn có thể|hãy|làm ơn|cho tôi biết|giải thích|tóm tắt|trình bày|nêu|cho hỏi|về|khái niệm|định nghĩa|lịch sử)\s+/gi, '')
+          .replace(/\s+(không|nhé|ạ|với|là gì|như thế nào|ra sao)\??$/gi, '')
+          .replace(/\?/g, '')
+          .trim();
+        if (!cleanQuery) cleanQuery = userPrompt;
+
+        const wikiSearchUrl = `https://vi.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(cleanQuery)}&utf8=&format=json&origin=*&srlimit=2`;
+        const searchRes = await fetch(wikiSearchUrl);
+        if (searchRes.ok) {
+          const searchData = await searchRes.json();
+          const firstHit = searchData?.query?.search?.[0];
+          if (firstHit && firstHit.title) {
+            const summaryUrl = `https://vi.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(firstHit.title)}`;
+            const sumRes = await fetch(summaryUrl);
+            if (sumRes.ok) {
+              const sumData = await sumRes.json();
+              if (sumData && sumData.extract) {
+                return `${modelPrefix} — **${sumData.title}**:\n\n${sumData.extract}\n\n💡 *Nguồn tri thức trực tuyến: Bách khoa toàn thư mở & OmniBrain Knowledge Engine.*`;
+              }
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('Wikipedia API error:', e);
+      }
+
+      return null;
+    }
+
     // BỘ MÁY PHẢN HỒI OMNIBRAIN AI PLATFORM (KIỂM TRA QUYỀN SINH VIÊN & ĐA MÔ HÌNH)
     function generateOmniBrainResponse(input, model, role) {
       const text = input.toLowerCase();
@@ -1612,9 +1807,10 @@ document.addEventListener('DOMContentLoaded', () => {
       
       const isTryingDbAccess = dbKeywords.some(kw => text.includes(kw));
 
-      if (role === 'student' && isTryingDbAccess && !text.includes('môn cơ sở dữ liệu') && !text.includes('tóm tắt')) {
+      if ((role === 'student' || role === 'ROLE_STUDENT') && isTryingDbAccess && !text.includes('môn cơ sở dữ liệu') && !text.includes('tóm tắt')) {
         const studentName = state.data.users?.student?.name || 'Sinh viên';
         return {
+          isDirectMatch: true,
           isSecurityWarning: true,
           text: `🔒 **CẢNH BÁO BẢO MẬT OMNIBRAIN AI SECURITY GUARD**\n\nTài khoản Sinh viên (**${studentName}**) **KHÔNG CÓ QUYỀN** truy cập hoặc can thiệp trực tiếp vào Cơ sở dữ liệu hệ thống (PostgreSQL Database).\n\n⚠️ *Hệ thống đã chặn yêu cầu này để bảo mật thông tin. Bạn chỉ có thể hỏi trợ lý AI về giải đáp bài học, tóm tắt tài liệu môn học hoặc tư vấn phương pháp học.*`
         };
@@ -1627,24 +1823,27 @@ document.addEventListener('DOMContentLoaded', () => {
       if (mathRes) {
         if (model === 'code-assist') {
           return {
+            isDirectMatch: true,
             isSecurityWarning: false,
             text: `💻 **[CodeAssist AI - Biểu thức Toán học trong Code]**:\n\`\`\`java\n// Cú pháp tính toán Java / C++\ndouble result = ${mathRes.originalExpr.replace(/×/g, '*').replace(/÷/g, '/')};\nSystem.out.println("Kết quả = " + result); // Output: ${mathRes.result}\n\`\`\`\n👉 **Kết quả phép tính**: **\`${mathRes.originalExpr} = ${mathRes.result}\`**`
           };
         }
         if (model === 'gemini-flash') {
           return {
+            isDirectMatch: true,
             isSecurityWarning: false,
             text: `⚡ **[Gemini 1.5 Flash]**: \`${mathRes.originalExpr} = ${mathRes.result}\``
           };
         }
         if (model === 'edubrain' || model === 'edubrain-guide') {
           return {
+            isDirectMatch: true,
             isSecurityWarning: false,
             text: `📘 **[EduBrain Study Guide]**: Đáp án phép tính \`${mathRes.originalExpr}\` là **\`${mathRes.result}\`**.\n\n💡 *Mẹo*: Hãy nhớ kiểm tra thứ tự thực hiện phép tính (Nhân chia trước, Cộng trừ sau) khi giải các bài tập!`
           };
         }
-        // Mặc định: Gemini 1.5 Pro
         return {
+          isDirectMatch: true,
           isSecurityWarning: false,
           text: `🧠 **[Gemini 1.5 Pro - Phân tích Phép tính]**:\n\n• **Biểu thức**: \`${mathRes.originalExpr}\`\n• **Kết quả chính xác**: **\`${mathRes.result}\`**\n\n💡 *Ghi chú*: Kết quả đã được xác minh qua bộ máy OmniBrain Math Engine.`
         };
@@ -1670,144 +1869,120 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (role === 'ROLE_INSTRUCTOR' || role === 'instructor') {
           return {
+            isDirectMatch: true,
             isSecurityWarning: false,
             text: `👨‍🏫 **[OmniBrain AI] Tổng hợp Hồ sơ Giảng dạy của Bạn**:\n\n• **Họ và tên**: **${userName}**\n• **Mã giảng viên (MSGV)**: **${userCode}**\n• **Đơn vị công tác**: **${userDept}**\n• **Email hệ thống**: \`${userEmail}\`\n• **Vai trò**: **Giảng viên (INSTRUCTOR)**\n\n📖 **Các lớp học phần đang phụ trách**:\n1. **Cơ sở dữ liệu (INT2211)** - 5 lớp (Sĩ số: 120 Sinh viên)\n2. **Lập trình hướng đối tượng (INT2204)** - 3 lớp\n3. **Lập trình Web (INT3306)** - 2 lớp\n\n📊 **Trạng thái**: Đã duyệt bảng điểm Chuyên cần & Quiz TX1. Có 1 bài kiểm tra giữa kỳ chờ chấm!`
           };
         }
         if (role === 'ROLE_ADMIN' || role === 'admin') {
           return {
+            isDirectMatch: true,
             isSecurityWarning: false,
             text: `🛡️ **[OmniBrain AI] Tổng hợp Hồ sơ Quản trị viên Hệ thống**:\n\n• **Họ và tên**: **${userName}**\n• **Mã quản trị**: **${userCode}**\n• **Đơn vị công tác**: **${userDept}**\n• **Email hệ thống**: \`${userEmail}\`\n• **Quyền hạn**: **Quản trị toàn trường (ROLE_ADMIN)**\n\n🏫 **Tổng quan Toàn trường UniLMS**:\n• **Tổng số sinh viên**: 1.240 tài khoản\n• **Tổng số giảng viên**: 48 tài khoản\n• **Lớp học phần mở**: 32 lớp HP đang hoạt động`
           };
         }
         return {
+          isDirectMatch: true,
           isSecurityWarning: false,
           text: `👤 **[OmniBrain AI] Tổng hợp Hồ sơ & Tiến độ Học tập của Bạn**:\n\n• **Họ và tên**: **${userName}**\n• **Mã sinh viên (MSSV)**: **${userCode}**\n• **Lớp học phần**: **K18-CNTT01** (${userDept})\n• **Email hệ thống**: \`${userEmail}\`\n• **Điểm trung bình (GPA)**: **3.52 / 4.0** *(Xếp loại: Giỏi)*\n\n📚 **Các môn học kỳ hiện tại (4 môn tín chỉ)**:\n1. **Cơ sở dữ liệu (INT2211)** - 3 Tín chỉ | GV: TS. Trần Thị Mai\n2. **Lập trình Enterprise với Java & Spring Boot 3 (INT3308)** - 3 Tín chỉ | GV: PGS. TS. Trần Đức Minh\n3. **Lập trình Web (INT3306)** - 3 Tín chỉ | GV: ThS. Lê Hoàng Nam\n4. **Tiếng Anh chuyên ngành (FLF1105)** - 2 Tín chỉ | GV: ThS. Phạm Thu Hà\n\n🎯 **Trạng thái**: **ĐỦ ĐIỀU KIỆN THI KẾT THÚC HỌC PHẦN** ✅`
         };
       }
 
       // =========================================================================
-      // 3. XỬ LÝ TRI THỨC NGÔN NGỮ, LẬP TRÌNH & THUYẾT MỞ (ALL MODELS SUPPORTED)
+      // 3. LỊCH SỬ TIỀN THÂN & SỰ PHÁT TRIỂN CỦA CÔNG NGHỆ THÔNG TIN (CNTT / IT)
       // =========================================================================
+      if ((text.includes('lịch sử') || text.includes('tiền thân') || text.includes('nguồn gốc') || text.includes('ra đời')) &&
+          (text.includes('công nghệ thông tin') || text.includes('cntt') || text.includes('máy tính') || text.includes('tin học'))) {
+        return {
+          isDirectMatch: true,
+          isSecurityWarning: false,
+          text: `🧠 **[Gemini 1.5 Pro - Lịch sử & Tiền thân của Công nghệ Thông tin (IT)]**:\n\nLịch sử hình thành **Công nghệ Thông tin (Information Technology)** trải qua **5 giai đoạn tiến hóa vĩ đại**:\n\n1. **Thời kỳ Tiền cơ khí (Trước năm 1450)**:\n   • Con người lưu trữ thông tin trên đất sét, giấy cói và phát minh ra **Bàn tính (Abacus)** (~2400 TCN) để tính toán số học.\n\n2. **Thời kỳ Cơ khí (1450 – 1840) - Những cỗ máy tiền thân đầu tiên**:\n   • **1642**: **Blaise Pascal** chế tạo máy tính cơ học **Pascaline** đầu tiên thực hiện phép cộng trừ.\n   • **1822 – 1837**: **Charles Babbage** (*"Cha đẻ của máy tính"*) thiết kế **Máy sai phân (Difference Engine)** và **Máy phân tích (Analytical Engine)** có cấu trúc Bộ nhớ và Bộ xử lý giống máy tính hiện đại.\n   • **Ada Lovelace** viết thuật toán đầu tiên cho máy Babbage, trở thành **Lập trình viên đầu tiên trong lịch sử**.\n\n3. **Thời kỳ Điện cơ & Lý thuyết Máy tính (1840 – 1940)**:\n   • **1890**: **Herman Hollerith** phát minh máy đếm dùng **Thẻ đục lỗ (Punch Card)** để thống kê dân số Mỹ và sáng lập công ty tiền thân của **IBM (1924)**.\n   • **1936**: Nhà toán học **Alan Turing** công bố mô hình **Máy Turing (Turing Machine)** — nền tảng lý thuyết của mọi máy tính và ngành Khoa học Máy tính hiện đại.\n\n4. **Thời kỳ Máy tính Điện tử & Mạng ARPANET (1940 – 1980)**:\n   • **1945**: **John von Neumann** đề xuất kiến trúc **Von Neumann** (CPU, Bộ nhớ, I/O).\n   • **1946**: Máy tính điện tử đa năng đầu tiên **ENIAC** ra đời (nặng 27 tấn, dùng 18.000 bóng đèn chân không).\n   • **1947 & 1958**: Phát minh **Transistor** và **Vi mạch tích hợp (IC)** giúp thu nhỏ máy tính.\n   • **1969**: Mạng **ARPANET** của Bộ Quốc phòng Mỹ ra đời — chính là **tiền thân trực tiếp của mạng Internet** ngày nay.\n\n5. **Kỷ nguyên Máy tính Cá nhân, Internet, Cloud & AI (1980 – Nay)**:\n   • Sự ra đời của **Apple II, IBM PC, hệ điều hành Windows/Linux**, mạng **World Wide Web (Tim Berners-Lee, 1989)**, Điện toán đám mây (Cloud Computing) và **Trí tuệ nhân tạo tạo sinh (Generative AI)**.`
+        };
+      }
+
+      // 3.1 CÁC CHỦ ĐỀ LẬP TRÌNH & HỌC THUẬT TRỌNG TÂM
+      if (text.includes('sql join') || (text.includes('join') && text.includes('sql'))) {
+        return {
+          isDirectMatch: true,
+          isSecurityWarning: false,
+          text: `💻 **[CodeAssist AI - Giải thích Chi tiết SQL JOIN]**:\n\nTrong SQL, mệnh đề **JOIN** dùng để kết hợp các bản ghi từ 2 hoặc nhiều bảng dựa trên cột khóa liên kết (\`PRIMARY KEY = FOREIGN KEY\`):\n\n1. **INNER JOIN**: Chỉ lấy các bản ghi có dữ liệu khớp ở **cả 2 bảng**.\n2. **LEFT JOIN**: Lấy **toàn bộ bảng bên trái** và phần khớp từ bảng bên phải (nếu không khớp trả về \`NULL\`).\n3. **RIGHT JOIN**: Ngược lại với LEFT JOIN, lấy toàn bộ bảng bên phải.\n4. **FULL OUTER JOIN**: Lấy tất cả dữ liệu từ cả 2 bảng.\n\n\`\`\`sql\nSELECT sv.ho_ten, mh.ten_mon, d.diem_tong_ket\nFROM sinh_vien sv\nINNER JOIN bang_diem d ON sv.id = d.sinh_vien_id\nINNER JOIN mon_hoc mh ON d.mon_hoc_id = mh.id;\n\`\`\``
+        };
+      }
+
+      if (text.includes('tóm tắt môn cơ sở dữ liệu') || text.includes('tóm tắt csdl')) {
+        return {
+          isDirectMatch: true,
+          isSecurityWarning: false,
+          text: `📘 **[EduBrain Study Guide - Tóm tắt Môn Cơ sở dữ liệu (INT2211)]**:\n\n• **Chương 1**: Tổng quan hệ Quản trị CSDL (DBMS) & Kiến trúc 3 lược đồ.\n• **Chương 2**: Mô hình Thực thể - Liên kết (**ERD**) và Mô hình Quan hệ.\n• **Chương 3**: Ngôn ngữ truy vấn **SQL** (\`DDL\`, \`DML\`, \`SELECT ... JOIN\`, \`GROUP BY\`, \`Subquery\`).\n• **Chương 4**: Phụ thuộc hàm & Chuẩn hóa CSDL (**1NF, 2NF, 3NF, BCNF**).\n• **Chương 5**: Giao dịch (**ACID Transaction**), Khóa (Locking) & Tối ưu chỉ mục (**B-Tree Index**).`
+        };
+      }
+
+      if (text.includes('cách tính điểm gpa') || text.includes('cách tính gpa')) {
+        return {
+          isDirectMatch: true,
+          isSecurityWarning: false,
+          text: `📊 **[OmniBrain AI - Công thức Tính Điểm GPA Tín chỉ Chuẩn ĐH]**:\n\n1. **Điểm tổng kết môn học (Hệ 10)**:\n   • \`Điểm HP = Chuyên cần (10%) + Thường xuyên/Quiz (30%) + Thi cuối kỳ (60%)\`\n2. **Quy đổi sang Thang điểm 4 & Điểm chữ**:\n   • **8.5 – 10**: Điểm **A** (4.0) — *Giỏi / Xuất sắc*\n   • **7.0 – 8.4**: Điểm **B** (3.0) — *Khá*\n   • **5.5 – 6.9**: Điểm **C** (2.0) — *Trung bình*\n   • **4.0 – 5.4**: Điểm **D** (1.0) — *Trung bình yếu (Qua môn)*\n   • **< 4.0**: Điểm **F** (0.0) — *Học lại*\n3. **Công thức GPA học kỳ**:\n   • \`GPA = Tổng (Điểm hệ 4 × Số tín chỉ) / Tổng số tín chỉ tích lũy\``
+        };
+      }
+
       if (text.includes('oop') || text.includes('hướng đối tượng')) {
-        if (model === 'gemini-flash') {
-          return {
-            isSecurityWarning: false,
-            text: `⚡ **[Gemini 1.5 Flash - Tóm tắt OOP Nhanh]**:\n\n• **Khái niệm**: OOP (Lập trình hướng đối tượng) tổ chức mã nguồn theo Đối tượng (Object).\n• **4 Trụ cột chính**:\n  1. **Đóng gói (Encapsulation)**: Che giấu dữ liệu qua private & Getter/Setter.\n  2. **Kế thừa (Inheritance)**: Tái sử dụng code từ lớp cha (\`extends\`).\n  3. **Đa hình (Polymorphism)**: Overriding (Ghi đè) & Overloading (Nạp chồng).\n  4. **Trừu tượng (Abstraction)**: Định nghĩa bộ khung qua Interface & Abstract Class.`
-          };
-        } else if (model === 'code-assist') {
-          return {
-            isSecurityWarning: false,
-            text: `💻 **[CodeAssist AI - Code Mẫu OOP Java]**:\n\`\`\`java\n// Minh họa Kế thừa & Đa hình trong Java\npublic abstract class Animal { private String name; public abstract void makeSound(); }\npublic class Dog extends Animal {\n    public Dog(String name) { super(); }\n    @Override public void makeSound() { System.out.println("Gâu gâu!"); }\n}\n\`\`\`\n👉 OOP giúp hệ thống linh hoạt và dễ mở rộng!`
-          };
-        } else if (model === 'edubrain' || model === 'edubrain-guide') {
-          return {
-            isSecurityWarning: false,
-            text: `📘 **[EduBrain Study Guide - Ôn tập OOP]**:\n\n1. **Trọng tâm thi**: Thường chiếm 25-30% đề thi trắc nghiệm Java Core.\n2. **Cần nhớ**: Phân biệt Abstract Class vs Interface, Overriding vs Overloading.\n3. **Thực hành**: Làm câu hỏi tự luyện tại tab **Bài kiểm tra**!`
-          };
-        } else {
-          return {
-            isSecurityWarning: false,
-            text: `🧠 **[Gemini 1.5 Pro - Phân tích Chuyên sâu OOP]**:\n\n**OOP (Object-Oriented Programming)** là phương pháp thiết kế phần mềm cốt lõi dựa trên 4 trụ cột:\n\n1. **Tính Đóng gói (Encapsulation)**: Bảo vệ thuộc tính nội bộ bằng \`private\` và cung cấp truy cập an toàn.\n2. **Tính Kế thừa (Inheritance)**: Cho phép lớp con thừa hưởng và mở rộng thuộc tính/phương thức từ lớp cha.\n3. **Tính Đa hình (Polymorphism)**: Một phương thức có thể thực thi khác nhau tùy thuộc vào đối tượng thực tế.\n4. **Tính Trừu tượng (Abstraction)**: Tập trung vào tính chất cốt lõi của đối tượng, ẩn đi chi tiết cài đặt phức tạp.`
-          };
-        }
+        return {
+          isDirectMatch: true,
+          isSecurityWarning: false,
+          text: `🧠 **[Gemini 1.5 Pro - Phân tích Chuyên sâu OOP]**:\n\n**OOP (Object-Oriented Programming)** dựa trên **4 trụ cột cốt lõi**:\n1. **Tính Đóng gói (Encapsulation)**: Bảo vệ dữ liệu nội bộ bằng \`private\` và truy cập qua \`Getter/Setter\`.\n2. **Tính Kế thừa (Inheritance)**: Lớp con kế thừa thuộc tính/phương thức từ lớp cha (\`extends\`).\n3. **Tính Đa hình (Polymorphism)**: Cùng một phương thức nhưng hành vi khác nhau (\`Overriding\` & \`Overloading\`).\n4. **Tính Trừu tượng (Abstraction)**: Ẩn chi tiết cài đặt phức tạp qua \`Interface\` và \`Abstract Class\`.`
+        };
       }
 
       if (text.includes('rest api') || text.includes('restful')) {
-        if (model === 'gemini-flash') {
-          return {
-            isSecurityWarning: false,
-            text: `⚡ **[Gemini 1.5 Flash - Tóm tắt REST API]**:\n\n• **REST API**: Kiến trúc giao tiếp Web API dựa trên HTTP Stateless.\n• **HTTP Methods**: GET (Đọc), POST (Tạo), PUT/PATCH (Sửa), DELETE (Xóa).\n• **Định dạng dữ liệu**: Chuẩn JSON hoặc XML.`
-          };
-        } else if (model === 'code-assist') {
-          return {
-            isSecurityWarning: false,
-            text: `💻 **[CodeAssist AI - Code Controller REST API]**:\n\`\`\`java\n@RestController\n@RequestMapping("/api/v1/courses")\npublic class CourseController {\n    @GetMapping public List<CourseDto> getAll() { return courseService.findAll(); }\n}\n\`\`\``
-          };
-        } else {
-          return {
-            isSecurityWarning: false,
-            text: `🧠 **[Gemini 1.5 Pro - Phân tích REST API]**:\n\n**REST (Representational State Transfer)** là kiểu kiến trúc phần mềm phổ biến cho Web Services HTTP Stateless, dễ mở rộng và độc lập giao diện.`
-          };
-        }
+        return {
+          isDirectMatch: true,
+          isSecurityWarning: false,
+          text: `💻 **[CodeAssist AI - Kiến trúc RESTful API]**:\n\n• **Khái niệm**: Chuẩn giao tiếp Client-Server qua giao thức HTTP ở trạng thái **Stateless**.\n• **HTTP Methods**: \`GET\` (Đọc), \`POST\` (Tạo mới), \`PUT/PATCH\` (Cập nhật), \`DELETE\` (Xóa).\n• **HTTP Status Codes**: \`200 OK\`, \`201 Created\`, \`400 Bad Request\`, \`401 Unauthorized\`, \`403 Forbidden\`, \`404 Not Found\`, \`500 Internal Server Error\`.`
+        };
       }
 
       if (text.includes('nụ hôn') && (text.includes('tiếng pháp') || text.includes('pháp'))) {
         return {
+          isDirectMatch: true,
           isSecurityWarning: false,
-          text: `🧠 **[Gemini 1.5 Pro - Dịch thuật & Ngôn ngữ]**:\n\nTrong tiếng Pháp:\n• **Danh từ (Nụ hôn)**: **« un baiser »** (từ thân mật là **« un bisou »**).\n• **Động từ (Hôn)**: **« embrasser »** (hoặc **« baiser »**).\n• **Nụ hôn kiểu Pháp (French kiss)**: **« un baiser amoureux »**.\n\n💡 *Ví dụ câu*: *"Je t'embrasserai fort"* (Anh/chị sẽ ôm hôn bạn thật chặt).`
+          text: `🧠 **[Gemini 1.5 Pro - Dịch thuật & Ngôn ngữ]**:\n\nTrong tiếng Pháp:\n• **Danh từ (Nụ hôn)**: **« un baiser »** (từ thân mật là **« un bisou »**).\n• **Động từ (Hôn)**: **« embrasser »**.\n• **Ví dụ**: *"Je t'embrasse fort"* (Gửi bạn cái ôm hôn nồng thắm).`
         };
       }
 
       if (text.includes('thủ đô') && text.includes('pháp')) {
         return {
+          isDirectMatch: true,
           isSecurityWarning: false,
           text: `🧠 **[Gemini 1.5 Pro]**: Thủ đô của nước Pháp là thành phố **Paris** (nổi tiếng với tháp Eiffel, bảo tàng Louvre và dòng sông Seine).`
         };
       }
 
-      if (text.includes('bạn là ai') || text.includes('bạn tên gì') || text.includes('tên là gì')) {
+      if (text === 'hi' || text === 'hello' || text === 'xin chào' || text === 'chào' || text === 'chào bạn') {
         return {
+          isDirectMatch: true,
           isSecurityWarning: false,
-          text: `🧠 **[OmniBrain AI Platform]**:\n\nTôi là **OmniBrain AI Platform** - Trợ lý trí tuệ nhân tạo thế hệ mới của UniLMS (ICTU Style).\nTôi có thể hỗ trợ bạn giải bài tập số học, dịch thuật ngôn ngữ, giải đáp kiến thức học tập, viết code Java/SQL và hướng dẫn lộ trình ôn thi 24/7!`
+          text: `👋 Xin chào! **OmniBrain AI Platform** đang trực tuyến. Bạn có thể hỏi tôi **bất kỳ câu hỏi nào** về lịch sử CNTT, lập trình, giải toán, ngoại ngữ hoặc thông tin học tập của bạn!`
         };
       }
 
-      if (text.includes('chào') || text.includes('hi') || text.includes('hello')) {
+      if (text.includes('bạn là ai') || text.includes('bạn tên gì') || text.includes('tên là gì')) {
         return {
+          isDirectMatch: true,
           isSecurityWarning: false,
-          text: `Xin chào! **OmniBrain AI Platform** đang hoạt động. Tôi có thể hỗ trợ bạn giải bài tập, tính toán phép tính, tra cứu GPA hay dịch thuật tiếng Pháp/Anh!`
+          text: `🧠 **[OmniBrain AI Platform]**:\n\nTôi là **OmniBrain AI Platform** - Trợ lý trí tuệ nhân tạo thế hệ mới của UniLMS (ICTU Style), kết nối trực tiếp với động cơ **Generative LLM & Knowledge Graph** để giải đáp mọi câu hỏi của bạn 24/7!`
         };
       }
 
       if (text.includes('cảm ơn') || text.includes('thanks')) {
         return {
+          isDirectMatch: true,
           isSecurityWarning: false,
           text: `😊 Rất vui được hỗ trợ bạn! Chúc bạn học tập thật tốt trên UniLMS!`
         };
       }
 
-      // =========================================================================
-      // 4. DYNAMIC SYNTHESIZER FOR ANY OPEN THEORY QUESTION ("... LÀ GÌ")
-      // =========================================================================
-      if (text.includes('là gì') || text.includes('khái niệm') || text.includes('định nghĩa') || text.includes('tại sao') || text.includes('như thế nào')) {
-        const topic = input.replace(/(là gì|khái niệm|định nghĩa|tại sao|như thế nào|hãy cho biết|giải thích|chi tiết)/gi, '').trim() || input;
-        
-        if (model === 'gemini-flash') {
-          return {
-            isSecurityWarning: false,
-            text: `⚡ **[Gemini 1.5 Flash - Tóm tắt Lý thuyết Nhanh]**:\n\n• **Chủ đề**: *${topic}*\n• **Giải đáp**: *${topic}* là một khái niệm quan trọng. Để nắm vững, bạn cần hiểu định nghĩa cơ bản, nguyên lý hoạt động và tính ứng dụng của nó trong thực tế.`
-          };
-        } else if (model === 'code-assist') {
-          return {
-            isSecurityWarning: false,
-            text: `💻 **[CodeAssist AI - Kỹ thuật & Thực hành]**:\n\n• **Chủ đề**: *${topic}*\n• **Minh họa lập trình**: Áp dụng khái niệm *${topic}* vào xây dựng mã nguồn giúp tăng tính module và hiệu năng phần mềm.`
-          };
-        } else if (model === 'edubrain' || model === 'edubrain-guide') {
-          return {
-            isSecurityWarning: false,
-            text: `📘 **[EduBrain Study Guide - Lộ trình Ôn tập]**:\n\nĐối với câu hỏi về *${topic}*:\n1. **Tài liệu**: Đọc chương Slide tương ứng tại tab **Môn học**.\n2. **Ôn luyện**: Làm câu hỏi trắc nghiệm liên quan tại tab **Bài kiểm tra**.\n3. **Thảo luận**: Nhắn tin với Giảng viên để được hướng dẫn thêm.`
-          };
-        } else {
-          return {
-            isSecurityWarning: false,
-            text: `🧠 **[Gemini 1.5 Pro - Phân tích Lý thuyết Chuyên sâu]**:\n\nGiải đáp khái niệm: **"${topic}"**\n\nKhái niệm *${topic}* đóng vai trò quan trọng trong việc xây dựng nền tảng tư duy và thực hành. Hãy tham khảo Slide bài giảng và ngân hàng câu hỏi để củng cố kiến thức!`
-          };
-        }
-      }
-
-      // Catch-all response
-      if (model === 'gemini-flash') {
-        return {
-          isSecurityWarning: false,
-          text: `⚡ **[Gemini 1.5 Flash - Phản hồi Siêu Tốc]**:\n\nTrợ lý AI đã ghi nhận yêu cầu: *"${input}"*.\nBạn có thể tiếp tục đặt các câu hỏi về bài giảng, thuật ngữ lập trình hoặc bài tập toán học!`
-        };
-      }
-
-      return {
-        isSecurityWarning: false,
-        text: `🧠 **[Gemini 1.5 Pro - Phân tích Tri thức]**:\n\nGiải đáp cho câu hỏi: **"${input}"**\n\nOmniBrain AI sẵn sàng hỗ trợ giải đáp chi tiết các kiến thức chuyên ngành, bài tập toán học, thuật ngữ tiếng Pháp/Anh và hướng dẫn lập trình!`
-      };
+      // Trả về null cho mọi câu hỏi mở để handleSendMessage gọi trực tiếp sang Live Generative AI Engine
+      return null;
     }
   }
 

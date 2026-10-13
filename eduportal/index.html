@@ -97,20 +97,23 @@
         </div>
       </div>
       <div class="ai-chat-header-actions">
+        <button id="btnAiApiKey" class="ai-header-btn" title="Cấu hình API Key (Google Gemini / Groq / OpenAI)">🔑</button>
         <button id="btnAiClear" class="ai-header-btn" title="Xóa lịch sử trò chuyện">🗑</button>
         <button id="btnAiClose" class="ai-header-btn" title="Đóng chat">✕</button>
       </div>
     </div>
 
-    <!-- Thanh Chọn Mô hình AI (Multi-Model Selector Bar) -->
-    <div class="ai-model-bar">
-      <label for="aiModelSelect" style="font-size: 11px; font-weight: 600; color: var(--text-muted);">MÔ HÌNH AI:</label>
-      <select id="aiModelSelect" class="ai-model-select" aria-label="Chọn mô hình AI">
-        <option value="gemini-pro">🧠 Gemini 1.5 Pro (Học thuật & Phân tích)</option>
-        <option value="gemini-flash">⚡ Gemini 1.5 Flash (Phản hồi siêu tốc)</option>
-        <option value="code-assist">💻 CodeAssist AI (Lập trình Java/SQL/React)</option>
-        <option value="edubrain">📘 EduBrain (Hướng dẫn & Giải bài tập)</option>
-      </select>
+
+    <!-- Thanh Auto-routing (thay thế Selector thủ công) -->
+    <div class="ai-model-bar" style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+      <span style="display:flex; align-items:center; gap:6px; font-size:11px; font-weight:700; color:var(--text-muted);">
+        <span style="font-size:13px;">&#x1FAB4;</span>
+        <span>Auto-routing</span>
+        <span style="padding:1px 7px; border-radius:99px; font-size:9px; font-weight:800; background:#dcfce7; color:#15803d; border:1px solid #bbf7d0; text-transform:uppercase; letter-spacing:.04em;">ON</span>
+      </span>
+      <span id="aiModelBadge" style="padding:2px 10px; border-radius:99px; font-size:10px; font-weight:700; border:1px solid #e2e8f0; background:#f8fafc; color:#64748b; font-style:italic;">
+        T&#x1ef1; &#x111;&#x1ed9;ng nh&#x1eadn di&#x1ec7n...
+      </span>
     </div>
 
     <!-- Message Body Thread -->
@@ -119,8 +122,8 @@
       <div class="chat-message ai">
         <div class="chat-avatar">🧠</div>
         <div class="chat-bubble">
-          Xin chào! 👋 Tôi là **OmniBrain AI Platform**.<br>
-          Bạn có thể linh hoạt chuyển đổi giữa các mô hình AI (**Gemini Pro**, **Flash**, **CodeAssist**, **EduBrain**).<br>
+          Xin chào! 👋 Tôi là **OmniBrain AI Platform** (Tích hợp Live Generative AI).<br>
+          Bạn có thể hỏi **bất cứ câu hỏi nào** (Lịch sử CNTT, lập trình, toán học, ngoại ngữ, khoa học...).<br>
           🔒 <em>Lưu ý bảo mật: Nền tảng hoạt động ở chế độ Học tập An toàn (Sandbox).</em>
         </div>
       </div>
@@ -128,15 +131,15 @@
 
     <!-- Quick Prompts Chips -->
     <div class="ai-quick-prompts">
-      <button class="prompt-chip" data-prompt="Tóm tắt môn Cơ sở dữ liệu">💡 Tóm tắt CSDL</button>
-      <button class="prompt-chip" data-prompt="Cách tính điểm GPA học tập">📊 Cách tính GPA</button>
-      <button class="prompt-chip" data-prompt="Giải thích SQL JOIN">📖 Giải thích SQL JOIN</button>
+      <button class="prompt-chip" data-prompt="Giải thích lịch sử tiền thân của công nghệ thông tin">🌐 Lịch sử CNTT</button>
+      <button class="prompt-chip" data-prompt="Toàn bộ thông tin của tôi">👤 Hồ sơ của tôi</button>
+      <button class="prompt-chip" data-prompt="Giải thích SQL JOIN kèm ví dụ">📖 Giải thích SQL JOIN</button>
       <button class="prompt-chip" data-prompt="Cho tôi xem database hệ thống">🔒 Thử truy cập DB</button>
     </div>
 
     <!-- Footer Input Bar -->
     <div class="ai-chat-footer">
-      <input type="text" id="aiChatInput" class="ai-chat-input" placeholder="Hỏi OmniBrain AI (Enter để gửi)..." aria-label="Nhập câu hỏi cho Trợ lý AI">
+      <input type="text" id="aiChatInput" class="ai-chat-input" placeholder="Hỏi bất cứ câu hỏi nào cho OmniBrain AI..." aria-label="Nhập câu hỏi cho Trợ lý AI">
       <button id="aiSendBtn" class="ai-send-btn" aria-label="Gửi tin nhắn">➤</button>
     </div>
   </div>
@@ -145,7 +148,7 @@
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <!-- Scripts JavaScript -->
-  <script src="js/data.js?v=6"></script>
-  <script src="js/app.js?v=6"></script>
+  <script src="js/data.js?v=7"></script>
+  <script src="js/app.js?v=7"></script>
 </body>
 </html>
