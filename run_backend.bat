@@ -1,5 +1,16 @@
 @echo off
-echo Starting UniLMS Spring Boot Backend...
+chcp 65001 >nul
+title UniLMS Backend Runner
+echo Khoi dong UniLMS Spring Boot Backend...
 cd /d "%~dp0backend"
-java -cp "target/*;target/classes" com.unilms.UniLmsApplication
+
+set "MAVEN_CMD=mvn"
+where mvn >nul 2>&1
+if %ERRORLEVEL% NEQ 0 (
+    if exist "D:\Idea\DATA IDEA\IntelliJ IDEA 2026.1.1\plugins\maven\lib\maven3\bin\mvn.cmd" (
+        set "MAVEN_CMD=D:\Idea\DATA IDEA\IntelliJ IDEA 2026.1.1\plugins\maven\lib\maven3\bin\mvn.cmd"
+    )
+)
+
+"%MAVEN_CMD%" spring-boot:run
 pause
