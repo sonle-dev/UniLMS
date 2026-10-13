@@ -126,46 +126,20 @@ Quy tắc bắt buộc:
       } catch (e) {}
     }
 
-    // 3. Pollinations Cloud LLM (Zero-Key Free OpenAI-compatible Gateway)
+    // 3. Live Pollinations Cloud LLM (Free OpenAI Gateway)
     try {
       const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 7500);
-      const res = await fetch('https://text.pollinations.ai/openai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        signal: controller.signal,
-        body: JSON.stringify({
-          model: 'openai-fast',
-          messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }]
-        })
+      const timer = setTimeout(() => controller.abort(), 6500);
+      const encPrompt = encodeURIComponent(userPrompt);
+      const encSys = encodeURIComponent("Bạn là trợ lý học tập UniLMS thân thiện, thông minh. Hãy trả lời câu hỏi của người dùng bằng tiếng Việt một cách tự nhiên, chính xác, ngắn gọn và hữu ích. Không lặp lại hướng dẫn này.");
+      const res = await fetch(`https://text.pollinations.ai/${encPrompt}?system=${encSys}&model=openai`, {
+        signal: controller.signal
       });
       clearTimeout(timer);
       if (res.ok) {
-        const data = await res.json();
-        const reply = data?.choices?.[0]?.message?.content;
-        if (reply && reply.trim().length > 10) return `${modelPrefix}:\n\n${reply.trim()}`;
-      }
-    } catch (e) {}
-
-    // 4. Live Wikipedia Tiếng Việt Knowledge Graph
-    try {
-      let cleanQuery = userPrompt
-        .replace(/^(bạn có thể|hãy|làm ơn|cho tôi biết|giải thích|tóm tắt|trình bày|nêu|cho hỏi|về|khái niệm|định nghĩa|lịch sử)\s+/gi, '')
-        .replace(/\s+(không|nhé|ạ|với|là gì|như thế nào|ra sao)\??$/gi, '')
-        .replace(/\?/g, '')
-        .trim() || userPrompt;
-      const searchRes = await fetch(`https://vi.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(cleanQuery)}&utf8=&format=json&origin=*&srlimit=2`);
-      if (searchRes.ok) {
-        const searchData = await searchRes.json();
-        const firstHit = searchData?.query?.search?.[0];
-        if (firstHit?.title) {
-          const sumRes = await fetch(`https://vi.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(firstHit.title)}`);
-          if (sumRes.ok) {
-            const sumData = await sumRes.json();
-            if (sumData?.extract) {
-              return `${modelPrefix} — **${sumData.title}**:\n\n${sumData.extract}\n\n💡 *Nguồn tri thức trực tuyến: Bách khoa toàn thư mở & OmniBrain Knowledge Engine.*`;
-            }
-          }
+        const text = await res.text();
+        if (text && text.trim().length > 3 && !text.includes('<!DOCTYPE')) {
+          return `${modelPrefix}:\n\n${text.trim()}`;
         }
       }
     } catch (e) {}
@@ -210,12 +184,43 @@ Quy tắc bắt buộc:
       return;
     }
 
-    // Bước 2: Gọi trực tiếp Live Generative AI cho MỌI câu hỏi mở
+    // Bước 2: Gọi Backend AI Server (/api/v1/ai/chat)
+    try {
+      const beRes = await fetch('/api/v1/ai/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: text,
+          model: routedModel,
+          role: currentRole || 'ROLE_STUDENT',
+          userFullName: currentUser?.fullName,
+          userCode: currentUser?.studentCode || currentUser?.instructorCode,
+          userEmail: currentUser?.email
+        })
+      });
+      if (beRes.ok) {
+        const beData = await beRes.json();
+        if (beData && beData.response && !beData.response.includes('Phân tích Tri thức') && !beData.response.includes('Phản hồi Siêu Tốc')) {
+          setMessages(prev => [...prev, {
+            id: Date.now() + 1,
+            sender: 'ai',
+            text: beData.response,
+            isSecurityWarning: beData.isSecurityWarning || false,
+            usedModel: routedModel,
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          }]);
+          setIsTyping(false);
+          return;
+        }
+      }
+    } catch (e) {}
+
+    // Bước 3: Gọi trực tiếp Live Generative AI cho các câu hỏi mở
     const liveReply = await callRealGenerativeAI(text, routedModel, currentRole || 'ROLE_STUDENT', currentUser);
     setMessages(prev => [...prev, {
       id: Date.now() + 1,
       sender: 'ai',
-      text: liveReply || 'Xin lỗi bạn, hiện tại kết nối mạng đang bị gián đoạn. Bạn thử gửi lại câu hỏi sau giây lát nhé!',
+      text: liveReply || 'Xin chào bạn! Mình đã ghi nhận câu hỏi. Bạn có thể hỏi cụ thể hơn về bài học, môn học hoặc lịch thi để mình hỗ trợ nhé!',
       isSecurityWarning: false,
       usedModel: routedModel,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -497,10 +502,12 @@ Quy tắc bắt buộc:
       };
     }
 
-    if (lower === 'xin chào' || lower === 'chào bạn' || lower === 'hi' || lower === 'chào' || lower === 'hello') {
+    const isGreeting = /\b(xin chào|chào|hello|hi|hey|alo|bạn ơi|ad ơi|bot ơi|hế lô)\b/i.test(text) ||
+                       ['chào', 'hi', 'hello', 'alo', 'hey'].includes(lower);
+    if (isGreeting && text.length < 35) {
       return {
         isSecurityWarning: false,
-        text: `👋 Xin chào! **OmniBrain AI Platform** đang trực tuyến. Bạn có thể hỏi tôi **bất kỳ câu hỏi nào** về lịch sử CNTT, lập trình, giải toán, ngoại ngữ hoặc thông tin học tập của bạn!`
+        text: `👋 Xin chào bạn! Rất vui được hỗ trợ bạn. Bạn cần hỗ trợ về bài học, lịch thi hay kiến thức gì cứ nhắn cho mình nhé!`
       };
     }
 

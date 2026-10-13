@@ -527,8 +527,8 @@ public class AiService {
             return "🧠 **[OmniBrain AI Platform]**:\n\nTôi là **OmniBrain AI Platform** - Trợ lý trí tuệ nhân tạo thế hệ mới của UniLMS (ICTU Style).\nTôi hỗ trợ bạn giải toán, giải đáp lý thuyết lập trình, dịch thuật và hỗ trợ học tập tín chỉ 24/7!";
         }
 
-        if (lower.matches(".*\\b(xin chào|chào bạn|hello)\\b.*") || lower.equalsIgnoreCase("hi") || lower.equalsIgnoreCase("chào")) {
-            return "👋 Xin chào! **OmniBrain AI Platform** rất vui được hỗ trợ bạn. Bạn muốn tra cứu bài học, giải toán hay câu hỏi lập trình nào hôm nay?";
+        if (lower.matches(".*(xin chào|chào|hello|hi|hey|alo|bạn ơi|ad ơi|bot ơi|hế lô).*")) {
+            return "👋 Xin chào bạn! Rất vui được hỗ trợ bạn. Bạn cần hỗ trợ về bài học, lịch thi hay kiến thức gì cứ nhắn cho mình nhé!";
         }
 
         if (lower.contains("cảm ơn") || lower.contains("thanks")) {
