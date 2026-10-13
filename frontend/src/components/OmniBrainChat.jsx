@@ -163,69 +163,84 @@ Quy tắc bắt buộc:
     if (!textToSend) setInputText('');
     setIsTyping(true);
 
-    // ── Auto-routing: luôn dùng Intent Classifier để chọn mô hình ──
-    const routedModel = classifyIntent(text);
-    setActiveModel(routedModel);
-
-    // Bước 1: Kiểm tra Rule nội bộ (Security Guard, Math, Profile, Core LMS Entity DB)
-    const directRule = generateOmniBrainResponse(text, routedModel, currentRole, currentUser);
-    if (directRule) {
-      setTimeout(() => {
-        setMessages(prev => [...prev, {
-          id: Date.now() + 1,
-          sender: 'ai',
-          text: directRule.text,
-          isSecurityWarning: directRule.isSecurityWarning,
-          usedModel: routedModel,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        }]);
-        setIsTyping(false);
-      }, 350);
-      return;
-    }
-
-    // Bước 2: Gọi Backend AI Server (/api/v1/ai/chat)
     try {
-      const beRes = await fetch('/api/v1/ai/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: text,
-          model: routedModel,
-          role: currentRole || 'ROLE_STUDENT',
-          userFullName: currentUser?.fullName,
-          userCode: currentUser?.studentCode || currentUser?.instructorCode,
-          userEmail: currentUser?.email
-        })
-      });
-      if (beRes.ok) {
-        const beData = await beRes.json();
-        if (beData && beData.response && !beData.response.includes('Phân tích Tri thức') && !beData.response.includes('Phản hồi Siêu Tốc')) {
+      // ── Auto-routing: luôn dùng Intent Classifier để chọn mô hình ──
+      const routedModel = classifyIntent(text);
+      setActiveModel(routedModel);
+
+      // Bước 1: Kiểm tra Rule nội bộ (Security Guard, Math, Profile, Core LMS Entity DB, Greetings)
+      const directRule = generateOmniBrainResponse(text, routedModel, currentRole, currentUser);
+      if (directRule) {
+        setTimeout(() => {
           setMessages(prev => [...prev, {
             id: Date.now() + 1,
             sender: 'ai',
-            text: beData.response,
-            isSecurityWarning: beData.isSecurityWarning || false,
+            text: directRule.text,
+            isSecurityWarning: directRule.isSecurityWarning,
             usedModel: routedModel,
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
           }]);
           setIsTyping(false);
-          return;
-        }
+        }, 80);
+        return;
       }
-    } catch (e) {}
 
-    // Bước 3: Gọi trực tiếp Live Generative AI cho các câu hỏi mở
-    const liveReply = await callRealGenerativeAI(text, routedModel, currentRole || 'ROLE_STUDENT', currentUser);
-    setMessages(prev => [...prev, {
-      id: Date.now() + 1,
-      sender: 'ai',
-      text: liveReply || 'Xin chào bạn! Mình đã ghi nhận câu hỏi. Bạn có thể hỏi cụ thể hơn về bài học, môn học hoặc lịch thi để mình hỗ trợ nhé!',
-      isSecurityWarning: false,
-      usedModel: routedModel,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    }]);
-    setIsTyping(false);
+      // Bước 2: Gọi Backend AI Server (/api/v1/ai/chat)
+      try {
+        const beController = new AbortController();
+        const beTimer = setTimeout(() => beController.abort(), 3000);
+        const beRes = await fetch('/api/v1/ai/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          signal: beController.signal,
+          body: JSON.stringify({
+            message: text,
+            model: routedModel,
+            role: currentRole || 'ROLE_STUDENT',
+            userFullName: currentUser?.fullName,
+            userCode: currentUser?.studentCode || currentUser?.instructorCode,
+            userEmail: currentUser?.email
+          })
+        });
+        clearTimeout(beTimer);
+        if (beRes.ok) {
+          const beData = await beRes.json();
+          if (beData && beData.response && !beData.response.includes('Phân tích Tri thức') && !beData.response.includes('Phản hồi Siêu Tốc')) {
+            setMessages(prev => [...prev, {
+              id: Date.now() + 1,
+              sender: 'ai',
+              text: beData.response,
+              isSecurityWarning: beData.isSecurityWarning || false,
+              usedModel: routedModel,
+              timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            }]);
+            return;
+          }
+        }
+      } catch (e) {}
+
+      // Bước 3: Gọi trực tiếp Live Generative AI cho các câu hỏi mở
+      const liveReply = await callRealGenerativeAI(text, routedModel, currentRole || 'ROLE_STUDENT', currentUser);
+      setMessages(prev => [...prev, {
+        id: Date.now() + 1,
+        sender: 'ai',
+        text: liveReply || 'Xin chào bạn! Mình đã ghi nhận câu hỏi. Bạn có thể hỏi cụ thể hơn về bài học, môn học hoặc lịch thi để mình hỗ trợ nhé!',
+        isSecurityWarning: false,
+        usedModel: routedModel,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      }]);
+    } catch (err) {
+      console.error('Chat error:', err);
+      setMessages(prev => [...prev, {
+        id: Date.now() + 1,
+        sender: 'ai',
+        text: 'Xin chào bạn! Rất vui được hỗ trợ bạn. Bạn cần hỗ trợ gì cứ nhắn cho mình nhé!',
+        isSecurityWarning: false,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      }]);
+    } finally {
+      setIsTyping(false);
+    }
   };
 
   const tryEvaluateMath = (input) => {
@@ -502,9 +517,9 @@ Quy tắc bắt buộc:
       };
     }
 
-    const isGreeting = /\b(xin chào|chào|hello|hi|hey|alo|bạn ơi|ad ơi|bot ơi|hế lô)\b/i.test(text) ||
+    const isGreeting = /\b(xin chào|chào|hello|hi|hey|alo|bạn ơi|ad ơi|bot ơi|hế lô)\b/i.test(input) ||
                        ['chào', 'hi', 'hello', 'alo', 'hey'].includes(lower);
-    if (isGreeting && text.length < 35) {
+    if (isGreeting && input.length < 35) {
       return {
         isSecurityWarning: false,
         text: `👋 Xin chào bạn! Rất vui được hỗ trợ bạn. Bạn cần hỗ trợ về bài học, lịch thi hay kiến thức gì cứ nhắn cho mình nhé!`
