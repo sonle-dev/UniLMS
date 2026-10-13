@@ -45,7 +45,7 @@ export default function OmniBrainChat({ currentRole, currentUser }) {
     {
       id: 1,
       sender: 'ai',
-      text: 'Xin chào! Tôi là **OmniBrain AI Platform** - Trợ lý trí tuệ nhân tạo tích hợp của UniLMS.\n\nBạn có thể hỏi tôi về bài học, lịch thi, tóm tắt tài liệu hoặc sinh mã nguồn. Bạn cũng có thể đổi mô hình AI ở góc trên!',
+      text: 'Xin chào bạn! 👋 Mình là trợ lý học tập UniLMS.\n\nBạn cần hỗ trợ về bài giảng, lịch thi hay kiến thức gì cứ nhắn cho mình nhé!',
       isSecurityWarning: false,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
@@ -215,7 +215,7 @@ Quy tắc bắt buộc:
     setMessages(prev => [...prev, {
       id: Date.now() + 1,
       sender: 'ai',
-      text: liveReply || `🧠 **[OmniBrain AI]**: Xin vui lòng kiểm tra kết nối mạng hoặc nhấn biểu tượng **🔑** trên góc phải khung chat để cấu hình Google Gemini / Groq API Key!`,
+      text: liveReply || 'Xin lỗi bạn, hiện tại kết nối mạng đang bị gián đoạn. Bạn thử gửi lại câu hỏi sau giây lát nhé!',
       isSecurityWarning: false,
       usedModel: routedModel,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -568,31 +568,6 @@ Quy tắc bắt buộc:
             </div>
 
             <div className="flex items-center gap-2">
-              <button
-                onClick={() => {
-                  const currentKey = localStorage.getItem('omnibrain_api_key') || '';
-                  const inputKey = prompt(
-                    '🔑 CẤU HÌNH API KEY CHO OMNIBRAIN AI (Tùy chọn):\n\n' +
-                    '• Nhập Google Gemini API Key (AIza...) - Lấy miễn phí tại aistudio.google.com\n' +
-                    '• Hoặc Groq Cloud API Key (gsk_...)\n' +
-                    '• Hoặc OpenAI API Key (sk-...)\n' +
-                    '• Để trống nếu dùng Cloud AI Miễn phí tích hợp sẵn:',
-                    currentKey
-                  );
-                  if (inputKey !== null) {
-                    const trimmed = inputKey.trim();
-                    if (trimmed) {
-                      localStorage.setItem('omnibrain_api_key', trimmed);
-                    } else {
-                      localStorage.removeItem('omnibrain_api_key');
-                    }
-                  }
-                }}
-                className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition-colors text-xs"
-                title="Cấu hình API Key (Google Gemini / Groq / OpenAI)"
-              >
-                🔑
-              </button>
               <button
                 onClick={() => setIsOpen(false)}
                 className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition-colors"
