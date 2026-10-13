@@ -64,12 +64,21 @@ export default function OmniBrainChat({ currentRole, currentUser }) {
     }
   }, [messages, isOpen]);
 
+  const cleanAiText = (txt) => {
+    if (!txt) return '';
+    return txt
+      .replace(/^⚡\s*\*\*\[Gemini[^\]]*\]\*\*(\s*—\s*)?:?\s*/gi, '')
+      .replace(/^🧠\s*\*\*\[Gemini[^\]]*\]\*\*(\s*—\s*)?:?\s*/gi, '')
+      .replace(/^💻\s*\*\*\[CodeAssist[^\]]*\]\*\*(\s*—\s*)?:?\s*/gi, '')
+      .replace(/^📘\s*\*\*\[EduBrain[^\]]*\]\*\*(\s*—\s*)?:?\s*/gi, '')
+      .replace(/\*\*\[Gemini[^\]]*\]\*\*:\s*/gi, '')
+      .replace(/\[Gemini[^\]]*\]:\s*/gi, '')
+      .trim();
+  };
+
   const callRealGenerativeAI = async (userPrompt, model, role, userObj) => {
     const apiKey = (localStorage.getItem('omnibrain_api_key') || '').trim();
-    const modelPrefix = model === 'code-assist' ? '💻 **[CodeAssist AI]**' :
-                        model === 'gemini-flash' ? '⚡ **[Gemini 1.5 Flash]**' :
-                        (model === 'edubrain' || model === 'edubrain-guide') ? '📘 **[EduBrain Study Guide]**' :
-                        '🧠 **[Gemini 1.5 Pro]**';
+    const modelPrefix = '';
 
     const userFullName = userObj?.fullName || (role === 'ROLE_INSTRUCTOR' ? 'TS. Trần Thị Mai' : 'Nguyễn Văn An');
     const userCode = userObj?.studentCode || userObj?.instructorCode || (role === 'ROLE_INSTRUCTOR' ? 'MSGV 10245' : 'MSSV 22110045');
@@ -98,7 +107,7 @@ Quy tắc bắt buộc:
         if (res.ok) {
           const data = await res.json();
           const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (reply) return `${modelPrefix}:\n\n${reply.trim()}`;
+          if (reply) return reply.trim();
         }
       } catch (e) {}
     }
@@ -121,7 +130,7 @@ Quy tắc bắt buộc:
         if (res.ok) {
           const data = await res.json();
           const reply = data?.choices?.[0]?.message?.content;
-          if (reply) return `${modelPrefix}:\n\n${reply.trim()}`;
+          if (reply) return reply.trim();
         }
       } catch (e) {}
     }
@@ -139,7 +148,7 @@ Quy tắc bắt buộc:
       if (res.ok) {
         const text = await res.text();
         if (text && text.trim().length > 3 && !text.includes('<!DOCTYPE')) {
-          return `${modelPrefix}:\n\n${text.trim()}`;
+          return text.trim();
         }
       }
     } catch (e) {}
@@ -649,31 +658,8 @@ Quy tắc bắt buộc:
                   )}
 
                   <div className="whitespace-pre-wrap font-sans">
-                    {msg.text}
+                    {msg.sender === 'ai' ? cleanAiText(msg.text) : msg.text}
                   </div>
-
-                  {/* Model badge hiển thị dưới mỗi tin AI */}
-                  {msg.sender === 'ai' && msg.usedModel && !msg.isSecurityWarning && (
-                    <div className={`mt-2 pt-1.5 border-t flex items-center gap-1 ${
-                      msg.usedModel === 'code-assist'    ? 'border-emerald-100' :
-                      msg.usedModel === 'gemini-flash'   ? 'border-amber-100' :
-                      msg.usedModel === 'edubrain-guide' ? 'border-blue-100' :
-                                                           'border-purple-100'
-                    }`}>
-                      <Wand2 className="w-2.5 h-2.5 opacity-50" />
-                      <span className={`text-[9px] font-bold opacity-60 ${
-                        msg.usedModel === 'code-assist'    ? 'text-emerald-700' :
-                        msg.usedModel === 'gemini-flash'   ? 'text-amber-700' :
-                        msg.usedModel === 'edubrain-guide' ? 'text-blue-700' :
-                                                             'text-purple-700'
-                      }`}>
-                        {msg.usedModel === 'code-assist'    ? 'CodeAssist AI' :
-                         msg.usedModel === 'gemini-flash'   ? 'Gemini Flash' :
-                         msg.usedModel === 'edubrain-guide' ? 'EduBrain Guide' :
-                                                              'Gemini Pro'}
-                      </span>
-                    </div>
-                  )}
 
                   <div className={`text-[9px] mt-1 text-right font-medium opacity-60`}>
                     {msg.timestamp}
