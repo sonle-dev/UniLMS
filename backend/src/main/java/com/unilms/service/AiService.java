@@ -610,10 +610,11 @@ public class AiService {
             }
         }
 
-        // 2. Gọi Cloud LLM Gateway miễn phí
+        // 2. Gọi Cloud LLM Gateway miễn phí (model=openai phản hồi nhanh & chính xác)
         try {
             String encodedPrompt = URLEncoder.encode(userPrompt, StandardCharsets.UTF_8).replace("+", "%20");
-            String url = "https://text.pollinations.ai/" + encodedPrompt;
+            String systemInstruction = URLEncoder.encode("Bạn là trợ lý UniLMS thông minh, thân thiện. Hãy trả lời bằng tiếng Việt một cách tự nhiên, chuẩn xác, súc tích và hữu ích cho bất kỳ câu hỏi nào.", StandardCharsets.UTF_8).replace("+", "%20");
+            String url = "https://text.pollinations.ai/" + encodedPrompt + "?model=openai&system=" + systemInstruction;
 
             HttpClient client = HttpClient.newBuilder()
                     .connectTimeout(Duration.ofSeconds(6))
@@ -621,7 +622,7 @@ public class AiService {
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
-                    .timeout(Duration.ofSeconds(20))
+                    .timeout(Duration.ofSeconds(22))
                     .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
                     .GET()
                     .build();
