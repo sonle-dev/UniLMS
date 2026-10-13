@@ -7,7 +7,8 @@ Tệp này chứa thông tin ngữ cảnh chính của dự án UniLMS để AI 
 ## 📌 1. Thông tin chung
 * **Tên dự án**: UniLMS (Enterprise Learning Management System - ICTU Style)
 * **Đối tượng**: Hệ thống quản lý học tập tích hợp cho các trường đại học / cơ sở giáo dục tại Việt Nam (theo chuẩn lms.ictu.edu.vn).
-* **Mô hình**: Monorepo gồm 2 phân hệ chính: `backend` và `frontend`.
+* **Mô hình chuẩn hóa (Single Source of Truth)**: Monorepo gồm 2 phân hệ chính thức: `backend` (Spring Boot) và `frontend` (React + Vite).
+* **Lưu trữ lịch sử**: Các bản prototype tĩnh ban đầu (HTML/CSS/JS thuần `EduPortal`) đã được dọn dẹp và lưu trữ trong `archive/legacy_eduportal/` nhằm tránh nhầm lẫn.
 
 ---
 
