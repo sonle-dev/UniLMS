@@ -578,30 +578,6 @@ Quy tắc bắt buộc:
             </div>
           </div>
 
-          {/* Auto-routing Status Bar */}
-          <div className="px-3 py-2 bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2">
-            <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-              <Wand2 className="w-3.5 h-3.5 text-indigo-500" />
-              <span>Auto-routing</span>
-              <span className="px-1.5 py-0.5 rounded-full text-[9px] font-extrabold bg-emerald-100 text-emerald-700 border border-emerald-300 uppercase tracking-wide">ON</span>
-            </span>
-            {activeModel ? (
-              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border flex items-center gap-1 ${
-                activeModel === 'code-assist'    ? 'bg-emerald-50 text-emerald-700 border-emerald-300' :
-                activeModel === 'gemini-flash'   ? 'bg-amber-50 text-amber-700 border-amber-300' :
-                activeModel === 'edubrain-guide' ? 'bg-blue-50 text-blue-700 border-blue-300' :
-                                                   'bg-purple-50 text-purple-700 border-purple-300'
-              }`}>
-                {activeModel === 'code-assist'    ? '💻 CodeAssist AI' :
-                 activeModel === 'gemini-flash'   ? '⚡ Gemini Flash' :
-                 activeModel === 'edubrain-guide' ? '🎓 EduBrain Guide' :
-                                                    '🧠 Gemini Pro'}
-              </span>
-            ) : (
-              <span className="text-[10px] text-slate-400 italic">Tự động nhận diện...</span>
-            )}
-          </div>
-
           {/* Chat Messages List */}
           <div className="flex-1 p-3.5 overflow-y-auto space-y-3 bg-slate-50/50 dark:bg-slate-900/50">
             
