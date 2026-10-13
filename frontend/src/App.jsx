@@ -19,6 +19,7 @@ import HelpView from './pages/HelpView';
 import ChangePasswordModal from './components/ChangePasswordModal';
 import Toast from './components/Toast';
 import OmniBrainChat from './components/OmniBrainChat';
+import ErrorBoundary from './components/ErrorBoundary';
 
 // Instructor Views
 import InstructorDashboard from './pages/instructor/InstructorDashboard';
@@ -439,6 +440,7 @@ export default function App() {
 
         {/* Page Content Container */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
+          <ErrorBoundary key={activeTab} onReset={() => setActiveTab(currentRole === 'ROLE_ADMIN' ? 'admin-dashboard' : (currentRole === 'ROLE_INSTRUCTOR' ? 'instructor-dashboard' : 'dashboard'))}>
           {activeTab === 'dashboard' && (
             <StudentDashboard
               enrollments={enrollments}
@@ -604,6 +606,7 @@ export default function App() {
               onNavigate={setActiveTab}
             />
           )}
+          </ErrorBoundary>
         </main>
 
         {/* Footer */}

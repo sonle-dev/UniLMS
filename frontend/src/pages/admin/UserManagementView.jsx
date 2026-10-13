@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, UserPlus, Shield, Edit, Lock, Unlock, CheckCircle2, User, X, Upload, FileSpreadsheet, Download, FileText, Check } from 'lucide-react';
 
 export default function UserManagementView({ onShowToast }) {
@@ -21,18 +21,27 @@ export default function UserManagementView({ onShowToast }) {
   const [usersList, setUsersList] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/v1/admin/users')
+    fetch('/api/v1/admin/users')
       .then(res => res.ok ? res.json() : [])
       .then(data => {
-        if (data && data.length > 0) {
-          const formatted = data.map((u, i) => ({
-            id: u.id || 'u-' + i,
-            code: u.email.includes('sv.') ? 'DTC' + (225100001 + i) : (u.email.includes('gv.') ? 'GV' + (2250001 + i) : 'ADM' + (10001 + i)),
-            fullName: u.fullName,
-            email: u.email,
-            role: u.role,
-            status: u.isActive ? 'ACTIVE' : 'LOCKED'
-          }));
+        if (data && Array.isArray(data) && data.length > 0) {
+          const formatted = data.map((u, i) => {
+            const emailStr = (u.email || '').toLowerCase();
+            let code = 'ADM' + (10001 + i);
+            if (emailStr.includes('sv.') || emailStr.includes('dtc')) {
+              code = 'DTC' + (225100001 + i);
+            } else if (emailStr.includes('gv.') || u.role === 'ROLE_INSTRUCTOR') {
+              code = 'GV' + (2250001 + i);
+            }
+            return {
+              id: u.id || 'u-' + i,
+              code: code,
+              fullName: u.fullName || 'Người dùng ' + (i + 1),
+              email: u.email || '',
+              role: u.role || 'ROLE_STUDENT',
+              status: (u.isActive !== false && u.active !== false) ? 'ACTIVE' : 'LOCKED'
+            };
+          });
           setUsersList(formatted);
         } else {
           // Default initial fallback list if DB endpoint unreachable
