@@ -62,10 +62,15 @@ Tệp này chứa thông tin ngữ cảnh chính của dự án UniLMS để AI 
 * **Components (`frontend/src/components/`)**:
   * [Header.jsx](file:///d:/UniLMS/frontend/src/components/Header.jsx): Topbar cố định với nút Hamburger, Role Switcher (Sinh viên, Giảng viên, Admin) & Tiêu đề trang.
   * [Sidebar.jsx](file:///d:/UniLMS/frontend/src/components/Sidebar.jsx): Left Sidebar linh hoạt thay đổi Menu theo Vai trò người dùng.
-  * [OmniBrainChat.jsx](file:///d:/UniLMS/frontend/src/components/OmniBrainChat.jsx): OmniBrain AI Platform chat widget đa mô hình (Gemini 1.5 Pro, Flash, CodeAssist, EduBrain) với cơ chế OmniBrain Security Guard tự động chặn Sinh viên truy cập DB hệ thống.
+  * [OmniBrainChat.jsx](file:///d:/UniLMS/frontend/src/components/OmniBrainChat.jsx): OmniBrain AI Platform chat widget đa mô hình (Gemini 1.5 Pro, Flash, CodeAssist, EduBrain) kết nối trực tiếp với **OmniBrain AI Platform Local Orchestrator (`http://127.0.0.1:8000`)** ưu tiên chạy qua **Ollama Local Engine (`http://127.0.0.1:11434`)** (Qwen 2.5 7B, DeepSeek-R1 8B, LLaMA 3), tự động kiểm duyệt bảo mật qua OmniBrain Security Guard (RBAC).
   * [ChangePasswordModal.jsx](file:///d:/UniLMS/frontend/src/components/ChangePasswordModal.jsx): Pop-up modal đổi mật khẩu có validation.
   * [Toast.jsx](file:///d:/UniLMS/frontend/src/components/Toast.jsx): Thông báo dạng nổi góc màn hình.
   * `Footer.jsx`, `AuthModal.jsx`, `Breadcrumbs.jsx`, `SkeletonLoader.jsx`.
+
+### 🔹 AI Platform Orchestrator (`D:\OmniBrain AI Platform`)
+* **Công nghệ**: Python 3.13, FastAPI (Port 8000), LiteLLM, NetworkX GraphRAG, Semantic Cache.
+* **Mô hình cục bộ**: Ollama (Port 11434) chạy các model `qwen2.5:7b`, `deepseek-r1:8b`, `llama3:latest`.
+* **Cơ chế điều phối**: Master Orchestrator ưu tiên xử lý qua Ollama Local -> Fallback Cloud LLM (Gemini/OpenRouter). Tích hợp đồng bộ dữ liệu LMS qua Tool Calling & REST API (`/api/v1/chat/completions`).
 
 ---
 
