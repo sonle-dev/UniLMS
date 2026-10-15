@@ -92,6 +92,34 @@ Quy tắc bắt buộc:
 2. Trả lời trực tiếp, đầy đủ, chính xác bằng tiếng Việt cho BẤT KỲ câu hỏi nào người dùng hỏi (khoa học, lịch sử, CNTT, lập trình, toán học, đời sống, ngoại ngữ...).
 3. Trình bày rõ ràng, không bao giờ trả lời chung chung kiểu "Giải đáp cho câu hỏi...".`;
 
+    // 0. OmniBrain AI Platform Local Gateway (Port 8000 - Ollama Local First)
+    try {
+      const obController = new AbortController();
+      const obTimer = setTimeout(() => obController.abort(), 20000);
+      const obRes = await fetch('http://127.0.0.1:8000/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': 'demo_key'
+        },
+        signal: obController.signal,
+        body: JSON.stringify({
+          messages: [
+            { role: 'user', content: userPrompt }
+          ]
+        })
+      });
+      clearTimeout(obTimer);
+      if (obRes.ok) {
+        const obData = await obRes.json();
+        if (obData && obData.text && obData.text.trim().length > 0) {
+          return obData.text.trim();
+        }
+      }
+    } catch (e) {
+      // Local OmniBrain offline or busy, fall back
+    }
+
     // 1. Google Gemini API Key (AIza...)
     if (apiKey.startsWith('AIza')) {
       try {
@@ -593,7 +621,10 @@ Quy tắc bắt buộc:
                   </span>
                 </div>
                 <p className="text-[10px] text-slate-400 font-medium flex items-center gap-1">
-                  <Shield className="w-3 h-3 text-emerald-400" /> Security Guard Active
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span className="text-emerald-300 font-semibold">Ollama Local (:8000)</span>
+                  <span className="text-slate-500">•</span>
+                  <Shield className="w-3 h-3 text-emerald-400" /> RBAC Guard
                 </p>
               </div>
             </div>

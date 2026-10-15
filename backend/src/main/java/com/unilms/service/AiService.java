@@ -602,6 +602,12 @@ public class AiService {
     }
 
     private String callLiveGenerativeAi(String userPrompt) {
+        // 0. ƯU TIÊN SỐ 1: GỌI BỘ NÃO TRUNG TÂM OMNIBRAIN AI PLATFORM (PORT 8000 - OLLAMA LOCAL FIRST)
+        String omniBrainReply = callOmniBrainMasterGateway(userPrompt);
+        if (omniBrainReply != null && !omniBrainReply.trim().isEmpty()) {
+            return omniBrainReply;
+        }
+
         // 1. Ưu tiên gọi Google Gemini API chính thức nếu đã cấu hình Key (Phản hồi siêu tốc 0.4s)
         if (geminiApiKey != null && !geminiApiKey.trim().isEmpty() && !geminiApiKey.equals("${GEMINI_API_KEY:}")) {
             String geminiReply = callGeminiApi(userPrompt);
@@ -671,6 +677,61 @@ public class AiService {
             }
         } catch (Exception e) {
             System.err.println("Gemini API error in AiService: " + e.getMessage());
+        }
+        return null;
+    }
+
+    private String callOmniBrainMasterGateway(String userPrompt) {
+        try {
+            String escaped = userPrompt.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r");
+            String jsonPayload = "{\"messages\":[{\"role\":\"user\",\"content\":\"" + escaped + "\"}]}";
+
+            HttpClient client = HttpClient.newBuilder()
+                    .connectTimeout(Duration.ofSeconds(3))
+                    .build();
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("http://127.0.0.1:8000/api/v1/chat/completions"))
+                    .header("Content-Type", "application/json")
+                    .header("X-API-Key", "demo_key")
+                    .timeout(Duration.ofSeconds(60))
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonPayload, StandardCharsets.UTF_8))
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            if (response.statusCode() == 200 && response.body() != null) {
+                String body = response.body();
+                int textIdx = body.indexOf("\"text\":");
+                if (textIdx != -1) {
+                    int quoteStart = body.indexOf("\"", textIdx + 7);
+                    if (quoteStart != -1) {
+                        StringBuilder sb = new StringBuilder();
+                        boolean escape = false;
+                        for (int i = quoteStart + 1; i < body.length(); i++) {
+                            char c = body.charAt(i);
+                            if (escape) {
+                                if (c == 'n') sb.append('\n');
+                                else if (c == 'r') sb.append('\r');
+                                else if (c == 't') sb.append('\t');
+                                else sb.append(c);
+                                escape = false;
+                            } else if (c == '\\') {
+                                escape = true;
+                            } else if (c == '"') {
+                                break;
+                            } else {
+                                sb.append(c);
+                            }
+                        }
+                        String reply = sb.toString().trim();
+                        if (!reply.isEmpty()) {
+                            return "🦙 **[OmniBrain Master Engine • Ollama Local (Port 8000)]**:\n\n" + reply;
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // OmniBrain local gateway is offline or busy, seamlessly fall through to next provider
         }
         return null;
     }
