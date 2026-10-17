@@ -554,8 +554,8 @@ Quy tắc bắt buộc:
       };
     }
 
-    const isGreeting = /\b(xin chào|chào|hello|hi|hey|alo|bạn ơi|ad ơi|bot ơi|hế lô)\b/i.test(input) ||
-                       ['chào', 'hi', 'hello', 'alo', 'hey'].includes(lower);
+    const isGreeting = /\b(xin chào|chào|chao|chaof|hello|hi|hey|alo|bạn ơi|ban oi|banj oi|ad ơi|bot ơi|hế lô|helo)\b/i.test(input) ||
+                       ['chào', 'chao', 'chaof', 'hi', 'hello', 'alo', 'hey'].some(g => lower.includes(g));
     if (isGreeting && input.length < 35) {
       return {
         isSecurityWarning: false,

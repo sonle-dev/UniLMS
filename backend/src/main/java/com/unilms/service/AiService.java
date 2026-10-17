@@ -687,6 +687,7 @@ public class AiService {
             String jsonPayload = "{\"messages\":[{\"role\":\"user\",\"content\":\"" + escaped + "\"}]}";
 
             HttpClient client = HttpClient.newBuilder()
+                    .version(HttpClient.Version.HTTP_1_1)
                     .connectTimeout(Duration.ofSeconds(3))
                     .build();
 
