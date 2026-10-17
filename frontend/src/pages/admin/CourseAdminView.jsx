@@ -25,22 +25,52 @@ export default function CourseAdminView({ onShowToast, materials = [], onAddMate
     {
       id: 'c-101',
       title: 'Lập trình Enterprise với Java 17/21 & Spring Boot 3',
-      code: 'JAVA88',
+      code: 'CNTT.K22B.D1.K2.N01',
       credits: 3,
       instructor: 'PGS. TS. Trần Đức Minh',
       semester: 'Học kỳ 2 (2025-2026)',
-      classesCount: 2,
-      totalStudents: 123
+      classesCount: 1,
+      totalStudents: 54
     },
     {
       id: 'c-102',
       title: 'Kiến trúc & Tối ưu Cơ sở Dữ liệu PostgreSQL Enterprise',
-      code: 'PGDB99',
+      code: 'CNTT.K22B.D1.K2.N02',
       credits: 3,
       instructor: 'ThS. Nguyễn Hoàng Nam',
       semester: 'Học kỳ 2 (2025-2026)',
       classesCount: 1,
-      totalStudents: 58
+      totalStudents: 54
+    },
+    {
+      id: 'c-103',
+      title: 'Phương pháp phát triển phần mềm hướng đối tượng-2-25',
+      code: 'CNTT.K22B.D1.K2.N03',
+      credits: 3,
+      instructor: 'TS. Trần Thị Mai',
+      semester: 'Học kỳ 2 (2025-2026)',
+      classesCount: 1,
+      totalStudents: 54
+    },
+    {
+      id: 'c-104',
+      title: 'Quản lý dự án CNTT-2-25',
+      code: 'CNTT.K22B.D1.K2.N04',
+      credits: 3,
+      instructor: 'TS. Phạm Đình Lâm',
+      semester: 'Học kỳ 2 (2025-2026)',
+      classesCount: 1,
+      totalStudents: 54
+    },
+    {
+      id: 'c-105',
+      title: 'Quản trị hệ thống-2-25',
+      code: 'CNTT.K22B.D1.K2.N05',
+      credits: 3,
+      instructor: 'PGS. TS. Nguyễn Văn Học',
+      semester: 'Học kỳ 2 (2025-2026)',
+      classesCount: 1,
+      totalStudents: 54
     }
   ]);
 
@@ -249,7 +279,9 @@ export default function CourseAdminView({ onShowToast, materials = [], onAddMate
                 >
                   <option value="PGS. TS. Trần Đức Minh">PGS. TS. Trần Đức Minh</option>
                   <option value="ThS. Nguyễn Hoàng Nam">ThS. Nguyễn Hoàng Nam</option>
-                  <option value="TS. Phạm Minh Tuấn">TS. Phạm Minh Tuấn</option>
+                  <option value="TS. Trần Thị Mai">TS. Trần Thị Mai</option>
+                  <option value="TS. Phạm Đình Lâm">TS. Phạm Đình Lâm</option>
+                  <option value="PGS. TS. Nguyễn Văn Học">PGS. TS. Nguyễn Văn Học</option>
                 </select>
               </div>
 
@@ -420,6 +452,9 @@ export default function CourseAdminView({ onShowToast, materials = [], onAddMate
                   >
                     <option value="c-101">Lập trình Enterprise với Java</option>
                     <option value="c-102">Tối ưu Cơ sở dữ liệu PostgreSQL</option>
+                    <option value="c-103">Phát triển phần mềm hướng đối tượng</option>
+                    <option value="c-104">Quản lý dự án CNTT</option>
+                    <option value="c-105">Quản trị hệ thống Linux</option>
                   </select>
                 </div>
               </div>

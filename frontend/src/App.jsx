@@ -233,7 +233,107 @@ export default function App() {
           id: 'm-201',
           title: 'Chương 1: Indexing & Execution Plan Analysis',
           lessons: [
-            { id: 'l-401', title: 'Bài 01: Composite Index & EXPLAIN ANALYZE', contentType: 'VIDEO', durationSeconds: 1100, orderIndex: 1 }
+            { id: 'l-401', title: 'Bài 01: Composite Index & EXPLAIN ANALYZE', contentType: 'VIDEO', durationSeconds: 1100, orderIndex: 1 },
+            { id: 'l-402', title: 'Bài 02: Tối ưu B-Tree vs GIN Index trên JSONB', contentType: 'DOCUMENT', durationSeconds: 750, orderIndex: 2 }
+          ]
+        },
+        {
+          id: 'm-202',
+          title: 'Chương 2: Connection Pooling & Performance Tuning',
+          lessons: [
+            { id: 'l-403', title: 'Bài 03: Cấu hình HikariCP Connection Pool Enterprise', contentType: 'VIDEO', durationSeconds: 1200, orderIndex: 1 },
+            { id: 'l-404', title: 'Bài 04: Partitioning Bảng Lớn và Vacuuming', contentType: 'DOCUMENT', durationSeconds: 850, orderIndex: 2 },
+            { id: 'l-405', title: 'Bài 05: Đánh giá Năng lực Cơ sở Dữ liệu PostgreSQL', contentType: 'QUIZ', durationSeconds: 900, orderIndex: 3 }
+          ]
+        }
+      ]
+    },
+    {
+      id: 'c-103',
+      title: 'Phương pháp phát triển phần mềm hướng đối tượng-2-25',
+      slug: 'phuong-phap-phat-trien-phan-mem-huong-doi-tuong',
+      summary: 'Phân tích thiết kế hệ thống theo mô hình OOP, UML, Design Patterns (GoF), Clean Architecture và SOLID principles áp dụng cho dự án quy mô lớn.',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=600&q=80',
+      price: 0,
+      instructorName: 'TS. Trần Thị Mai',
+      totalModules: 2,
+      totalLessons: 5,
+      modules: [
+        {
+          id: 'm-301',
+          title: 'Chương 1: Nguyên lý Hướng đối tượng OOP & SOLID',
+          lessons: [
+            { id: 'l-501', title: 'Bài 01: 4 Trụ cột OOP & Thiết kế Interface Segregation', contentType: 'VIDEO', durationSeconds: 900, orderIndex: 1 },
+            { id: 'l-502', title: 'Bài 02: Áp dụng Dependency Inversion Principle trong dự án lớn', contentType: 'DOCUMENT', durationSeconds: 600, orderIndex: 2 },
+            { id: 'l-503', title: 'Bài 03: Bài tập Trắc nghiệm Thiết kế Hướng đối tượng', contentType: 'QUIZ', durationSeconds: 900, orderIndex: 3 }
+          ]
+        },
+        {
+          id: 'm-302',
+          title: 'Chương 2: Thiết kế Hệ thống với UML & Design Patterns',
+          lessons: [
+            { id: 'l-504', title: 'Bài 04: Biểu đồ Use Case, Class Diagram và Sequence Diagram', contentType: 'VIDEO', durationSeconds: 1200, orderIndex: 1 },
+            { id: 'l-505', title: 'Bài 05: Thực hành Factory, Singleton, Observer Patterns', contentType: 'DOCUMENT', durationSeconds: 800, orderIndex: 2 }
+          ]
+        }
+      ]
+    },
+    {
+      id: 'c-104',
+      title: 'Quản lý dự án CNTT-2-25',
+      slug: 'quan-ly-du-an-cntt',
+      summary: 'Quy trình Agile/Scrum, quản lý phạm vi, lập kế hoạch chi phí, tiến độ, rủi ro dự án CNTT và sử dụng Jira/GitLab trong quản trị dự án.',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=600&q=80',
+      price: 0,
+      instructorName: 'TS. Phạm Đình Lâm',
+      totalModules: 2,
+      totalLessons: 5,
+      modules: [
+        {
+          id: 'm-401',
+          title: 'Chương 1: Tổng quan Quản lý Dự án CNTT & Mô hình Agile/Scrum',
+          lessons: [
+            { id: 'l-601', title: 'Bài 01: Vòng đời dự án phần mềm và Khung làm việc Scrum', contentType: 'VIDEO', durationSeconds: 900, orderIndex: 1 },
+            { id: 'l-602', title: 'Bài 02: Quản lý Backlog, Sprint Planning & Burndown Chart', contentType: 'DOCUMENT', durationSeconds: 700, orderIndex: 2 },
+            { id: 'l-603', title: 'Bài 03: Kiểm tra Trắc nghiệm Quy trình Scrum Tín chỉ', contentType: 'QUIZ', durationSeconds: 900, orderIndex: 3 }
+          ]
+        },
+        {
+          id: 'm-402',
+          title: 'Chương 2: Quản trị Rủi ro, Ngân sách và Chất lượng Dự án',
+          lessons: [
+            { id: 'l-604', title: 'Bài 04: Lập ma trận Đánh giá & Giảm thiểu Rủi ro CNTT', contentType: 'VIDEO', durationSeconds: 1000, orderIndex: 1 },
+            { id: 'l-605', title: 'Bài 05: Báo cáo Tiến độ và Đánh giá KPIs thành viên', contentType: 'DOCUMENT', durationSeconds: 750, orderIndex: 2 }
+          ]
+        }
+      ]
+    },
+    {
+      id: 'c-105',
+      title: 'Quản trị hệ thống-2-25',
+      slug: 'quan-tri-he-thong',
+      summary: 'Quản trị Linux Server (Ubuntu/RHEL), cấu hình mạng, DNS, Nginx Reverse Proxy, Docker containerization, giám sát hệ thống Prometheus & Grafana.',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=600&q=80',
+      price: 0,
+      instructorName: 'PGS. TS. Nguyễn Văn Học',
+      totalModules: 2,
+      totalLessons: 5,
+      modules: [
+        {
+          id: 'm-501',
+          title: 'Chương 1: Quản trị Hệ điều hành Linux Server & Dịch vụ Mạng',
+          lessons: [
+            { id: 'l-701', title: 'Bài 01: Phân quyền Linux, SSH Keypair & Firewall UFW', contentType: 'VIDEO', durationSeconds: 950, orderIndex: 1 },
+            { id: 'l-702', title: 'Bài 02: Cấu hình Web Server Nginx Reverse Proxy & SSL Let\'s Encrypt', contentType: 'DOCUMENT', durationSeconds: 800, orderIndex: 2 },
+            { id: 'l-703', title: 'Bài 03: Kiểm tra Trắc nghiệm Quản trị Linux Server', contentType: 'QUIZ', durationSeconds: 900, orderIndex: 3 }
+          ]
+        },
+        {
+          id: 'm-502',
+          title: 'Chương 2: Containerization với Docker & Giám sát Hệ thống',
+          lessons: [
+            { id: 'l-704', title: 'Bài 04: Đóng gói ứng dụng với Docker & Docker Compose đa dịch vụ', contentType: 'VIDEO', durationSeconds: 1100, orderIndex: 1 },
+            { id: 'l-705', title: 'Bài 05: Thiết lập Giám sát Tải máy chủ với Prometheus và Grafana', contentType: 'DOCUMENT', durationSeconds: 850, orderIndex: 2 }
           ]
         }
       ]
@@ -261,6 +361,39 @@ export default function App() {
       thumbnailUrl: 'https://images.unsplash.com/photo-1544383835-bda2bc66a55d?auto=format&fit=crop&w=600&q=80',
       instructorName: 'ThS. Nguyễn Hoàng Nam',
       progressPercent: 40.0,
+      completedLessons: 2,
+      totalLessons: 5
+    },
+    {
+      id: 'e-3',
+      courseId: 'c-103',
+      title: 'Phương pháp phát triển phần mềm hướng đối tượng-2-25',
+      slug: 'phuong-phap-phat-trien-phan-mem-huong-doi-tuong',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=600&q=80',
+      instructorName: 'TS. Trần Thị Mai',
+      progressPercent: 60.0,
+      completedLessons: 3,
+      totalLessons: 5
+    },
+    {
+      id: 'e-4',
+      courseId: 'c-104',
+      title: 'Quản lý dự án CNTT-2-25',
+      slug: 'quan-ly-du-an-cntt',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=600&q=80',
+      instructorName: 'TS. Phạm Đình Lâm',
+      progressPercent: 80.0,
+      completedLessons: 4,
+      totalLessons: 5
+    },
+    {
+      id: 'e-5',
+      courseId: 'c-105',
+      title: 'Quản trị hệ thống-2-25',
+      slug: 'quan-tri-he-thong',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=600&q=80',
+      instructorName: 'PGS. TS. Nguyễn Văn Học',
+      progressPercent: 50.0,
       completedLessons: 2,
       totalLessons: 5
     }
@@ -527,6 +660,8 @@ export default function App() {
           {/* Instructor Views */}
           {activeTab === 'instructor-dashboard' && (
             <InstructorDashboard
+              currentUser={currentUser}
+              courses={courses}
               onNavigate={setActiveTab}
               onSelectCourse={handleSelectCourse}
             />

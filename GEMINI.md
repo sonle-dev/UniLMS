@@ -26,6 +26,7 @@ Tệp này chứa thông tin ngữ cảnh chính của dự án UniLMS để AI 
   * `V7__add_50_student_users.sql`: Thêm 50 tài khoản sinh viên chuẩn ICTU kèm hồ sơ cá nhân (`student_profiles`), đăng ký môn học (`enrollments`) và bảng điểm đầy đủ các đầu điểm (`student_grades`).
   * `V8__add_instructors_and_admins.sql`: Thêm 10 tài khoản Giảng viên chuẩn ICTU kèm hồ sơ giảng viên (`instructor_profiles`) và 3 tài khoản Quản trị viên hệ thống (`ROLE_ADMIN`).
   * `V9__create_course_materials_table.sql`: Tạo bảng `course_materials` lưu trữ danh mục tài liệu & bài giảng do Giảng viên và Quản trị viên đăng tải.
+  * `V10__add_3_remaining_courses_and_sync_all_students_enrollments.sql`: Bổ sung 3 môn học còn thiếu vào DB (`c-103`, `c-104`, `c-105`), tạo các Lớp học phần (`course_sections`), đồng bộ tất cả 54 sinh viên vào đầy đủ 5 môn học kèm bảng điểm chi tiết, và phân công mỗi Giảng viên phụ trách đúng 1 môn học.
 * **Cache**: Redis (`spring-boot-starter-data-redis`).
 * **Security & Auth**: Spring Security 6, JWT (`io.jsonwebtoken 0.11.5`), CORS.
 * **API Base Path**: `/api/v1` (Port 8080).

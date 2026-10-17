@@ -8,48 +8,48 @@ export default function ProjectsView({ onSelectCourse }) {
   const projectList = [
     {
       id: 'proj-1',
-      title: 'Phương pháp phát triển phần mềm hướng đối tượng-2-25 (CNTT.K22B.D1.K2.N02)',
-      slug: 'phuong-phap-phat-trien-phan-mem-huong-doi-tuong',
-      groupNo: '08',
-      semester: '2025_2026_2',
-      instructor: 'Nguyễn Thanh Hải',
-      phone: '0968550888'
-    },
-    {
-      id: 'proj-2',
-      title: 'Quản lý dự án CNTT-2-25 (CNTT.K22B.D1.K2.N02)',
-      slug: 'quan-ly-du-an-cntt',
-      groupNo: '05',
-      semester: '2025_2026_2',
-      instructor: 'Quách Xuân Trường',
-      phone: '0989090832'
-    },
-    {
-      id: 'proj-3',
-      title: 'Marketing số-2-25 (CNTT.K22B.D1.K2.N02)',
-      slug: 'marketing-so',
-      groupNo: '03',
-      semester: '2025_2026_2',
-      instructor: 'Nguyễn Quang Hiệp',
-      phone: '0915.122.722'
-    },
-    {
-      id: 'proj-4',
-      title: 'Phát triển ứng dụng Python-2-25 (CNTT.K22B.D1.K2.N01)',
-      slug: 'phat-trien-ung-dung-python',
-      groupNo: '15',
-      semester: '2025_2026_2',
-      instructor: 'Nguyễn Tuấn Anh',
-      phone: '0912662003'
-    },
-    {
-      id: 'proj-5',
       title: 'Lập trình Enterprise với Java 17/21 & Spring Boot 3 (CNTT.K22B.D1.K2.N01)',
       slug: 'lap-trinh-java-spring-boot-3',
       groupNo: '01',
       semester: '2025_2026_2',
       instructor: 'PGS. TS. Trần Đức Minh',
       phone: '0988.123.456'
+    },
+    {
+      id: 'proj-2',
+      title: 'Kiến trúc & Tối ưu Cơ sở Dữ liệu PostgreSQL Enterprise (CNTT.K22B.D1.K2.N02)',
+      slug: 'postgresql-enterprise-optimization',
+      groupNo: '02',
+      semester: '2025_2026_2',
+      instructor: 'ThS. Nguyễn Hoàng Nam',
+      phone: '0977.234.567'
+    },
+    {
+      id: 'proj-3',
+      title: 'Phương pháp phát triển phần mềm hướng đối tượng-2-25 (CNTT.K22B.D1.K2.N03)',
+      slug: 'phuong-phap-phat-trien-phan-mem-huong-doi-tuong',
+      groupNo: '03',
+      semester: '2025_2026_2',
+      instructor: 'TS. Trần Thị Mai',
+      phone: '0968.550.888'
+    },
+    {
+      id: 'proj-4',
+      title: 'Quản lý dự án CNTT-2-25 (CNTT.K22B.D1.K2.N04)',
+      slug: 'quan-ly-du-an-cntt',
+      groupNo: '04',
+      semester: '2025_2026_2',
+      instructor: 'TS. Phạm Đình Lâm',
+      phone: '0989.090.832'
+    },
+    {
+      id: 'proj-5',
+      title: 'Quản trị hệ thống-2-25 (CNTT.K22B.D1.K2.N05)',
+      slug: 'quan-tri-he-thong',
+      groupNo: '05',
+      semester: '2025_2026_2',
+      instructor: 'PGS. TS. Nguyễn Văn Học',
+      phone: '0912.334.889'
     }
   ];
 

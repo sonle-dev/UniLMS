@@ -30,6 +30,17 @@ export default function ScheduleView({ onSelectCourse }) {
         slug: 'lap-trinh-java-spring-boot-3'
       }
     ],
+    tue: [
+      {
+        id: 's-3',
+        courseTitle: 'Phương pháp phát triển phần mềm hướng đối tượng-2-25',
+        code: 'CNTT.K22B.D1.K2.N03',
+        time: '07:00 - 09:25 (Tiết 1 - 3)',
+        room: 'Phòng C1.204 - Tòa nhà C1',
+        instructor: 'TS. Trần Thị Mai',
+        slug: 'phuong-phap-phat-trien-phan-mem-huong-doi-tuong'
+      }
+    ],
     wed: [
       {
         id: 's-2',
@@ -41,15 +52,26 @@ export default function ScheduleView({ onSelectCourse }) {
         slug: 'postgresql-enterprise-optimization'
       }
     ],
+    thu: [
+      {
+        id: 's-4',
+        courseTitle: 'Quản lý dự án CNTT-2-25',
+        code: 'CNTT.K22B.D1.K2.N04',
+        time: '09:30 - 11:55 (Tiết 4 - 6)',
+        room: 'Phòng B2.203 - Tòa nhà B2',
+        instructor: 'TS. Phạm Đình Lâm',
+        slug: 'quan-ly-du-an-cntt'
+      }
+    ],
     fri: [
       {
-        id: 's-3',
-        courseTitle: 'Phương pháp phát triển phần mềm hướng đối tượng',
-        code: 'CNTT.K22B.D1.K2.N03',
-        time: '09:35 - 11:55 (Tiết 4 - 6)',
-        room: 'Phòng C3.204',
-        instructor: 'TS. Phạm Minh Tuấn',
-        slug: 'phuong-phap-phat-trien-phan-mem-huong-doi-tuong'
+        id: 's-5',
+        courseTitle: 'Quản trị hệ thống-2-25',
+        code: 'CNTT.K22B.D1.K2.N05',
+        time: '13:00 - 15:25 (Tiết 7 - 9)',
+        room: 'Phòng D3.101 - Tòa nhà D3',
+        instructor: 'PGS. TS. Nguyễn Văn Học',
+        slug: 'quan-tri-he-thong'
       }
     ]
   };
