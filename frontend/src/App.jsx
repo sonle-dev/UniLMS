@@ -676,12 +676,14 @@ export default function App() {
 
           {activeTab === 'instructor-students' && (
             <StudentRosterView
+              currentUser={currentUser}
               onShowToast={handleShowToast}
             />
           )}
 
           {activeTab === 'instructor-grades' && (
             <GradeManagementView
+              currentUser={currentUser}
               onShowToast={handleShowToast}
             />
           )}
