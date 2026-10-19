@@ -245,11 +245,37 @@ public class AiService {
         }
 
         // =========================================================================
+        // 2.5 ACADEMIC & COURSE LECTURE KNOWLEDGE ENGINE (PRIORITY 1: OMNIBRAIN GRAPHRAG)
+        // =========================================================================
+        boolean isAcademicQuery = lower.contains("postgresql") || lower.contains("postgres") || lower.contains("c-102")
+                || lower.contains("java") || lower.contains("spring") || lower.contains("c-101")
+                || lower.contains("clean architecture") || lower.contains("oop") || lower.contains("c-103")
+                || lower.contains("agile") || lower.contains("scrum") || lower.contains("c-104")
+                || lower.contains("linux") || lower.contains("docker") || lower.contains("c-105")
+                || lower.contains("bài giảng") || lower.contains("giáo trình") || lower.contains("buổi ")
+                || lower.contains("lý thuyết") || lower.contains("phương pháp") || lower.contains("tối ưu")
+                || lower.contains("kiến trúc") || lower.contains("csdl") || lower.contains("cơ sở dữ liệu")
+                || lower.contains("là gì") || lower.contains("như thế nào") || lower.contains("giải thích")
+                || lower.contains("mvcc") || lower.contains("b-tree") || lower.contains("vacuum") || lower.contains("index");
+
+        if (isAcademicQuery) {
+            String liveReply = callLiveGenerativeAi(input);
+            if (liveReply != null && !liveReply.trim().isEmpty()) {
+                return AiDto.ChatResponse.builder()
+                        .isSecurityWarning(false)
+                        .model(model)
+                        .timestamp(timeStr)
+                        .response(liveReply)
+                        .build();
+            }
+        }
+
+        // =========================================================================
         // 3. INTENT RECOGNIZER ENGINE: DYNAMIC NATURAL LANGUAGE INTENT PROCESSING
         // =========================================================================
 
-        // A. INTENT: QUERY INSTRUCTORS / GIẢNG VIÊN
-        if (lower.contains("giảng viên") || lower.contains("giáo viên") || lower.contains(" dsgv ") || lower.contains("danh sách gv")) {
+        // A. INTENT: QUERY INSTRUCTORS / GIẢNG VIÊN (Only on explicit list requests)
+        if (lower.contains("danh sách giảng viên") || lower.contains("danh sách gv") || lower.contains(" dsgv ") || lower.equals("giảng viên")) {
             long totalInstructors = userRepository.countByRole(UserRole.ROLE_INSTRUCTOR);
             return AiDto.ChatResponse.builder()
                     .isSecurityWarning(false)
@@ -274,8 +300,8 @@ public class AiService {
                     .build();
         }
 
-        // B. INTENT: QUERY STUDENTS / SINH VIÊN
-        if (lower.contains("sinh viên") || lower.contains("học viên") || lower.contains(" dssv ") || lower.contains("danh sách sv")) {
+        // B. INTENT: QUERY STUDENTS / SINH VIÊN (Only on explicit list requests)
+        if (lower.contains("danh sách sinh viên") || lower.contains("danh sách sv") || lower.contains(" dssv ") || lower.equals("sinh viên")) {
             long totalStudents = userRepository.countByRole(UserRole.ROLE_STUDENT);
             return AiDto.ChatResponse.builder()
                     .isSecurityWarning(false)
@@ -295,8 +321,8 @@ public class AiService {
                     .build();
         }
 
-        // C. INTENT: QUERY ADMINS / QUẢN TRỊ VIÊN
-        if (lower.contains("quản trị") || lower.contains("admin") || lower.contains("ban quản trị")) {
+        // C. INTENT: QUERY ADMINS / QUẢN TRỊ VIÊN (Only on explicit admin list requests)
+        if (lower.contains("danh sách quản trị") || lower.contains("danh sách admin") || lower.contains("ban quản trị") || lower.equals("quản trị viên") || lower.equals("admin")) {
             long totalUsers = userRepository.count();
             long totalStudents = userRepository.countByRole(UserRole.ROLE_STUDENT);
             long totalInstructors = userRepository.countByRole(UserRole.ROLE_INSTRUCTOR);
@@ -318,8 +344,8 @@ public class AiService {
                     .build();
         }
 
-        // D. INTENT: QUERY COURSES / MÔN HỌC & LỚP HP
-        if (lower.contains("môn học") || lower.contains("khóa học") || lower.contains("lớp học phần") || lower.contains("lớp hp")) {
+        // D. INTENT: QUERY COURSES / MÔN HỌC & LỚP HP (Only on explicit course list requests)
+        if (lower.contains("danh sách môn học") || lower.contains("danh sách khóa học") || lower.contains("danh sách lớp học phần") || lower.equals("môn học") || lower.equals("khóa học")) {
             long courseCount = courseRepository.count();
             return AiDto.ChatResponse.builder()
                     .isSecurityWarning(false)
@@ -335,8 +361,8 @@ public class AiService {
                     .build();
         }
 
-        // E. REAL LIVE DATABASE METRICS METRICS SUMMARY
-        if (lower.contains("thống kê") || lower.contains("toàn trường") || lower.contains("hệ thống")) {
+        // E. REAL LIVE DATABASE METRICS METRICS SUMMARY (Only on explicit system statistics requests)
+        if (lower.contains("thống kê toàn trường") || lower.contains("thống kê hệ thống") || lower.equals("thống kê")) {
             long totalUsers = userRepository.count();
             long totalStudents = userRepository.countByRole(UserRole.ROLE_STUDENT);
             long totalInstructors = userRepository.countByRole(UserRole.ROLE_INSTRUCTOR);
