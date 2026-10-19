@@ -72,16 +72,21 @@ Tệp này chứa thông tin ngữ cảnh chính của dự án UniLMS để AI 
 * **Công nghệ**: Python 3.13, FastAPI (Port 8000), LiteLLM, NetworkX GraphRAG, Semantic Cache.
 * **Mô hình cục bộ**: Ollama (Port 11434) chạy các model `qwen2.5:7b`, `deepseek-r1:8b`, `llama3:latest`.
 * **Cơ chế điều phối**: Master Orchestrator ưu tiên xử lý qua Ollama Local -> Fallback Cloud LLM (Gemini/OpenRouter). Tích hợp đồng bộ dữ liệu LMS qua Tool Calling & REST API (`/api/v1/chat/completions`).
-* **Kho tri thức Giáo trình & Bài giảng 45 Buổi học (GraphRAG Multi-Namespace)**:
-  * Đã nạp (ingest) toàn bộ 45 tài liệu bài giảng PDF chính thức (9 buổi học x 5 môn) từ `D:\Data Train\` vào hệ thống GraphRAG tại `D:\OmniBrain AI Platform\graphrag_data/`:
-    * `c-101`: Lập trình Enterprise với Java 17/21 & Spring Boot 3 (60 nodes, 448 edges, 94 chunks).
-    * `c-102`: Kiến trúc & Tối ưu Cơ sở Dữ liệu PostgreSQL Enterprise (34 nodes, 689 edges, 180 chunks).
-    * `c-103`: Phương pháp phát triển phần mềm hướng đối tượng-2-25 (34 nodes, 668 edges, 180 chunks).
-    * `c-104`: Quản lý dự án CNTT-2-25 (32 nodes, 590 edges, 180 chunks).
-    * `c-105`: Quản trị hệ thống-2-25 (45 nodes, 1271 edges, 180 chunks).
-    * `lms`: Master Partition liên môn (172 nodes, 3,666 edges, 814 chunks nội dung chi tiết).
-  * **Cơ chế Hybrid Search Sub-second**: Kết hợp duyệt đồ thị quan hệ 1-hop (`graph.json`) và xếp hạng liên quan BM25/keyword trên 814 chunks bài giảng (`knowledge_store.json`), phản hồi trong <10ms.
-  * **Cơ chế Tự động Đồng bộ (Auto-Sync)**: Khi Giảng viên tải lên tài liệu mới trên Web UniLMS qua `CourseMaterialService.java`, backend Spring Boot sẽ tự động gửi bất đồng bộ (`CompletableFuture.runAsync`) tài liệu sang endpoint `/api/v1/graph-rag/upload` của OmniBrain để tự động trích xuất thực thể và nạp vào kho kiến thức.
+* **Kho tri thức Giáo trình 3 Tập (Train / Validation / Holdout Test) & Mesh GraphRAG**:
+  * **Phân chia 3 tập chuẩn khoa học từ 814 chunks gốc (45 bài giảng x 5 môn)**:
+    * **Tập 1 - Train Set (Tập Huấn Luyện - 568 chunks ~69.8%)**: Lưu trữ tại `benchmark_data/train_dataset.json`, được nạp trực tiếp vào GraphRAG Knowledge Base để mô hình AI học và nắm vững kiến thức.
+    * **Tập 2 - Validation Set (Tập Xác Thực - 123 chunks ~15.1%)**: Lưu trữ tại `benchmark_data/val_dataset.json`, dùng để cân chỉnh tham số tìm kiếm, prompt tuning và xếp hạng độ liên quan.
+    * **Tập 3 - Holdout Test Set (Tập Kiểm Thử Độc Lập - 123 chunks ~15.1% + 123 câu hỏi Benchmark)**: Lưu tại `benchmark_data/test_holdout/test_dataset_holdout.json` và `test_qa_benchmark.json`. **HOÀN TOÀN CÔ LẬP KHỎI KHO TRI THỨC (Không bị rò rỉ dữ liệu - Zero Data Leakage)**, chỉ dùng để chạy kiểm thử đánh giá cuối cùng qua `run_benchmark_test.py`.
+  * **Cấu trúc Đồ thị Tri thức Đan Lưới (Full Mesh Knowledge Graph)**:
+    * Đã tái tạo lại toàn bộ kho tri thức GraphRAG (`c-101` đến `c-105` và `lms`) chỉ sử dụng Tập 1 & Tập 2 (tổng 691 chunks):
+      * `c-101`: 60 nodes, 1,018 edges, 79 chunks.
+      * `c-102`: 34 nodes, 1,632 edges, 153 chunks.
+      * `c-103`: 34 nodes, 1,510 edges, 153 chunks.
+      * `c-104`: 32 nodes, 1,282 edges, 153 chunks.
+      * `c-105`: 45 nodes, 3,391 edges, 153 chunks.
+      * `lms`: **182 nodes, 8,838 edges, 691 chunks**.
+    * **Mắc nối 3 chiều**: (1) Chuỗi bài học tuần tự (Session 1 $\rightarrow$ 9); (2) Đan lưới liên kết khái niệm đồng xuất hiện (Concept $\leftrightarrow$ Concept); (3) Cầu nối liên môn giữa 5 học phần (Java $\leftrightarrow$ PostgreSQL $\leftrightarrow$ Clean Architecture $\leftrightarrow$ Docker Linux $\leftrightarrow$ Agile Scrum).
+  * **Cơ chế Tự động Đồng bộ (Auto-Sync)**: Khi Giảng viên tải tài liệu mới qua Web UniLMS (`CourseMaterialService.java`), Spring Boot tự động gửi bất đồng bộ (`CompletableFuture.runAsync`) sang OmniBrain `/api/v1/graph-rag/upload` để nạp tri thức vào kho kiến thức.
   * **Tích hợp Tự động làm giàu Ngữ cảnh (Chat Context Enrichment)**: Bộ lọc `_enrich_lms_context` trong `chat.py` tự động nhận diện câu hỏi học thuật/giáo trình, truy vấn đúng phân vùng môn học trong GraphRAG và đưa trích dẫn bài giảng vào System Prompt để AI trả lời chuẩn xác theo đúng giáo trình của trường.
 
 ---
