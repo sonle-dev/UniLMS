@@ -500,42 +500,9 @@ public class AiService {
             }
         }
 
-        // 3. SPRING BOOT & SPRING SECURITY
-        if (lower.contains("spring boot") || lower.contains("spring security") || lower.contains("spring")) {
-            if ("gemini-flash".equals(model)) {
-                return "⚡ **[Gemini 1.5 Flash]**:\n• **Spring Boot 3**: Framework Java phát triển Web API doanh nghiệp.\n• **Spring Security 6**: Xác thực & phân quyền JWT Stateless.";
-            } else if ("code-assist".equals(model)) {
-                return "💻 **[CodeAssist AI]**:\n```java\n@Configuration @EnableWebSecurity\npublic class SecurityConfig {\n" +
-                       "    @Bean public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {\n" +
-                       "        return http.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(auth -> auth.anyRequest().authenticated()).build();\n" +
-                       "    }\n}\n```";
-            } else {
-                return "🧠 **[Gemini 1.5 Pro - Phân tích Spring Boot 3]**:\n\n" +
-                       "Spring Boot 3 giúp phát triển REST APIs nhanh chóng với các ưu điểm: Auto-Configuration, nhúng sẵn Tomcat Server, tích hợp Spring Security 6 và Hibernate JPA với PostgreSQL.";
-            }
-        }
-
-        // 4. DỊCH THUẬT TIẾNG PHÁP & TỪ VỰNG
-        if (lower.contains("nụ hôn") && (lower.contains("tiếng pháp") || lower.contains("pháp"))) {
-            return "🧠 **[Gemini 1.5 Pro - Dịch thuật Tiếng Pháp]**:\n\n" +
-                   "Trong tiếng Pháp:\n" +
-                   "• **Danh từ (Nụ hôn)**: **« un baiser »** (từ thân mật là **« un bisou »**).\n" +
-                   "• **Động từ (Hôn)**: **« embrasser »** (hoặc **« baiser »**).\n" +
-                   "• **Nụ hôn kiểu Pháp (French kiss)**: **« un baiser amoureux »**.\n\n" +
-                   "💡 *Ví dụ câu*: *\"Je t'embrasse fort\"* (Gửi đến bạn nụ hôn nồng thắm!).";
-        }
-
-        if (lower.contains("thủ đô") && lower.contains("pháp")) {
-            return "🧠 **[Gemini 1.5 Pro]**: Thủ đô của nước Pháp là thành phố **Paris** (nổi tiếng với tháp Eiffel, bảo tàng Louvre và dòng sông Seine).";
-        }
-
-        if (lower.contains("nước sôi")) {
-            return "🧠 **[Gemini 1.5 Pro]**: Nước nguyên chất sôi ở nhiệt độ **100°C** (212°F) ở áp suất tiêu chuẩn 1 atm.";
-        }
-
         // 5. GIAO TIẾP & PERSONA
         if (lower.contains("bạn là ai") || lower.contains("bạn tên gì") || lower.contains("tên là gì")) {
-            return "🧠 **[OmniBrain AI Platform]**:\n\nTôi là **OmniBrain AI Platform** - Trợ lý trí tuệ nhân tạo thế hệ mới của UniLMS (ICTU Style).\nTôi hỗ trợ bạn giải toán, giải đáp lý thuyết lập trình, dịch thuật và hỗ trợ học tập tín chỉ 24/7!";
+            return "🧠 **[OmniBrain AI Platform]**:\n\nTôi là **OmniBrain AI Platform** - Trợ lý trí tuệ nhân tạo thế hệ mới của UniLMS (ICTU Style).\nTôi hỗ trợ bạn giải toán, giải đáp lý thuyết lập trình, tra cứu tài liệu bài giảng 5 môn học và hỗ trợ học tập tín chỉ 24/7!";
         }
 
         if (lower.matches(".*(xin chào|chào|hello|hi|hey|alo|bạn ơi|ad ơi|bot ơi|hế lô).*")) {
@@ -544,52 +511,6 @@ public class AiService {
 
         if (lower.contains("cảm ơn") || lower.contains("thanks")) {
             return "😊 Rất vui được hỗ trợ bạn! Chúc bạn học tập thật tốt trên UniLMS!";
-        }
-
-        if ((lower.contains("lịch sử") || lower.contains("tiền thân") || lower.contains("nguồn gốc") || lower.contains("ra đời")) &&
-            (lower.contains("công nghệ thông tin") || lower.contains("cntt") || lower.contains("máy tính") || lower.contains("tin học"))) {
-            return "🧠 **[Gemini 1.5 Pro - Lịch sử & Tiền thân của Công nghệ Thông tin (IT)]**:\n\n" +
-                   "Lịch sử hình thành **Công nghệ Thông tin (Information Technology)** trải qua **5 giai đoạn tiến hóa vĩ đại**:\n\n" +
-                   "1. **Thời kỳ Tiền cơ khí (Trước năm 1450)**:\n" +
-                   "   • Con người lưu trữ thông tin trên đất sét, giấy cói và phát minh ra **Bàn tính (Abacus)** (~2400 TCN).\n\n" +
-                   "2. **Thời kỳ Cơ khí (1450 – 1840) - Những cỗ máy tiền thân đầu tiên**:\n" +
-                   "   • **1642**: **Blaise Pascal** chế tạo máy tính cơ học **Pascaline** đầu tiên.\n" +
-                   "   • **1822 – 1837**: **Charles Babbage** (*\"Cha đẻ của máy tính\"*) thiết kế **Difference Engine** và **Analytical Engine**.\n" +
-                   "   • **Ada Lovelace** viết thuật toán đầu tiên, trở thành **Lập trình viên đầu tiên trong lịch sử**.\n\n" +
-                   "3. **Thời kỳ Điện cơ & Lý thuyết Máy tính (1840 – 1940)**:\n" +
-                   "   • **1890**: **Herman Hollerith** phát minh máy đếm thẻ đục lỗ (Punch Card), tiền thân của tập đoàn **IBM**.\n" +
-                   "   • **1936**: **Alan Turing** công bố mô hình **Máy Turing (Turing Machine)** — nền tảng của Khoa học Máy tính.\n\n" +
-                   "4. **Thời kỳ Máy tính Điện tử & Mạng ARPANET (1940 – 1980)**:\n" +
-                   "   • **1945 – 1946**: Kiến trúc **Von Neumann** và máy tính điện tử đa năng đầu tiên **ENIAC** ra đời.\n" +
-                   "   • **1969**: Mạng **ARPANET** ra đời — chính là **tiền thân trực tiếp của mạng Internet**.\n\n" +
-                   "5. **Kỷ nguyên Máy tính Cá nhân, Internet, Cloud & AI (1980 – Nay)**:\n" +
-                   "   • Sự bùng nổ của **PC, World Wide Web (1989), Cloud Computing** và **Trí tuệ nhân tạo tạo sinh (Generative AI)**.";
-        }
-
-        // 6. DYNAMIC THEORY SYNTHESIZER FOR ANY OPEN QUESTION (E.G. "... LÀ GÌ", "KHÁI NIỆM ...")
-        if (lower.contains("là gì") || lower.contains("khái niệm") || lower.contains("định nghĩa") || lower.contains("tại sao") || lower.contains("như thế nào")) {
-            String topic = input.replaceAll("(?i)(là gì|khái niệm|định nghĩa|tại sao|như thế nào|hãy cho biết|giải thích|chi tiết|bằng|cho|tôi)", "").trim();
-            if (topic.isEmpty()) topic = input;
-
-            if ("gemini-flash".equals(model)) {
-                return "⚡ **[Gemini 1.5 Flash - Tóm tắt Lý thuyết Nhanh]**:\n\n" +
-                       "• **Chủ đề**: *" + topic + "*\n" +
-                       "• **Giải đáp**: *" + topic + "* là một khái niệm quan trọng. Để nắm vững, bạn cần hiểu định nghĩa cơ bản, nguyên lý hoạt động và tính ứng dụng của nó trong thực tế.";
-            } else if ("code-assist".equals(model)) {
-                return "💻 **[CodeAssist AI - Kỹ thuật & Thực hành]**:\n\n" +
-                       "• **Chủ đề**: *" + topic + "*\n" +
-                       "• **Minh họa lập trình**: Áp dụng khái niệm *" + topic + "* vào xây dựng mã nguồn giúp tăng tính module và hiệu năng phần mềm.";
-            } else if ("edubrain".equals(model) || "edubrain-guide".equals(model)) {
-                return "📘 **[EduBrain Study Guide - Lộ trình Học tập]**:\n\n" +
-                       "Đối với câu hỏi về *" + topic + "*:\n" +
-                       "1. **Tài liệu**: Đọc chương Slide tương ứng tại tab **Môn học**.\n" +
-                       "2. **Ôn luyện**: Làm câu hỏi trắc nghiệm liên quan tại tab **Bài kiểm tra**.\n" +
-                       "3. **Thảo luận**: Nhắn tin với Giảng viên để được hướng dẫn thêm.";
-            } else {
-                return "🧠 **[Gemini 1.5 Pro - Phân tích Lý thuyết Chuyên sâu]**:\n\n" +
-                       "Giải đáp khái niệm: **\"" + topic + "\"**\n\n" +
-                       "Khái niệm *" + topic + "* đóng vai trò quan trọng trong việc xây dựng nền tảng tư duy và thực hành. Hãy tham khảo Slide bài giảng và ngân hàng câu hỏi để củng cố kiến thức!";
-            }
         }
 
         // Tích hợp Live Generative AI thực thụ cho mọi câu hỏi mở tự do
