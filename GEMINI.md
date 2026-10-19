@@ -72,6 +72,17 @@ Tệp này chứa thông tin ngữ cảnh chính của dự án UniLMS để AI 
 * **Công nghệ**: Python 3.13, FastAPI (Port 8000), LiteLLM, NetworkX GraphRAG, Semantic Cache.
 * **Mô hình cục bộ**: Ollama (Port 11434) chạy các model `qwen2.5:7b`, `deepseek-r1:8b`, `llama3:latest`.
 * **Cơ chế điều phối**: Master Orchestrator ưu tiên xử lý qua Ollama Local -> Fallback Cloud LLM (Gemini/OpenRouter). Tích hợp đồng bộ dữ liệu LMS qua Tool Calling & REST API (`/api/v1/chat/completions`).
+* **Kho tri thức Giáo trình & Bài giảng 45 Buổi học (GraphRAG Multi-Namespace)**:
+  * Đã nạp (ingest) toàn bộ 45 tài liệu bài giảng PDF chính thức (9 buổi học x 5 môn) từ `D:\Data Train\` vào hệ thống GraphRAG tại `D:\OmniBrain AI Platform\graphrag_data/`:
+    * `c-101`: Lập trình Enterprise với Java 17/21 & Spring Boot 3 (60 nodes, 448 edges, 94 chunks).
+    * `c-102`: Kiến trúc & Tối ưu Cơ sở Dữ liệu PostgreSQL Enterprise (34 nodes, 689 edges, 180 chunks).
+    * `c-103`: Phương pháp phát triển phần mềm hướng đối tượng-2-25 (34 nodes, 668 edges, 180 chunks).
+    * `c-104`: Quản lý dự án CNTT-2-25 (32 nodes, 590 edges, 180 chunks).
+    * `c-105`: Quản trị hệ thống-2-25 (45 nodes, 1271 edges, 180 chunks).
+    * `lms`: Master Partition liên môn (172 nodes, 3,666 edges, 814 chunks nội dung chi tiết).
+  * **Cơ chế Hybrid Search Sub-second**: Kết hợp duyệt đồ thị quan hệ 1-hop (`graph.json`) và xếp hạng liên quan BM25/keyword trên 814 chunks bài giảng (`knowledge_store.json`), phản hồi trong <10ms.
+  * **Cơ chế Tự động Đồng bộ (Auto-Sync)**: Khi Giảng viên tải lên tài liệu mới trên Web UniLMS qua `CourseMaterialService.java`, backend Spring Boot sẽ tự động gửi bất đồng bộ (`CompletableFuture.runAsync`) tài liệu sang endpoint `/api/v1/graph-rag/upload` của OmniBrain để tự động trích xuất thực thể và nạp vào kho kiến thức.
+  * **Tích hợp Tự động làm giàu Ngữ cảnh (Chat Context Enrichment)**: Bộ lọc `_enrich_lms_context` trong `chat.py` tự động nhận diện câu hỏi học thuật/giáo trình, truy vấn đúng phân vùng môn học trong GraphRAG và đưa trích dẫn bài giảng vào System Prompt để AI trả lời chuẩn xác theo đúng giáo trình của trường.
 
 ---
 

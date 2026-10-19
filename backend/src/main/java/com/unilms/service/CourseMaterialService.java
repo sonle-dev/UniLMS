@@ -4,10 +4,18 @@ import com.unilms.domain.entity.CourseMaterial;
 import com.unilms.dto.CourseMaterialDto.MaterialResponse;
 import com.unilms.repository.CourseMaterialRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -19,8 +27,10 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CourseMaterialService {
@@ -83,7 +93,59 @@ public class CourseMaterialService {
                 .build();
 
         CourseMaterial saved = materialRepository.save(material);
+
+        if (file != null && !file.isEmpty() && Files.exists(targetLocation)) {
+            syncToOmniBrainAsync(targetLocation, originalFileName, courseId);
+        }
+
         return mapToResponse(saved);
+    }
+
+    private void syncToOmniBrainAsync(Path filePath, String originalFileName, UUID courseId) {
+        CompletableFuture.runAsync(() -> {
+            try {
+                String namespace = "lms";
+                if (courseId != null) {
+                    String idStr = courseId.toString().toLowerCase();
+                    if (idStr.startsWith("c1111111")) namespace = "c-101";
+                    else if (idStr.startsWith("c2222222")) namespace = "c-102";
+                    else if (idStr.startsWith("c3333333")) namespace = "c-103";
+                    else if (idStr.startsWith("c4444444")) namespace = "c-104";
+                    else if (idStr.startsWith("c5555555")) namespace = "c-105";
+                }
+
+                sendToOmniBrain(filePath, originalFileName, namespace);
+                if (!"lms".equals(namespace)) {
+                    sendToOmniBrain(filePath, originalFileName, "lms");
+                }
+            } catch (Exception e) {
+                log.warn("Auto-syncing material to OmniBrain GraphRAG skipped or failed: {}", e.getMessage());
+            }
+        });
+    }
+
+    private void sendToOmniBrain(Path filePath, String originalFileName, String namespace) {
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+            headers.set("X-API-Key", "omni-sk-live-lms-platform-2026-secret");
+
+            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+            body.add("file", new FileSystemResource(filePath.toFile()) {
+                @Override
+                public String getFilename() {
+                    return originalFileName;
+                }
+            });
+
+            HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+            String url = "http://127.0.0.1:8000/api/v1/graph-rag/upload?namespace=" + namespace;
+            restTemplate.postForEntity(url, requestEntity, String.class);
+            log.info("Successfully synced {} to OmniBrain GraphRAG namespace '{}'", originalFileName, namespace);
+        } catch (Exception e) {
+            log.warn("Could not sync material to OmniBrain namespace {}: {}", namespace, e.getMessage());
+        }
     }
 
     public List<MaterialResponse> getMaterialsByCourseId(UUID courseId) {
