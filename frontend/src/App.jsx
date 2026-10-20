@@ -418,6 +418,14 @@ export default function App() {
     setActiveTab('quiz');
   };
 
+  const handleRecordQuizSubmission = (sub) => {
+    setQuizSubmissions(prev => {
+      const updated = [sub, ...prev];
+      localStorage.setItem('unilms_quiz_submissions', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
   const handleOpenCertificate = (code) => {
     if (code) setActiveCertCode(code);
     setActiveTab('certificate');
@@ -775,6 +783,9 @@ export default function App() {
       <OmniBrainChat
         currentRole={currentRole}
         currentUser={currentUser}
+        onNavigate={setActiveTab}
+        onOpenQuiz={handleOpenQuiz}
+        onRecordQuiz={handleRecordQuizSubmission}
       />
 
     </div>
