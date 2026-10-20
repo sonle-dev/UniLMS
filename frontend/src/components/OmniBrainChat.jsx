@@ -95,7 +95,7 @@ Quy tắc bắt buộc:
     // 0. OmniBrain AI Platform Local Gateway (Port 8000 - Ollama Local First)
     try {
       const obController = new AbortController();
-      const obTimer = setTimeout(() => obController.abort(), 20000);
+      const obTimer = setTimeout(() => obController.abort(), 60000);
       const obRes = await fetch('http://127.0.0.1:8000/api/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -225,7 +225,7 @@ Quy tắc bắt buộc:
       // Bước 2: Gọi Backend AI Server (/api/v1/ai/chat)
       try {
         const beController = new AbortController();
-        const beTimer = setTimeout(() => beController.abort(), 90000);
+        const beTimer = setTimeout(() => beController.abort(), 120000);
         const beRes = await fetch('/api/v1/ai/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -254,14 +254,16 @@ Quy tắc bắt buộc:
             return;
           }
         }
-      } catch (e) {}
+      } catch (e) {
+        console.warn('Backend chat API failed or timed out, trying live gateway...', e);
+      }
 
       // Bước 3: Gọi trực tiếp Live Generative AI dự phòng
       const liveReply = await callRealGenerativeAI(text, routedModel, currentRole || 'ROLE_STUDENT', currentUser);
       setMessages(prev => [...prev, {
         id: Date.now() + 1,
         sender: 'ai',
-        text: liveReply || 'Xin chào bạn! Mình đã ghi nhận câu hỏi. Bạn có thể hỏi cụ thể hơn về bài học, môn học hoặc lập trình để mình hỗ trợ nhé!',
+        text: liveReply || '⚠️ **[Hệ thống AI]**: Đang tải dữ liệu và phân tích khối lượng lớn tài liệu giáo trình từ GraphRAG. Bạn vui lòng bấm **Gửi lại** câu hỏi hoặc tải lại trang (Ctrl + F5) để nhận câu trả lời đầy đủ nhé!',
         isSecurityWarning: false,
         usedModel: routedModel,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
