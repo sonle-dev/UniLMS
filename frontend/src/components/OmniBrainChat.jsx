@@ -225,7 +225,7 @@ Quy tắc bắt buộc:
       // Bước 2: Gọi Backend AI Server (/api/v1/ai/chat)
       try {
         const beController = new AbortController();
-        const beTimer = setTimeout(() => beController.abort(), 25000);
+        const beTimer = setTimeout(() => beController.abort(), 90000);
         const beRes = await fetch('/api/v1/ai/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

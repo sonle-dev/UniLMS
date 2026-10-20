@@ -245,20 +245,22 @@ public class AiService {
         }
 
         // =========================================================================
-        // 2.5 ACADEMIC & COURSE LECTURE KNOWLEDGE ENGINE (PRIORITY 1: OMNIBRAIN GRAPHRAG)
+        // 2.5 LIVE GENERATIVE AI & GRAPHRAG (PRIORITY 1 FOR ALL USER QUESTIONS)
         // =========================================================================
-        boolean isAcademicQuery = lower.contains("postgresql") || lower.contains("postgres") || lower.contains("c-102")
-                || lower.contains("java") || lower.contains("spring") || lower.contains("c-101")
-                || lower.contains("clean architecture") || lower.contains("oop") || lower.contains("c-103")
-                || lower.contains("agile") || lower.contains("scrum") || lower.contains("c-104")
-                || lower.contains("linux") || lower.contains("docker") || lower.contains("c-105")
-                || lower.contains("bài giảng") || lower.contains("giáo trình") || lower.contains("buổi ")
-                || lower.contains("lý thuyết") || lower.contains("phương pháp") || lower.contains("tối ưu")
-                || lower.contains("kiến trúc") || lower.contains("csdl") || lower.contains("cơ sở dữ liệu")
-                || lower.contains("là gì") || lower.contains("như thế nào") || lower.contains("giải thích")
-                || lower.contains("mvcc") || lower.contains("b-tree") || lower.contains("vacuum") || lower.contains("index");
+        List<String> profileKeywords = Arrays.asList(
+                "thông tin về tôi", "tổng hợp thông tin về tôi", "thông tin của tôi",
+                "tôi là ai", "hồ sơ của tôi", "xem hồ sơ", "thông tin cá nhân",
+                "tài khoản của tôi", "gpa của tôi", "môn tôi đang học", "hồ sơ cá nhân"
+        );
 
-        if (isAcademicQuery) {
+        boolean isExplicitSystemListRequest = lower.contains("danh sách giảng viên") || lower.contains("danh sách gv") || lower.equals("giảng viên")
+                || lower.contains("danh sách sinh viên") || lower.contains("danh sách sv") || lower.equals("sinh viên")
+                || lower.contains("danh sách quản trị") || lower.contains("danh sách admin") || lower.contains("ban quản trị")
+                || lower.contains("danh sách môn học") || lower.contains("danh sách khóa học")
+                || lower.contains("thống kê toàn trường") || lower.contains("thống kê hệ thống")
+                || profileKeywords.stream().anyMatch(lower::contains);
+
+        if (!isExplicitSystemListRequest) {
             String liveReply = callLiveGenerativeAi(input);
             if (liveReply != null && !liveReply.trim().isEmpty()) {
                 return AiDto.ChatResponse.builder()
@@ -384,12 +386,6 @@ public class AiService {
         // =========================================================================
         // 3.5 USER ACCOUNT & PERSONAL PROFILE SUMMARY ENGINE
         // =========================================================================
-        List<String> profileKeywords = Arrays.asList(
-                "thông tin về tôi", "tổng hợp thông tin về tôi", "thông tin của tôi",
-                "tôi là ai", "hồ sơ của tôi", "xem hồ sơ", "thông tin cá nhân",
-                "tài khoản của tôi", "gpa của tôi", "môn tôi đang học", "hồ sơ cá nhân"
-        );
-
         if (profileKeywords.stream().anyMatch(lower::contains)) {
             String name = (request.getUserFullName() != null && !request.getUserFullName().isEmpty()) 
                     ? request.getUserFullName() 
