@@ -327,6 +327,19 @@ Quy tắc bắt buộc:
   const generateOmniBrainResponse = (input, model, role, userObj) => {
     const lower = input.toLowerCase();
 
+    // 0. ACADEMIC & COURSE LECTURE KNOWLEDGE ENGINE: ALWAYS BYPASS LOCAL STATIC RULES AND CALL REAL BACKEND / GRAPHRAG
+    const academicKeywords = [
+      'postgresql', 'postgres', 'c-102', 'java', 'spring', 'c-101',
+      'clean architecture', 'oop', 'c-103', 'agile', 'scrum', 'c-104',
+      'linux', 'docker', 'c-105', 'bài giảng', 'giáo trình', 'buổi',
+      'lý thuyết', 'phương pháp', 'tối ưu', 'kiến trúc', 'csdl', 'cơ sở dữ liệu',
+      'là gì', 'như thế nào', 'giải thích', 'mvcc', 'b-tree', 'vacuum', 'index',
+      'rest api', 'restful', 'solid', 'design pattern', 'kanban', 'sprint'
+    ];
+    if (academicKeywords.some(kw => lower.includes(kw))) {
+      return null; // Bỏ qua rule tĩnh nội bộ -> chuyển thẳng sang Bước 2 gọi Backend AI Server & GraphRAG!
+    }
+
     const isStudent = !role || role === 'ROLE_STUDENT' || role === 'student';
     const isInstructor = role === 'ROLE_INSTRUCTOR' || role === 'instructor';
     const isAdmin = role === 'ROLE_ADMIN' || role === 'admin';
@@ -384,36 +397,36 @@ Quy tắc bắt buộc:
       };
     }
 
-    // 3. GENAI DYNAMIC NATURAL LANGUAGE INTENT PROCESSOR
-    if (lower.includes('giảng viên') || lower.includes('giáo viên') || lower.includes('gv') || lower.includes('dsgv')) {
+    // 3. GENAI DYNAMIC NATURAL LANGUAGE INTENT PROCESSOR (Only on explicit list requests)
+    if (lower.includes('danh sách giảng viên') || lower.includes('danh sách gv') || lower.includes('dsgv') || lower === 'giảng viên') {
       return {
         isSecurityWarning: false,
         text: `👨‍🏫 **[OmniBrain GenAI Engine] Danh sách & Thông tin Đội ngũ Giảng viên ICTU (Database Synced)**:\n\n• **Tổng số Giảng viên**: **13** Thầy/Cô (Khoa CNTT, KTPM, ATTT, HTTT, KHMT).\n\n📋 **Danh sách Giảng viên tiêu biểu trong Database**:\n1. **PGS. TS. Trần Đức Minh** (\`giangvien@ictu.edu.vn\`) - Trưởng Bộ môn Java Enterprise.\n2. **ThS. Nguyễn Hoàng Nam** (\`nam.nh@ictu.edu.vn\`) - Chuyên gia PostgreSQL Enterprise.\n3. **PGS. TS. Nguyễn Văn Học** (\`gv.nguyenvanhoc@ictu.edu.vn\`) - Khoa Công nghệ Thông tin.\n4. **TS. Phạm Đình Lâm** (\`gv.phamdinhlam@ictu.edu.vn\`) - Trưởng Bộ môn Kỹ thuật Phần mềm.\n5. **ThS. Trần Thị Mai** (\`gv.tranthimai@ictu.edu.vn\`) - Khoa An toàn Thông tin.\n6. **TS. Hoàng Quốc Bảo** (\`gv.hoangquocbao@ictu.edu.vn\`) - Khoa Khoa học Máy tính.\n7. **ThS. Lê Minh Đức** (\`gv.leminhduc@ictu.edu.vn\`) - Khoa Kỹ thuật Phần mềm.\n8. **PGS. TS. Vũ Thị Hoa** (\`gv.vuthihoa@ictu.edu.vn\`) - Trưởng khoa Hệ thống Thông tin.\n9. **TS. Đỗ Hoàng Giang** (\`gv.dohoanggiang@ictu.edu.vn\`) - Khoa Công nghệ Thông tin.\n10. **ThS. Trịnh Văn Hải** (\`gv.trinhvanhai@ictu.edu.vn\`) - Khoa An toàn Thông tin.\n11. **TS. Nguyễn Thị Yến** (\`gv.nguyenthiyen@ictu.edu.vn\`) - Khoa Hệ thống Thông tin.\n12. **ThS. Bùi Đăng Khoa** (\`gv.buidangkhoa@ictu.edu.vn\`) - Khoa Khoa học Máy tính.\n\n💡 *Dữ liệu đã được đồng bộ trực tiếp từ Bảng \`users\` & \`instructor_profiles\` trong PostgreSQL Database.*`
       };
     }
 
-    if (lower.includes('sinh viên') || lower.includes('học viên') || lower.includes('dssv') || lower.includes('sv')) {
+    if (lower.includes('danh sách sinh viên') || lower.includes('danh sách sv') || lower.includes('dssv') || lower === 'sinh viên') {
       return {
         isSecurityWarning: false,
         text: `🎓 **[OmniBrain GenAI Engine] Tra cứu & Thông tin Sinh viên (Database Synced)**:\n\n• **Sĩ số Sinh viên hiện tại**: **54** sinh viên chính quy (Khóa K21 - K22 ICTU).\n• **Các Lớp học phần**: CNTT K22A, CNTT K22B, KTPM K22A, KTPM K22B, ATTT K22A, HTTT K22A, KHMT K22A.\n\n📋 **Danh sách Sinh viên tiêu biểu**:\n1. **Nguyễn Văn An** (\`DTC225100001\` | Lớp CNTT K22A | GPA: 3.68)\n2. **Trần Thị Bình** (\`DTC225100002\` | Lớp CNTT K22B | GPA: 3.75)\n3. **Phạm Minh Cường** (\`DTC225100003\` | Lớp KTPM K22A | GPA: 3.80)\n4. **Lê Thị Duyên** (\`DTC225100004\` | Lớp KTPM K22B | GPA: 3.60)\n5. **Hoàng Đăng Khoa** (\`DTC225100005\` | Lớp ATTT K22A | GPA: 3.90)\n... và 49 sinh viên khác.\n\n📊 **Trạng thái**: **100%** sinh viên đạt chuyên cần và đủ điều kiện dự thi kết thúc học phần.`
       };
     }
 
-    if (lower.includes('quản trị') || lower.includes('admin') || lower.includes('ban quản trị')) {
+    if (lower.includes('danh sách quản trị') || lower.includes('danh sách admin') || lower.includes('ban quản trị') || lower === 'quản trị viên' || lower === 'admin') {
       return {
         isSecurityWarning: false,
         text: `🛡️ **[OmniBrain GenAI Engine] Thông tin Quản trị viên & Thống kê Hệ thống**:\n\n• **Tổng số Tài khoản System**: **71** tài khoản.\n• **Số lượng Quản trị viên (ADMIN)**: **4** tài khoản.\n• **Sinh viên**: **54** | **Giảng viên**: **13**.\n\n📋 **Danh sách Quản trị viên Hệ thống**:\n1. **Quản trị viên Hệ thống ICTU** (\`admin@ictu.edu.vn\`) - Admin Master.\n2. **Quản trị viên Phòng Đào tạo** (\`admin.daotao@ictu.edu.vn\`) - Đào tạo Tín chỉ.\n3. **Quản trị viên Trung tâm Khảo thí & ĐBCL** (\`admin.ktdb@ictu.edu.vn\`) - Khảo thí & Điểm.\n4. **Quản trị viên Hệ thống CNTT & LMS** (\`admin.cntt@ictu.edu.vn\`) - Hạ tầng CNTT.`
       };
     }
 
-    if (lower.includes('môn học') || lower.includes('khóa học') || lower.includes('lớp học phần') || lower.includes('lớp hp')) {
+    if (lower.includes('danh sách môn học') || lower.includes('danh sách khóa học') || lower === 'môn học' || lower === 'khóa học') {
       return {
         isSecurityWarning: false,
         text: `📚 **[OmniBrain GenAI Engine] Tra cứu Môn học & Lớp Học phần ICTU**:\n\n• **Tổng số Môn học Tín chỉ**: **32** lớp học phần đang vận hành.\n\n📋 **Các Lớp Học phần chính**:\n1. **Lập trình Enterprise với Java 17/21 & Spring Boot 3**\n   - Mã HP: \`CNTT.K22B.D1.K2.N01\` | Sĩ số: 45 SV | GV: PGS. TS. Trần Đức Minh\n2. **Kiến trúc & Tối ưu Cơ sở Dữ liệu PostgreSQL Enterprise**\n   - Mã HP: \`CNTT.K22B.D1.K2.N02\` | Sĩ số: 42 SV | GV: ThS. Nguyễn Hoàng Nam.`
       };
     }
 
-    if (lower.includes('thống kê') || lower.includes('toàn trường') || lower.includes('hệ thống')) {
+    if (lower.includes('thống kê toàn trường') || lower.includes('thống kê hệ thống') || lower === 'thống kê') {
       return {
         isSecurityWarning: false,
         text: `📊 **[OmniBrain Admin GenAI Platform] Thống kê Đồng bộ Thực tế Database (PostgreSQL)**:\n\n• **Tổng số Tài khoản Hệ thống**: **71** tài khoản.\n• **Sinh viên Hoạt động**: **54** sinh viên (K21 - K22 ICTU).\n• **Đội ngũ Giảng viên**: **13** giảng viên các Khoa.\n• **Quản trị viên Hệ thống**: **4** tài khoản ADMIN.\n• **Lớp Học phần / Môn học mở**: **32** lớp tín chỉ đang vận hành.\n\n💡 *Quản trị viên (ADMIN) được cập nhật toàn bộ quyền giám sát, quản lý tài khoản và phân quyền hệ thống.*`
