@@ -13,5 +13,5 @@ echo 2. Đợi 5 giây để Cloudflare cấp đường link HTTPS công khai...
 echo.
 echo ==============================================================================
 echo.
-"%~dp0tools\cloudflared.exe" tunnel --url http://localhost:5173
+"%~dp0tools\cloudflared.exe" tunnel --protocol http2 --url http://localhost:5173
 pause
