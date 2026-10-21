@@ -788,11 +788,11 @@ Quy tắc bắt buộc:
 2. Trả lời trực tiếp, đầy đủ, chính xác bằng tiếng Việt cho BẤT KỲ câu hỏi nào người dùng hỏi (khoa học, lịch sử, CNTT, lập trình, toán học, đời sống, ngoại ngữ...).
 3. Trình bày rõ ràng, không bao giờ trả lời chung chung kiểu "Giải đáp cho câu hỏi...".`;
 
-    // 0. OmniBrain AI Platform Local Gateway (Port 8000 - Ollama Local First)
+    // 0. OmniBrain AI Platform Local Gateway (Port 8000 via Vite Proxy - Ollama Local First)
     try {
       const obController = new AbortController();
       const obTimer = setTimeout(() => obController.abort(), 60000);
-      const obRes = await fetch('http://127.0.0.1:8000/api/v1/chat/completions', {
+      const obRes = await fetch('/ai-gateway/api/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

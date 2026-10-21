@@ -10,7 +10,7 @@ export default function AdminDashboard({ onNavigate }) {
   });
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/v1/admin/stats')
+    fetch('/api/v1/admin/stats')
       .then(res => res.ok ? res.json() : null)
       .then(data => {
         if (data) {
