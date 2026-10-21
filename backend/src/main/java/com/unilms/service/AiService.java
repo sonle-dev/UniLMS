@@ -669,7 +669,7 @@ public class AiService {
                         }
                         String reply = sb.toString().trim();
                         if (!reply.isEmpty()) {
-                            return "🦙 **[OmniBrain Master Engine • Ollama Local (Port 8000)]**:\n\n" + reply;
+                            return reply;
                         }
                     }
                 }

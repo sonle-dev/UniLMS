@@ -765,12 +765,10 @@ export default function OmniBrainChat({ currentRole, currentUser, onNavigate, on
   const cleanAiText = (txt) => {
     if (!txt) return '';
     return txt
-      .replace(/^⚡\s*\*\*\[Gemini[^\]]*\]\*\*(\s*—\s*)?:?\s*/gi, '')
-      .replace(/^🧠\s*\*\*\[Gemini[^\]]*\]\*\*(\s*—\s*)?:?\s*/gi, '')
-      .replace(/^💻\s*\*\*\[CodeAssist[^\]]*\]\*\*(\s*—\s*)?:?\s*/gi, '')
-      .replace(/^📘\s*\*\*\[EduBrain[^\]]*\]\*\*(\s*—\s*)?:?\s*/gi, '')
-      .replace(/\*\*\[Gemini[^\]]*\]\*\*:\s*/gi, '')
-      .replace(/\[Gemini[^\]]*\]:\s*/gi, '')
+      .replace(/^[🦙🧠⚡💻📘🛡️👨‍🏫👩‍🏫🎓📚📊👤]?\s*\*\*\[[^\]]+\]\*\*(\s*—\s*)?:?\s*/gi, '')
+      .replace(/^\*\*\[[^\]]+\]\*\*(\s*—\s*)?:?\s*/gi, '')
+      .replace(/^\[[^\]]+\]:?\s*/gi, '')
+      .replace(/\n*(Dạ,\s*)?tôi\s+đã\s+ghi\s+nhận\s+thời\s+gian\s+hệ\s+thống[^.\n]*[.\n]*/gi, '\n')
       .trim();
   };
 
@@ -1329,25 +1327,20 @@ Quy tắc bắt buộc:
         <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[420px] h-[580px] max-h-[85vh] bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
           
           {/* Header Bar */}
-          <div className="p-3.5 bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white flex items-center justify-between border-b border-slate-800">
+          <div className="p-3.5 bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white flex items-center justify-between border-b border-slate-800 shadow-xs">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 bg-indigo-600/30 rounded-xl border border-indigo-400/30 text-indigo-300">
-                <Sparkles className="w-5 h-5 animate-spin-slow" />
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-xs">
+                <Sparkles className="w-4 h-4" />
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
-                  <h3 className="font-black text-sm tracking-wide bg-gradient-to-r from-white via-indigo-200 to-purple-200 bg-clip-text text-transparent">
+                  <h3 className="font-bold text-sm tracking-wide text-white">
                     OmniBrain AI
                   </h3>
-                  <span className="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-blue-500/30 text-blue-200 border border-blue-400/30 uppercase">
-                    Platform
-                  </span>
                 </div>
-                <p className="text-[10px] text-slate-400 font-medium flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                  <span className="text-emerald-300 font-semibold">Ollama Local (:8000)</span>
-                  <span className="text-slate-500">•</span>
-                  <Shield className="w-3 h-3 text-emerald-400" /> RBAC Guard
+                <p className="text-[11px] text-slate-300 font-normal flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                  <span>Trợ lý học tập thông minh</span>
                 </p>
               </div>
             </div>
@@ -1355,7 +1348,7 @@ Quy tắc bắt buộc:
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setIsOpen(false)}
-                className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition-colors"
+                className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
                 title="Đóng chat"
               >
                 <X className="w-5 h-5" />
