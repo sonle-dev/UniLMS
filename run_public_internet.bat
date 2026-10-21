@@ -2,14 +2,12 @@
 chcp 65001 >nul
 title UniLMS - Cloudflare Public Internet Tunnel
 echo ==============================================================================
-echo           UNILMS - ĐƯA HỆ THỐNG LÊN MẠNG INTERNET (CLOUDFLARE TUNNEL)
+echo           UNILMS - DUA HE THONG LEN MANG INTERNET (CLOUDFLARE TUNNEL)
 echo ==============================================================================
 echo.
-echo Đang kiểm tra cổng Frontend (localhost:5173)...
-echo.
-echo [HƯỚNG DẪN]:
-echo 1. Hãy đảm bảo bạn đã bật Backend (port 8080), AI Engine (port 8000) và Frontend (port 5173).
-echo 2. Đợi 5 giây để Cloudflare cấp đường link HTTPS công khai...
+echo [HUONG DAN]:
+echo 1. Hay dam bao ban da bat he thong qua 'run_all.bat' hoac cac service tuong ung.
+echo 2. Doi 5 giay de Cloudflare cap duong link HTTPS cong khai...
 echo.
 echo ==============================================================================
 echo.
