@@ -104,11 +104,27 @@ d:\UniLMS\run_backend.bat
 ```
 *Lưu ý*: Cần cài đặt và bật dịch vụ PostgreSQL (DB: `unilms_db`, User: `postgres`, Pass: `123`) và Redis (Host: `localhost:6379`).
 
+### OmniBrain AI Platform (Orchestrator + Ollama)
+```bash
+# Cách 1: Sử dụng script bat 1-click
+d:\UniLMS\run_omnibrain.bat
+
+# Cách 2: Chạy trực tiếp từ thư mục OmniBrain
+cd "D:\OmniBrain AI Platform"
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+```
+
 ### Frontend
 ```bash
 cd frontend
 npm install   # nếu chưa cài node_modules
 npm run dev   # Chạy dev server tại http://localhost:5173
+```
+
+### ⚡ Khởi Động Toàn Bộ Hệ Thống (1-Click All-In-One)
+```bash
+# Khởi động cùng lúc Backend + OmniBrain AI + Frontend trong 3 cửa sổ độc lập:
+d:\UniLMS\run_all.bat
 ```
 
 ### 🌐 Đưa Hệ Thống Lên Mạng Internet (Public Cloudflare Tunnel)
