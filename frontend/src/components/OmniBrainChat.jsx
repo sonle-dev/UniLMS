@@ -2,7 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { 
   MessageSquare, X, Send, Bot, Shield, Sparkles, Cpu, Zap, Code, 
   BookOpen, AlertTriangle, User, Wand2, CheckCircle2, XCircle, Award, 
-  RotateCcw, BarChart3, Target, ArrowRight 
+  RotateCcw, BarChart3, Target, ArrowRight, ChevronLeft, ChevronRight,
+  ChevronDown, ChevronUp, LayoutGrid
 } from 'lucide-react';
 
 // ─── Adaptive Pedagogical Question Banks (5 Subjects) ────────────────────────
@@ -736,6 +737,17 @@ export default function OmniBrainChat({ currentRole, currentUser, onNavigate, on
     }
   ]);
   const [isTyping, setIsTyping] = useState(false);
+  const [isChipsExpanded, setIsChipsExpanded] = useState(false);
+  const chipsScrollRef = useRef(null);
+
+  const scrollChips = (direction) => {
+    if (chipsScrollRef.current) {
+      chipsScrollRef.current.scrollBy({
+        left: direction === 'left' ? -180 : 180,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   const messagesEndRef = useRef(null);
 
@@ -1357,29 +1369,129 @@ Quy tắc bắt buộc:
             </div>
           </div>
 
-          {/* Pinned Quick Action & Prompt Bar (Cố định trên đầu, vuốt ngang 1 hàng không trôi) */}
-          <div className="shrink-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-3.5 py-2.5 border-b border-slate-200/90 dark:border-slate-800 flex items-center gap-2 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden shadow-2xs z-10">
-            <button
-              onClick={() => handleStartAdaptiveQuiz('c-104')}
-              className="shrink-0 px-3 py-1.5 text-[11px] font-black bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 text-white rounded-full hover:shadow-md hover:scale-102 active:scale-95 transition-all flex items-center gap-1.5 shadow-xs cursor-pointer border border-indigo-400/40 ring-2 ring-indigo-500/20"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
-              <span>📝 Làm bài test thích ứng</span>
-            </button>
-            {[
-              '📅 Lịch thi môn Java?',
-              '⚡ Tóm tắt Spring Security',
-              '💻 Mẫu SQL INNER JOIN',
-              '🎓 Lộ trình ôn tập'
-            ].map((chipText, i) => (
-              <button
-                key={i}
-                onClick={() => handleSend(chipText)}
-                className="shrink-0 px-2.5 py-1.5 text-[11px] font-semibold bg-slate-100/90 dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700 rounded-full text-slate-700 dark:text-slate-200 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-slate-700 transition-colors shadow-2xs cursor-pointer whitespace-nowrap"
-              >
-                {chipText}
-              </button>
-            ))}
+          {/* Pinned Quick Action & Prompt Bar (Cố định trên đầu, hỗ trợ cuộn nút bấm & bung xem tất cả) */}
+          <div className="shrink-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/90 dark:border-slate-800 shadow-2xs z-10 transition-all">
+            {!isChipsExpanded ? (
+              <div className="flex items-center px-2 py-2 gap-1 relative">
+                {/* Nút lướt sang trái */}
+                <button
+                  type="button"
+                  onClick={() => scrollChips('left')}
+                  className="p-1 rounded-full text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0 cursor-pointer"
+                  title="Cuộn sang trái"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+
+                {/* Dải chip cuộn ngang: Hỗ trợ vuốt chạm cảm ứng + Lăn chuột */}
+                <div
+                  ref={chipsScrollRef}
+                  onWheel={(e) => {
+                    if (e.deltaY !== 0 && chipsScrollRef.current) {
+                      chipsScrollRef.current.scrollLeft += e.deltaY;
+                    }
+                  }}
+                  className="flex-1 flex items-center gap-1.5 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden scroll-smooth py-0.5"
+                >
+                  <button
+                    type="button"
+                    onClick={() => handleStartAdaptiveQuiz('c-104')}
+                    className="shrink-0 px-3 py-1.5 text-[11px] font-black bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 text-white rounded-full hover:shadow-md hover:scale-102 active:scale-95 transition-all flex items-center gap-1.5 shadow-xs cursor-pointer border border-indigo-400/40 ring-2 ring-indigo-500/20"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
+                    <span>📝 Làm bài test thích ứng</span>
+                  </button>
+                  {[
+                    '📅 Lịch thi môn Java?',
+                    '⚡ Tóm tắt Spring Security',
+                    '💻 Mẫu SQL INNER JOIN',
+                    '🎓 Lộ trình ôn tập',
+                    '📊 Tra cứu điểm số',
+                    '🛡️ Clean Architecture là gì?'
+                  ].map((chipText, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => handleSend(chipText)}
+                      className="shrink-0 px-2.5 py-1.5 text-[11px] font-semibold bg-slate-100/90 dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700 rounded-full text-slate-700 dark:text-slate-200 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-slate-700 transition-colors shadow-2xs cursor-pointer whitespace-nowrap"
+                    >
+                      {chipText}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Nút lướt sang phải */}
+                <button
+                  type="button"
+                  onClick={() => scrollChips('right')}
+                  className="p-1 rounded-full text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0 cursor-pointer"
+                  title="Cuộn sang phải xem tiếp"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+
+                {/* Nút bung mở xem tất cả */}
+                <button
+                  type="button"
+                  onClick={() => setIsChipsExpanded(true)}
+                  className="p-1 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-slate-800 rounded-lg transition-colors shrink-0 cursor-pointer ml-0.5"
+                  title="Bung xem tất cả gợi ý"
+                >
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              /* Giao diện bung mở toàn bộ gợi ý */
+              <div className="p-3 bg-slate-50/95 dark:bg-slate-900/95 space-y-2 animate-in fade-in duration-200">
+                <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 font-medium pb-1.5 border-b border-slate-200 dark:border-slate-800">
+                  <span className="flex items-center gap-1 font-bold text-indigo-600 dark:text-indigo-400">
+                    <Sparkles className="w-3.5 h-3.5" /> Tất cả gợi ý câu hỏi & Tính năng AI
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setIsChipsExpanded(false)}
+                    className="flex items-center gap-0.5 text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer font-bold text-xs"
+                  >
+                    <span>Thu gọn</span>
+                    <ChevronUp className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                <div className="flex flex-wrap gap-1.5 max-h-[140px] overflow-y-auto pr-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleStartAdaptiveQuiz('c-104');
+                      setIsChipsExpanded(false);
+                    }}
+                    className="px-3 py-1.5 text-[11px] font-black bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 text-white rounded-full hover:shadow-md hover:scale-102 active:scale-95 transition-all flex items-center gap-1.5 shadow-xs cursor-pointer border border-indigo-400/40 ring-2 ring-indigo-500/20"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
+                    <span>📝 Làm bài test thích ứng</span>
+                  </button>
+                  {[
+                    '📅 Lịch thi môn Java?',
+                    '⚡ Tóm tắt Spring Security',
+                    '💻 Mẫu SQL INNER JOIN',
+                    '🎓 Lộ trình ôn tập',
+                    '📊 Tra cứu điểm số',
+                    '🛡️ Clean Architecture là gì?'
+                  ].map((chipText, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => {
+                        handleSend(chipText);
+                        setIsChipsExpanded(false);
+                      }}
+                      className="px-2.5 py-1.5 text-[11px] font-semibold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full text-slate-700 dark:text-slate-200 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-slate-700 transition-colors shadow-2xs cursor-pointer"
+                    >
+                      {chipText}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Chat Messages List */}
