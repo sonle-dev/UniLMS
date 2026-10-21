@@ -1324,10 +1324,10 @@ Quy tắc bắt buộc:
 
       {/* Main Drawer Window */}
       {isOpen && (
-        <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[420px] h-[580px] max-h-[85vh] bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <div className="fixed inset-0 sm:inset-auto sm:bottom-6 sm:right-6 z-50 w-full sm:w-[430px] h-full sm:h-[620px] sm:max-h-[88vh] bg-white dark:bg-slate-900 rounded-none sm:rounded-3xl shadow-2xl border-0 sm:border sm:border-slate-200 dark:sm:border-slate-800 flex flex-col overflow-hidden animate-in fade-in sm:slide-in-from-bottom-4 duration-300">
           
           {/* Header Bar */}
-          <div className="p-3.5 bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white flex items-center justify-between border-b border-slate-800 shadow-xs">
+          <div className="p-3.5 bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white flex items-center justify-between border-b border-slate-800 shadow-xs shrink-0">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-xs">
                 <Bot className="w-4.5 h-4.5 text-white" />
@@ -1348,41 +1348,42 @@ Quy tắc bắt buộc:
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setIsOpen(false)}
-                className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
+                className="p-1.5 text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl transition-colors cursor-pointer flex items-center gap-1"
                 title="Đóng chat"
               >
+                <span className="text-[11px] font-medium sm:hidden">Đóng</span>
                 <X className="w-5 h-5" />
               </button>
             </div>
           </div>
 
+          {/* Pinned Quick Action & Prompt Bar (Cố định trên đầu, vuốt ngang 1 hàng không trôi) */}
+          <div className="shrink-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-3.5 py-2.5 border-b border-slate-200/90 dark:border-slate-800 flex items-center gap-2 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden shadow-2xs z-10">
+            <button
+              onClick={() => handleStartAdaptiveQuiz('c-104')}
+              className="shrink-0 px-3 py-1.5 text-[11px] font-black bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 text-white rounded-full hover:shadow-md hover:scale-102 active:scale-95 transition-all flex items-center gap-1.5 shadow-xs cursor-pointer border border-indigo-400/40 ring-2 ring-indigo-500/20"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
+              <span>📝 Làm bài test thích ứng</span>
+            </button>
+            {[
+              '📅 Lịch thi môn Java?',
+              '⚡ Tóm tắt Spring Security',
+              '💻 Mẫu SQL INNER JOIN',
+              '🎓 Lộ trình ôn tập'
+            ].map((chipText, i) => (
+              <button
+                key={i}
+                onClick={() => handleSend(chipText)}
+                className="shrink-0 px-2.5 py-1.5 text-[11px] font-semibold bg-slate-100/90 dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700 rounded-full text-slate-700 dark:text-slate-200 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-slate-700 transition-colors shadow-2xs cursor-pointer whitespace-nowrap"
+              >
+                {chipText}
+              </button>
+            ))}
+          </div>
+
           {/* Chat Messages List */}
           <div className="flex-1 p-3.5 overflow-y-auto space-y-3 bg-slate-50/50 dark:bg-slate-900/50">
-            
-            {/* Quick Prompt Chips */}
-            <div className="flex flex-wrap gap-1.5 pb-2 border-b border-slate-200 dark:border-slate-800">
-              <button
-                onClick={() => handleStartAdaptiveQuiz('c-104')}
-                className="px-2.5 py-1 text-[11px] font-black bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 text-white rounded-full hover:shadow-md hover:scale-102 active:scale-98 transition-all flex items-center gap-1 shadow-xs cursor-pointer border border-indigo-400/40"
-              >
-                <span>📝 Làm bài test thích ứng</span>
-              </button>
-              {[
-                '📅 Lịch thi môn Java?',
-                '⚡ Tóm tắt Spring Security',
-                '💻 Mẫu SQL INNER JOIN',
-                '🎓 Lộ trình ôn tập'
-              ].map((chipText, i) => (
-                <button
-                  key={i}
-                  onClick={() => handleSend(chipText)}
-                  className="px-2.5 py-1 text-[11px] font-semibold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full text-slate-600 dark:text-slate-300 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-slate-700 transition-colors shadow-2xs cursor-pointer"
-                >
-                  {chipText}
-                </button>
-              ))}
-            </div>
-
             {messages.map((msg) => (
               <div
                 key={msg.id}
@@ -1462,7 +1463,7 @@ Quy tắc bắt buộc:
           </div>
 
           {/* Footer Input Bar */}
-          <div className="p-3 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
+          <div className="p-3 sm:p-3.5 pb-5 sm:pb-3.5 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 shrink-0">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -1475,12 +1476,12 @@ Quy tắc bắt buộc:
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 placeholder="Hỏi OmniBrain AI về bài học, lịch thi..."
-                className="flex-1 px-3.5 py-2 text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-xl border border-transparent focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none transition-all placeholder:text-slate-400"
+                className="flex-1 px-3.5 py-2.5 sm:py-2 text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-xl border border-transparent focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none transition-all placeholder:text-slate-400"
               />
               <button
                 type="submit"
                 disabled={!inputText.trim()}
-                className="p-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:hover:bg-indigo-600 text-white rounded-xl transition-colors shadow-md shrink-0"
+                className="p-2.5 sm:p-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:hover:bg-indigo-600 text-white rounded-xl transition-colors shadow-md shrink-0 cursor-pointer"
               >
                 <Send className="w-4 h-4" />
               </button>
