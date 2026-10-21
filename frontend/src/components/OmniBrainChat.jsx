@@ -1,23 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { 
-  MessageSquare, X, Send, Shield, Sparkles, Cpu, Zap, Code, 
+  MessageSquare, X, Send, Bot, Shield, Sparkles, Cpu, Zap, Code, 
   BookOpen, AlertTriangle, User, Wand2, CheckCircle2, XCircle, Award, 
   RotateCcw, BarChart3, Target, ArrowRight 
 } from 'lucide-react';
-
-// ─── Custom Modern AI Celestial Star Logo (Gemini / Claude aesthetic) ────────
-const OmniBrainLogo = ({ className = "w-5 h-5" }) => (
-  <svg 
-    viewBox="0 0 24 24" 
-    fill="currentColor" 
-    className={className}
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path d="M12 2C12 7.52285 7.52285 12 2 12C7.52285 12 12 16.4771 12 22C12 16.4771 16.4771 12 22 12C16.4771 12 12 7.52285 12 2Z" />
-    <path d="M19 1C19 2.65685 17.6569 4 16 4C17.6569 4 19 5.34315 19 7C19 5.34315 20.3431 4 22 4C20.3431 4 19 2.65685 19 1Z" opacity="0.85" />
-    <path d="M5 18C5 19.1046 4.10457 20 3 20C4.10457 20 5 20.8954 5 22C5 20.8954 5.89543 20 7 20C5.89543 20 5 19.1046 5 18Z" opacity="0.75" />
-  </svg>
-);
 
 // ─── Adaptive Pedagogical Question Banks (5 Subjects) ────────────────────────
 const ADAPTIVE_QUIZ_BANKS = {
@@ -1325,11 +1311,11 @@ Quy tắc bắt buộc:
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-50 p-3.5 bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 text-white rounded-2xl shadow-xl hover:shadow-indigo-500/30 hover:scale-105 active:scale-95 transition-all flex items-center gap-2.5 group ring-4 ring-indigo-500/20"
+          className="fixed bottom-6 right-6 z-50 p-3.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2 group ring-4 ring-blue-500/20"
           title="Mở OmniBrain AI Platform Assistant"
         >
           <div className="relative flex items-center justify-center">
-            <OmniBrainLogo className="w-6 h-6 animate-pulse text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.7)]" />
+            <Bot className="w-6 h-6 animate-pulse text-white" />
             <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full ring-2 ring-indigo-600"></span>
           </div>
           <span className="font-bold text-xs pr-1 hidden sm:inline tracking-wide">OmniBrain AI</span>
@@ -1343,8 +1329,8 @@ Quy tắc bắt buộc:
           {/* Header Bar */}
           <div className="p-3.5 bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white flex items-center justify-between border-b border-slate-800 shadow-xs">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
-                <OmniBrainLogo className="w-4.5 h-4.5 text-white drop-shadow-[0_0_4px_rgba(255,255,255,0.8)]" />
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-xs">
+                <Bot className="w-4.5 h-4.5 text-white" />
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
@@ -1406,12 +1392,12 @@ Quy tắc bắt buộc:
                   <div className={`w-7 h-7 rounded-xl flex items-center justify-center text-white shrink-0 mt-0.5 shadow-xs ${
                     msg.isSecurityWarning 
                       ? 'bg-red-600' 
-                      : 'bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500'
+                      : 'bg-gradient-to-tr from-indigo-600 to-purple-600'
                   }`}>
                     {msg.isSecurityWarning ? (
                       <Shield className="w-3.5 h-3.5" />
                     ) : (
-                      <OmniBrainLogo className="w-4 h-4 text-white drop-shadow-[0_0_4px_rgba(255,255,255,0.6)]" />
+                      <Bot className="w-4 h-4 text-white" />
                     )}
                   </div>
                 )}
@@ -1462,8 +1448,8 @@ Quy tắc bắt buộc:
 
             {isTyping && (
               <div className="flex gap-2.5 justify-start">
-                <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 text-white flex items-center justify-center shrink-0 shadow-xs">
-                  <OmniBrainLogo className="w-4 h-4 text-white animate-pulse" />
+                <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                  <Bot className="w-4 h-4 animate-bounce text-white" />
                 </div>
                 <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl rounded-tl-xs p-3 text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 bg-indigo-600 rounded-full animate-ping"></span>
