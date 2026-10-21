@@ -111,6 +111,26 @@ npm install   # nếu chưa cài node_modules
 npm run dev   # Chạy dev server tại http://localhost:5173
 ```
 
+### 🌐 Đưa Hệ Thống Lên Mạng Internet (Public Cloudflare Tunnel)
+Để mở link public HTTPS cho toàn bộ hệ thống (Web + Backend + AI) ra ngoài Internet mà không cần mở port modem hay thuê VPS:
+```bash
+# Cách 1: Chạy file script 1-click tại thư mục gốc UniLMS
+d:\UniLMS\run_public_internet.bat
+
+# Cách 2: Chạy trực tiếp qua cloudflared CLI
+& "d:\UniLMS\tools\cloudflared.exe" tunnel --url http://localhost:5173
+```
+*Cơ chế Gateway thống nhất qua Vite Proxy*:
+* `http://localhost:5173/api` $\rightarrow$ Proxy tới Spring Boot Backend (Port 8080).
+* `http://localhost:5173/ai-gateway` $\rightarrow$ Proxy tới OmniBrain AI Orchestrator (Port 8000).
+* Chỉ cần mở 1 đường hầm Tunnel tới cổng 5173 là toàn bộ hệ thống (Web, DB, và Não AI Local Qwen/DeepSeek) chạy thông suốt trên Internet với chứng chỉ SSL HTTPS hoàn toàn miễn phí.
+
+### 🎓 Bộ Tài Liệu Bảo Vệ Đồ Án Capstone (Group 2 - Lê Hồng Sơn)
+Toàn bộ tài liệu chuẩn bị bảo vệ đồ án đã được khởi tạo hoàn tất tại `D:\Capstone-Project_latex\Bao_Ve_Do_An`:
+1. `Kich_Ban_Thuyet_Trinh_Capstone_Group2.docx`: Kịch bản thuyết trình chi tiết 13 phút (kèm hành động bấm slide và lời thoại).
+2. `So_Tay_Kien_Thuc_Co_Ban_Va_Bo_Cau_Hoi_Hoi_Dong.docx`: Sổ tay kiến thức từ căn bản (Token, RAG, 3NF, GGUF) đến bộ 15 câu hỏi phản biện của hội đồng.
+3. `Slide_Thuyet_Trinh_Capstone_Group2.pptx`: Slide thuyết trình chuẩn Samsung Innovation Campus (18 slide widescreen 16:9).
+
 ---
 
 ## 📝 4. Quy tắc lập trình & Lưu ý đối với AI Assistant
